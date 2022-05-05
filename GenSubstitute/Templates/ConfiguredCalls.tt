@@ -21,30 +21,48 @@ namespace GenSubstitute
             executeCallList.Add($"arg{i}");
         }
         
-        var generics = $"<{string.Join(", ", genericArgs)}{(i > 0 ? ", " : "")}TReturn>";
+        var funcGenerics = $"<{string.Join(", ", genericArgs)}{(i > 0 ? ", " : "")}TReturn>";
+        var actionGenerics = i > 0 ? $"<{string.Join(", ", genericArgs)}>" : "";
         var constructorArgs = string.Join(", ", constructorArgsList);
         var argsConstructorArgs = string.Join(", ", argsConstructorList);
         var executeArgs = string.Join(", ", executeArgsList);
         var executeCall = string.Join(", ", executeCallList);
 #>
-    public class ConfiguredFunc<#= generics #> : ConfiguredCall
+    public class ConfiguredFunc<#= funcGenerics #> : ConfiguredCall
     {
-        private Func<#= generics #> _execute;
+        private Func<#= funcGenerics #> _execute;
     
-        public ConfiguredFunc(<#= constructorArgs #>)
+        internal ConfiguredFunc(<#= constructorArgs #>)
             : base(new Args(<#= argsConstructorArgs #>), typeof(TReturn))
         {
         }
     
-        public void Returns(Func<#= generics #> execute)
+        public void Returns(Func<#= funcGenerics #> execute)
         {
             _execute = execute;
         }
 
-        public TReturn Execute(<#= executeArgs #>) =>
+        internal TReturn Execute(<#= executeArgs #>) =>
             _execute(<#= executeCall #>);
     }
 
+    public class ConfiguredAction<#= actionGenerics #> : ConfiguredCall
+    {
+        private Action<#= actionGenerics #> _execute;
+    
+        internal ConfiguredAction(<#= constructorArgs #>)
+            : base(new Args(<#= argsConstructorArgs #>), typeof(void))
+        {
+        }
+    
+        public void Returns(Action<#= actionGenerics #> execute)
+        {
+            _execute = execute;
+        }
+
+        internal void Execute(<#= executeArgs #>) =>
+            _execute(<#= executeCall #>);
+    }
 <#
     }
 #>

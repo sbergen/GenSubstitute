@@ -7,17 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="Templates\ConfiguredFunc.tt">
+      <None Update="Templates\ConfiguredCalls.tt">
         <Generator>TextTemplatingFileGenerator</Generator>
-        <LastGenOutput>ConfiguredFunc.cs</LastGenOutput>
+        <LastGenOutput>ConfiguredCalls.cs</LastGenOutput>
       </None>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Templates\ConfiguredFunc.cs">
+      <Compile Update="Templates\ConfiguredCalls.cs">
         <AutoGen>True</AutoGen>
         <DesignTime>True</DesignTime>
-        <DependentUpon>ConfiguredFunc.tt</DependentUpon>
+        <DependentUpon>ConfiguredCalls.tt</DependentUpon>
       </Compile>
     </ItemGroup>
 
