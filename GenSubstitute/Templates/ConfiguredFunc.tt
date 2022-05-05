@@ -1,0 +1,51 @@
+<#@ template language="C#" #>
+<#@ import namespace="System.Collections.Generic" #>
+using System;
+
+namespace GenSubstitute
+{
+<#
+    var genericArgs = new List<string>();
+    var constructorArgsList = new List<string>();
+    var argsConstructorList = new List<string>();
+    var executeArgsList = new List<string>();
+    var executeCallList = new List<string>();
+    for (var i = 0; i < 17; ++i)
+    {
+        if (i > 0)
+        {
+            genericArgs.Add($"TArg{i}");
+            constructorArgsList.Add($"Arg<TArg{i}> arg{i}");
+            argsConstructorList.Add($"arg{i}");
+            executeArgsList.Add($"TArg{i} arg{i}");
+            executeCallList.Add($"arg{i}");
+        }
+        
+        var generics = $"<{string.Join(", ", genericArgs)}{(i > 0 ? ", " : "")}TReturn>";
+        var constructorArgs = string.Join(", ", constructorArgsList);
+        var argsConstructorArgs = string.Join(", ", argsConstructorList);
+        var executeArgs = string.Join(", ", executeArgsList);
+        var executeCall = string.Join(", ", executeCallList);
+#>
+    public class ConfiguredFunc<#= generics #> : ConfiguredCall
+    {
+        private Func<#= generics #> _execute;
+    
+        public ConfiguredFunc(<#= constructorArgs #>)
+            : base(new Args(<#= argsConstructorArgs #>), typeof(TReturn))
+        {
+        }
+    
+        public void Returns(Func<#= generics #> execute)
+        {
+            _execute = execute;
+        }
+
+        public TReturn Execute(<#= executeArgs #>) =>
+            _execute(<#= executeCall #>);
+    }
+
+<#
+    }
+#>
+}

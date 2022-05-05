@@ -6,4 +6,19 @@
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Update="Templates\ConfiguredFunc.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>ConfiguredFunc.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Templates\ConfiguredFunc.cs">
+        <AutoGen>True</AutoGen>
+        <DesignTime>True</DesignTime>
+        <DependentUpon>ConfiguredFunc.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

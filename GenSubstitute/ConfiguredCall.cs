@@ -2,18 +2,18 @@ using System;
 
 namespace GenSubstitute
 {
-    internal abstract class ConfiguredCall
+    public abstract class ConfiguredCall
     {
-        public readonly Args Args;
+        private readonly Args _args;
         private readonly Type _returnType;
 
-        public ConfiguredCall(Args args, Type returnType)
+        private protected ConfiguredCall(Args args, Type returnType)
         {
-            Args = args;
+            _args = args;
             _returnType = returnType;
         }
 
-        public bool Matches(Type returnType, TypeValuePair[] args) =>
-            _returnType == returnType && Args.Matches(args);
+        internal bool Matches(Type returnType, TypeValuePair[] args) =>
+            _returnType == returnType && _args.Matches(args);
     }
 }
