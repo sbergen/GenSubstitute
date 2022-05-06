@@ -23,7 +23,23 @@ public static class DefaultHandlingTests
     public static void Default_MatchesDefaultValue_WithReferenceType()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(null).Returns(42);
+        builder.Method(default(object)).Returns(42);
         builder.Object.Method(null).Should().Be(42);
+    }
+    
+    [Fact]
+    public static void Default_DoesNotMatchNonDefaultValue_WithValueType()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        builder.Method(default(int)).Returns(42);
+        builder.Object.Method(1).Should().Be(0);
+    }
+    
+    [Fact]
+    public static void Default_DoesNotMatchNonDefaultValue_WithReferenceType()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        builder.Method(null).Returns(42);
+        builder.Object.Method(new object()).Should().Be(0);
     }
 }

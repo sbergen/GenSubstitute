@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using Xunit;
 
@@ -24,5 +25,30 @@ public static class ArgMatcherTests
         var builder = Gen.Substitute<ITestInterface>().Build();
         builder.Method(Arg<int>.When(i => i < 10)).Returns(10);
         builder.Object.Method(11).Should().Be(default);
+    }
+
+    [Fact]
+    public static void MultipleMatchers_CanBeUsedAtTheSameTime()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        builder.Method(Arg<int>.When(i => i < 0)).Returns(-1);
+        builder.Method(Arg<int>.When(i => i > 0)).Returns(1);
+
+        builder.Object.Method(-100).Should().Be(-1);
+        builder.Object.Method(-0).Should().Be(0);
+        builder.Object.Method(100).Should().Be(1);
+    }
+
+    [Fact]
+    public static void OverlappingMatchers_ThrowException_WhenInvoked()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        builder.Method(Arg<int>.When(i => i < 0)).Returns(-1);
+        builder.Method(Arg<int>.When(i => i < -10)).Returns(1);
+
+        Action ambiguousInvoke = () => builder.Object.Method(-20);
+
+        // TODO better type here
+        ambiguousInvoke.Should().Throw<Exception>();
     }
 }
