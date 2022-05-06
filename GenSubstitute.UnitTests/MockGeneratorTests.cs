@@ -17,6 +17,7 @@ interface IFoo
 {
     int Foo(int arg);
     void Bar(); 
+    T Generic<T>();
 }
 ");
 

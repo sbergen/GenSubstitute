@@ -20,7 +20,8 @@ namespace GenSubstitute.SourceGenerator
             {
                 var mocks = typesSyntaxToMock
                     .Select(syntax => TypeSymbolResolver.TryResolve(context, syntax))
-                    .Where(symbol => symbol != null)
+                    .Distinct(SymbolEqualityComparer.Default)
+                    .Cast<INamedTypeSymbol>()
                     .Select(symbol => new MockInfo(symbol))
                     .ToList();
                 

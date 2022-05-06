@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute", "GenSubstit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.Tests", "GenSubstitute.Tests\GenSubstitute.Tests.csproj", "{CEA2A7C7-BF1A-477F-9BE8-211369047C82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.UnitTests", "GenSubstitute.UnitTests\GenSubstitute.UnitTests.csproj", "{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{CEA2A7C7-BF1A-477F-9BE8-211369047C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEA2A7C7-BF1A-477F-9BE8-211369047C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEA2A7C7-BF1A-477F-9BE8-211369047C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

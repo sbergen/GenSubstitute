@@ -18,8 +18,14 @@ namespace GenSubstitute.SourceGenerator
             ReturnType = ReturnsVoid
                 ? "void"
                 : symbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            var generics = "";
+            if (symbol.IsGenericMethod)
+            {
+                generics = $"<{string.Join(", ", symbol.TypeParameters.Select(t => t.Name))}>";
+            }
             
-            Name = symbol.Name;
+            Name = symbol.Name + generics;
             Parameters = symbol.Parameters.Select(p => new MockParameterInfo(p)).ToList();
             
             // TODO, this is a bit sketchy!

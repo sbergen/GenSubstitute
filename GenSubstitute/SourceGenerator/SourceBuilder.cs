@@ -37,7 +37,7 @@ namespace GenSubstitute.SourceGenerator
         {
             foreach (var mock in mocks)
             {
-                _result.AppendLine($"   public sealed class {mock.BuilderTypeName}");
+                _result.AppendLine($"   internal sealed class {mock.BuilderTypeName}");
                 _result.AppendLine("    {");
                 _result.AppendLine($"      private class Implementation : {mock.MockedTypeName}");
                 _result.AppendLine("      {");
@@ -51,8 +51,9 @@ namespace GenSubstitute.SourceGenerator
                     var parameterNames = string.Join(", ", method.Parameters.Select(p => p.Name));
 
                     _result.AppendLine();
-                    _result.AppendLine($"        public {method.ReturnType} {method.Name}({parametersWithTypes}) => Calls");
-                    _result.AppendLine($"          .Get<{method.ConfiguredCallType}>(");
+                    _result.AppendLine($"        public {method.ReturnType} {method.Name}({parametersWithTypes})");
+                    _result.AppendLine("        {");
+                    _result.AppendLine($"          var call = Calls.Get<{method.ConfiguredCallType}>(");
                     _result.AppendLine($"            typeof({method.ReturnType}),");
                     _result.AppendLine("            new TypeValuePair[]");
                     _result.AppendLine("            {");
@@ -60,16 +61,19 @@ namespace GenSubstitute.SourceGenerator
                     {
                         _result.AppendLine($"              {nameof(TypeValuePair)}.Make({p.Name}),");
                     }
-                    _result.AppendLine("            })");
+                    _result.AppendLine("            });");
                     _result.AppendLine(method.ReturnsVoid
-                        ? $"          .Execute({parameterNames});"
-                        : $"          ?.Execute({parameterNames}) ?? default;");
+                        ? $"          call?.Execute({parameterNames});"
+                        : $"          return call != null ? call.Execute({parameterNames}) : default;");
+                    _result.AppendLine("        }");
                 }
                 
                 _result.AppendLine("      }");
 
                 _result.AppendLine();
                 _result.AppendLine("      private readonly Implementation _implementation = new();");
+                _result.AppendLine();
+                _result.AppendLine($"      public {mock.MockedTypeName} Object => _implementation;");
                 _result.AppendLine();
 
                 foreach (var method in mock.Methods)
@@ -81,7 +85,7 @@ namespace GenSubstitute.SourceGenerator
                     var parameterNames = string.Join(", ", method.Parameters.Select(p => p.Name));
                 
                     _result.AppendLine();
-                    _result.AppendLine($"      {method.ConfiguredCallType} {method.Name}({parametersWithTypes}) =>");
+                    _result.AppendLine($"      public {method.ConfiguredCallType} {method.Name}({parametersWithTypes}) =>");
                     _result.AppendLine($"        _implementation.Calls.Add(new {method.ConfiguredCallType}({parameterNames}));");
                 }
                 
