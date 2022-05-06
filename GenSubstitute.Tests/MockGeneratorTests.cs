@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 
 namespace GenSubstitute.Tests;
@@ -9,9 +10,14 @@ public class MockGeneratorTests
     {
         var generatedCode = GeneratorUtility.GenerateCode(@"
 using GenSubstitute;
-Gen.Substitute<IFoo>();
+
+var mock = Gen.Substitute<IFoo>().Configure();
+
+interface IFoo
+{
+}
 ");
-        
-        Assert.Contains("FOO", generatedCode);
+
+        generatedCode.ToString().Should().Contain("Configure");
     }
 }

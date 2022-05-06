@@ -1,4 +1,5 @@
 using System.Linq;
+using GenSubstitute.SourceGenerator;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
