@@ -12,6 +12,9 @@ namespace GenSubstitute
     {
         private readonly Func<T, bool> _matches;
         private Arg(Func<T, bool> matcher) => _matches = matcher;
+
+        public static readonly Arg<T> Default =
+            new(val => EqualityComparer<T>.Default.Equals(val, default));
         
         public static readonly Arg<T> Any = new (_ => true);
 

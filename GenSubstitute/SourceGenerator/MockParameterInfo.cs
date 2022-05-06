@@ -9,7 +9,8 @@ namespace GenSubstitute.SourceGenerator
         
         public MockParameterInfo(IParameterSymbol symbol)
         {
-            Type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            Type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                   + (symbol.NullableAnnotation == NullableAnnotation.Annotated ? "?" : "");
             Name = symbol.Name;
         }
     }

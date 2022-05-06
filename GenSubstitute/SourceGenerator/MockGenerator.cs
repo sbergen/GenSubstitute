@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -15,22 +16,30 @@ namespace GenSubstitute.SourceGenerator
 
         public void Execute(GeneratorExecutionContext context)
         {
-            var typesSyntaxToMock = ((SyntaxReceiver)context.SyntaxReceiver!).TypesToMock;
-            if (typesSyntaxToMock.Any())
+            try
             {
-                var mocks = typesSyntaxToMock
-                    .Select(syntax => TypeSymbolResolver.TryResolve(context, syntax))
-                    .Distinct(SymbolEqualityComparer.Default)
-                    .Cast<INamedTypeSymbol>()
-                    .Select(symbol => new MockInfo(symbol))
-                    .ToList();
+                var typesSyntaxToMock = ((SyntaxReceiver)context.SyntaxReceiver!).TypesToMock;
+                if (typesSyntaxToMock.Any())
+                {
+                    var mocks = typesSyntaxToMock
+                        .Select(syntax => TypeSymbolResolver.TryResolve(context, syntax))
+                        .Distinct(SymbolEqualityComparer.Default)
+                        .Cast<INamedTypeSymbol>()
+                        .Select(symbol => new MockInfo(symbol))
+                        .ToList();
                 
-                var builder = new SourceBuilder();
+                    var builder = new SourceBuilder();
                 
-                builder.GenerateGenExtensions(mocks);
-                builder.GenerateBuilders(mocks);
+                    builder.GenerateGenExtensions(mocks);
+                    builder.GenerateBuilders(mocks);
                 
-                context.AddSource(OutputFileName, builder.Complete());
+                    context.AddSource(OutputFileName, builder.Complete());
+                }
+            }
+            catch (Exception e)
+            {
+                // TODO, produce diagnostic, currently just working on a hunch...
+                Console.WriteLine(e);
             }
         }
     }

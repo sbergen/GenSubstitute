@@ -10,6 +10,7 @@ namespace GenSubstitute.SourceGenerator
 
         public SourceBuilder()
         {
+            _result.AppendLine("#nullable enable");
             _result.AppendLine("namespace GenSubstitute");
             _result.AppendLine("{");
         }
@@ -78,14 +79,14 @@ namespace GenSubstitute.SourceGenerator
 
                 foreach (var method in mock.Methods)
                 {
-                    var parametersWithTypes = string.Join(", ", method.Parameters
-                        .Select(p => $"Arg<{p.Type}> {p.Name}"));
+                    var argParameters = string.Join(", ", method.Parameters
+                        .Select(p => $"Arg<{p.Type}>? {p.Name}"));
                     
-                    // TODO duplication
-                    var parameterNames = string.Join(", ", method.Parameters.Select(p => p.Name));
+                    var parameterNames = string.Join(", ", method.Parameters
+                        .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
                 
                     _result.AppendLine();
-                    _result.AppendLine($"      public {method.ConfiguredCallType} {method.Name}({parametersWithTypes}) =>");
+                    _result.AppendLine($"      public {method.ConfiguredCallType} {method.Name}({argParameters}) =>");
                     _result.AppendLine($"        _implementation.Calls.Add(new {method.ConfiguredCallType}({parameterNames}));");
                 }
                 
