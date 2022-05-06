@@ -12,6 +12,16 @@ public static class ArgMatcherTests
     }
 
     [Fact]
+    public static void ValueAsArg_MatchesOnlyThatValue()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        builder.Method(10).Returns(10);
+        
+        builder.Object.Method(10).Should().Be(10);
+        builder.Object.Method(11).Should().Be(0);
+    }
+    
+    [Fact]
     public static void ArgMatcher_ConfiguresReturnValue_WhenItMatches()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
