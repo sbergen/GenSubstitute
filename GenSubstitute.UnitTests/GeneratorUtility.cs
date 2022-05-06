@@ -6,7 +6,7 @@ using GenSubstitute.SourceGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.UnitTests;
 
 internal static class GeneratorUtility
 {
@@ -23,7 +23,7 @@ internal static class GeneratorUtility
         .Select(file => MetadataReference.CreateFromFile(file))
         .ToArray();
     
-    public static SyntaxTree GenerateCode(string inputCode)
+    public static SyntaxTree AssertNoInspections(string inputCode)
     {
         var compilation = CreateCompilation(inputCode);
         var driver = CSharpGeneratorDriver.Create(new MockGenerator());

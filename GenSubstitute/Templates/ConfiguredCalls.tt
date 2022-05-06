@@ -31,19 +31,31 @@ namespace GenSubstitute
     public class ConfiguredFunc<#= funcGenerics #> : ConfiguredCall
     {
         private Func<#= funcGenerics #> _execute;
+        private TReturn _returnValue;
     
         public ConfiguredFunc(<#= constructorArgs #>)
             : base(new Args(<#= argsConstructorArgs #>), typeof(TReturn))
         {
         }
     
-        public void Returns(Func<#= funcGenerics #> execute)
+        public void Configure(Func<#= funcGenerics #> implementation)
         {
-            _execute = execute;
+            _execute = implementation;
+            _returnValue = default;
         }
 
-        public TReturn Execute(<#= executeArgs #>) =>
-            _execute(<#= executeCall #>);
+        public void Returns(TReturn value)
+        {
+            _execute = null;
+            _returnValue = value;
+        }
+
+        public TReturn Execute(<#= executeArgs #>)
+        {
+            return _execute != null
+                ? _execute(<#= executeCall #>)
+                : _returnValue;
+        }
     }
 
     public class ConfiguredAction<#= actionGenerics #> : ConfiguredCall
@@ -55,9 +67,9 @@ namespace GenSubstitute
         {
         }
     
-        public void Returns(Action<#= actionGenerics #> execute)
+        public void Configure(Action<#= actionGenerics #> implementation)
         {
-            _execute = execute;
+            _execute = implementation;
         }
 
         public void Execute(<#= executeArgs #>) =>

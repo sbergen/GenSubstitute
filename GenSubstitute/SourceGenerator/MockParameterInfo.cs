@@ -11,6 +11,6 @@ namespace GenSubstitute.SourceGenerator
         {
             Type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             Name = symbol.Name;
-;        }
+        }
     }
 }

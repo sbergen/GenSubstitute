@@ -3,7 +3,7 @@ using GenSubstitute.SourceGenerator;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.UnitTests;
 
 public class SyntaxReceiverTests
 {

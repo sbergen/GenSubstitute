@@ -64,7 +64,7 @@ namespace GenSubstitute.SourceGenerator
                     _result.AppendLine("            });");
                     _result.AppendLine(method.ReturnsVoid
                         ? $"          call?.Execute({parameterNames});"
-                        : $"          return call != null ? call.Execute({parameterNames}) : default;");
+                        : $"          return call != null ? call.Execute({parameterNames}) : default!;");
                     _result.AppendLine("        }");
                 }
                 
@@ -96,7 +96,7 @@ namespace GenSubstitute.SourceGenerator
         private void GenerateConfigureMethod(MockInfo mockInfo)
         {
             _result.AppendLine(
-                $"    public static {mockInfo.BuilderTypeName} Configure(this GenerateMarker<{mockInfo.MockedTypeName}> m) => new();");
+                $"    public static {mockInfo.BuilderTypeName} Build(this GenerateMarker<{mockInfo.MockedTypeName}> m) => new();");
         }
     }
 }

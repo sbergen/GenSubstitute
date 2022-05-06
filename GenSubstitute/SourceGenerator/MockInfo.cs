@@ -15,7 +15,7 @@ namespace GenSubstitute.SourceGenerator
 
             var nameValidForType = MockedTypeName
                 .Replace(".", "_")
-                .Replace("::", "_")
+                .Replace("global::", "")
                 .Replace("<", "_")
                 .Replace(">", "_");
             
