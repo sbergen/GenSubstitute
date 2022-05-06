@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace GenSubstitute
 {
-    internal class ConfiguredCalls
+    public class ConfiguredCalls
     {
         private readonly Dictionary<string, List<ConfiguredCall>> _calls = new();
     

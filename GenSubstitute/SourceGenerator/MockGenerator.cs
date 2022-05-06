@@ -27,6 +27,7 @@ namespace GenSubstitute.SourceGenerator
                 var builder = new SourceBuilder();
                 
                 builder.GenerateGenExtensions(mocks);
+                builder.GenerateBuilders(mocks);
                 
                 context.AddSource(OutputFileName, builder.Complete());
             }

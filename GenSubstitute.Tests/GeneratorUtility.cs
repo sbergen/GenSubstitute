@@ -35,7 +35,7 @@ internal static class GeneratorUtility
         diagnostics.Should().BeEmpty();
         outputCompilation.GetDiagnostics().Should()
             .BeEmpty(
-                "the combined code shouldn't have inspections:\n{0}\n\n{1}",
+                "the combined code shouldn't have inspections:\nInput code:\n{0}\n\nGenerated code:\n{1}",
                 AddLineNumbers(inputCode),
                 AddLineNumbers(generatedCode));
 

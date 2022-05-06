@@ -32,7 +32,7 @@ namespace GenSubstitute
     {
         private Func<#= funcGenerics #> _execute;
     
-        internal ConfiguredFunc(<#= constructorArgs #>)
+        public ConfiguredFunc(<#= constructorArgs #>)
             : base(new Args(<#= argsConstructorArgs #>), typeof(TReturn))
         {
         }
@@ -42,7 +42,7 @@ namespace GenSubstitute
             _execute = execute;
         }
 
-        internal TReturn Execute(<#= executeArgs #>) =>
+        public TReturn Execute(<#= executeArgs #>) =>
             _execute(<#= executeCall #>);
     }
 
@@ -50,7 +50,7 @@ namespace GenSubstitute
     {
         private Action<#= actionGenerics #> _execute;
     
-        internal ConfiguredAction(<#= constructorArgs #>)
+        public ConfiguredAction(<#= constructorArgs #>)
             : base(new Args(<#= argsConstructorArgs #>), typeof(void))
         {
         }
@@ -60,7 +60,7 @@ namespace GenSubstitute
             _execute = execute;
         }
 
-        internal void Execute(<#= executeArgs #>) =>
+        public void Execute(<#= executeArgs #>) =>
             _execute(<#= executeCall #>);
     }
 <#

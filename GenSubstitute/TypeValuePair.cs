@@ -2,7 +2,7 @@ using System;
 
 namespace GenSubstitute
 {
-    internal readonly struct TypeValuePair
+    public readonly struct TypeValuePair
     {
         public readonly Type Type;
         public readonly object Value;
