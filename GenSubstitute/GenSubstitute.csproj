@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <Nullable>disable</Nullable>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
@@ -19,6 +19,14 @@
         <DesignTime>True</DesignTime>
         <DependentUpon>ConfiguredCalls.tt</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
     </ItemGroup>
 
 </Project>

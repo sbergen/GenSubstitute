@@ -7,7 +7,7 @@ namespace GenSubstitute
         public readonly Type Type;
         public readonly object Value;
 
-        public TypeValuePair(Type type, object value)
+        private TypeValuePair(Type type, object value)
         {
             Type = type;
             Value = value;
