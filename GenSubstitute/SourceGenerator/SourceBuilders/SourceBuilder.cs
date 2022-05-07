@@ -40,6 +40,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             _builder.AppendLine(line);
         }
 
+        protected void EmptyLine() => _builder.AppendLine();
+
         protected IndentationScope Indent() => new(this);
 
         protected readonly struct IndentationScope : IDisposable

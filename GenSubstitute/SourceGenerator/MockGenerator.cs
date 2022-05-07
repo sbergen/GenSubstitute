@@ -9,9 +9,6 @@ namespace GenSubstitute.SourceGenerator
     [Generator]
     internal class MockGenerator : ISourceGenerator
     {
-        internal const string MocksFileName = "GenSubstituteMocks.cs";
-        internal const string ExtensionsFileName = "GenSubstitute_GeneratorMarkerExtensions.cs";
-        
         public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
@@ -25,7 +22,6 @@ namespace GenSubstitute.SourceGenerator
                 if (generateCalls.Any())
                 {
                     var extensionsBuilder = new GeneratorMarkerExtensionsBuilder();
-                    var mocksBuilder = new SourceBuilder();
                     var includedMocks = new HashSet<string>();
                     
                     foreach (var syntax in generateCalls)
@@ -45,12 +41,16 @@ namespace GenSubstitute.SourceGenerator
                             includedMocks.Add(mock.MockedTypeName);
                             
                             extensionsBuilder.AddGenerateMethod(mock);
-                            mocksBuilder.GenerateBuilder(mock);
+                            
+                            context.AddSource(
+                                $"{mock.BuilderTypeName}.cs",
+                                MockBuilder.BuildMock(mock));
                         }
                     }
                     
-                    context.AddSource(ExtensionsFileName, extensionsBuilder.GetResult());
-                    context.AddSource(MocksFileName, mocksBuilder.Complete());
+                    context.AddSource(
+                        "GenSubstitute_GeneratorMarkerExtensions.cs",
+                        extensionsBuilder.GetResult());
                 }
             }
             catch (Exception e)

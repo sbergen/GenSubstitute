@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -23,23 +24,39 @@ internal static class GeneratorUtility
         .Select(file => MetadataReference.CreateFromFile(file))
         .ToArray();
     
-    public static SyntaxTree AssertNoInspections(string inputCode)
+    public static void AssertNoInspections(string inputCode)
     {
         var compilation = CreateCompilation(inputCode);
         var driver = CSharpGeneratorDriver.Create(new MockGenerator());
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
-        var generatedCode = outputCompilation.SyntaxTrees
-            .Single(c => c.FilePath.Contains(MockGenerator.MocksFileName));
-        
         diagnostics.Should().BeEmpty();
         outputCompilation.GetDiagnostics().Should()
             .BeEmpty(
-                "the combined code shouldn't have inspections:\nInput code:\n{0}\n\nGenerated code:\n{1}",
-                AddLineNumbers(inputCode),
-                AddLineNumbers(generatedCode));
+                $"the combined code shouldn't have inspections:\n{BuildSourceOutput(outputCompilation.SyntaxTrees)}");
+    }
 
-        return generatedCode;
+    private static string BuildSourceOutput(IEnumerable<SyntaxTree> syntaxTrees)
+    {
+        var builder = new StringBuilder();
+
+        foreach (var syntaxTree in syntaxTrees)
+        {
+            builder.AppendLine(syntaxTree.FilePath);
+            builder.AppendLine("---");
+
+            foreach (var (line, index) in syntaxTree
+                .ToString()
+                .Split("\n")
+                .Select((l, i) => (l, i + 1)))
+            {
+                builder.AppendLine($"{index:000}: {line}");
+            }
+
+            builder.AppendLine();
+        }
+
+        return builder.ToString();
     }
 
     private static Compilation CreateCompilation(string sourceCode)
@@ -52,18 +69,5 @@ internal static class GeneratorUtility
             new[] { syntaxTree },
             References,
             options);
-    }
-
-    private static string AddLineNumbers(SyntaxTree tree) => AddLineNumbers(tree.ToString());
-
-    private static string AddLineNumbers(string code)
-    {
-        var builder = new StringBuilder();
-        foreach (var (line, index) in code.Split("\n").Select((l, i) => (l, i + 1)))
-        {
-            builder.AppendLine($"{index:000}: {line}");
-        }
-
-        return builder.ToString();
     }
 }

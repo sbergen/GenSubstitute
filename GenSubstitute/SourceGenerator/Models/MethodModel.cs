@@ -12,8 +12,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string ReturnType;
         public readonly string Name;
         public readonly ImmutableArray<ParameterModel> Parameters;
-        public readonly string ConfiguredCallType;
-        
+
         public MethodModel(IMethodSymbol symbol)
         {
             ReturnsVoid = symbol.ReturnType.SpecialType == SpecialType.System_Void;
@@ -30,7 +29,6 @@ namespace GenSubstitute.SourceGenerator.Models
 
             Parameters = parametersBuilder.ToImmutable();
             Name = BuildName(symbol);
-            ConfiguredCallType = MakeConfiguredCall(ReturnsVoid, ReturnType, Parameters);
         }
 
         public bool Equals(MethodModel other) =>
@@ -47,27 +45,6 @@ namespace GenSubstitute.SourceGenerator.Models
             }
             
             return symbol.Name + generics;
-        }
-        
-        private static string MakeConfiguredCall(
-            bool returnsVoid,
-            string returnType,
-            ImmutableArray<ParameterModel> parameters)
-        {
-            if (parameters.Length == 0 && returnsVoid)
-            {
-                return nameof(ConfiguredAction);
-            }
-            else
-            {
-                var callType = returnsVoid ? nameof(ConfiguredAction) : nameof(ConfiguredFunc<int>);
-                var parameterArguments = parameters.Select(p => p.Type);
-                var allArguments = returnsVoid
-                    ? parameterArguments
-                    : parameterArguments.Append(returnType);
-
-                return $"{callType}<{BuildList(allArguments)}>";
-            }
         }
     }
 }
