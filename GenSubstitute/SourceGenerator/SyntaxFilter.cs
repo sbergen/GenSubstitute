@@ -1,12 +1,12 @@
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace GenSubstitute.SourceGenerator
 {
-    // Model this to be compatible with incremental generators later
     internal static class SyntaxFilter
     {
-        public static bool IsSubstituteCall(SyntaxNode node) => node is
+        public static bool IsSubstituteCall(SyntaxNode node, CancellationToken ct) => node is
             InvocationExpressionSyntax
             {
                 Expression: MemberAccessExpressionSyntax

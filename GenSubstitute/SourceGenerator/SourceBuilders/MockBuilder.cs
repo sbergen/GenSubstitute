@@ -13,18 +13,20 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private MockBuilder(TypeModel model, string builderTypeName)
         {
+            var typeParameters = model.TypeParameters.IsEmpty ? "" : $"<{BuildList(model.TypeParameters)}>";
+
             AppendLine("internal static partial class GeneratorMarkerExtensions");
             AppendLine("{");
             using (Indent())
             {
                 AppendLine(
-                    $"public static {builderTypeName} Build(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
+                    $"public static {builderTypeName}{typeParameters} Build{typeParameters}(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
             }
             AppendLine("}");
             
             EmptyLine();
             
-            AppendLine($"internal sealed class {builderTypeName}");
+            AppendLine($"internal sealed class {builderTypeName}{typeParameters}");
             AppendLine("{");
             using (Indent())
             {

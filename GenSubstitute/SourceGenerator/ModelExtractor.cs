@@ -1,24 +1,22 @@
+using System.Linq;
 using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace GenSubstitute.SourceGenerator
 {
-    // Model this to be compatible with incremental generators later.
     internal static class ModelExtractor
     {
-        // The arguments are essentially what is contained in GeneratorSyntaxContext
-        public static TypeModel? ExtractMockModelFromSubstituteCall(
-            SyntaxNode node,
-            SemanticModel nodeModel,
-            CancellationToken cancellationToken)
+        public static TypeLookupInfo? ExtractTypeNameFromSubstituteCall(
+            GeneratorSyntaxContext context, CancellationToken cancellationToken)
         {
-            if (SyntaxFilter.ExtractTypeFromSubstituteCall(node) is {} typeSyntax)
+            if (SyntaxFilter.ExtractTypeFromSubstituteCall(context.Node) is {} typeSyntax)
             {
-                var semanticModel = nodeModel.Compilation.GetSemanticModel(typeSyntax.SyntaxTree);
+                var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(typeSyntax.SyntaxTree);
                 if (semanticModel.GetSymbolInfo(typeSyntax, cancellationToken).Symbol is INamedTypeSymbol typeSymbol)
                 {
-                    return new TypeModel(typeSymbol);
+                    return new TypeLookupInfo(typeSymbol);
                 }
                 else
                 {
@@ -28,6 +26,27 @@ namespace GenSubstitute.SourceGenerator
             }
             else
             {
+                return null;
+            }
+        }
+
+        public static TypeModel? ExtractModelFromCompilationAndName(
+            TypeLookupInfo typeInfo,
+            Compilation compilation,
+            CancellationToken cancellationToken)
+        {
+            var symbol = compilation
+                .GetSymbolsWithName(typeInfo.Name, SymbolFilter.Type, cancellationToken)
+                .OfType<INamedTypeSymbol>()
+                .SingleOrDefault(symbol => symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == typeInfo.FullyQualifiedName);
+            
+            if (symbol != null)
+            {
+                return new TypeModel(symbol);
+            }
+            else
+            {
+                // TODO diagnostic
                 return null;
             }
         }

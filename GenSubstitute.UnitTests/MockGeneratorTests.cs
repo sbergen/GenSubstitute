@@ -10,15 +10,18 @@ public class MockGeneratorTests
         GeneratorUtility.AssertNoInspections(@"
 using GenSubstitute;
 
-var builder = Gen.Substitute<IFoo>().Build();
-var builder2 = Gen.Substitute<IFoo>().Build();
+var builder = Gen.Substitute<IFoo<int>>().Build();
+var builder2 = Gen.Substitute<IFoo<int>>().Build();
 
-interface IFoo
+namespace GenSubstitute
+{
+interface IFoo<T>
 {
     int Foo(int arg);
     void Bar(); 
-    T Generic<T>();
+    T2 Generic<T2>();
     double MultipleArgs(int i1, int i2, int i3);
+}
 }
 ");
     }

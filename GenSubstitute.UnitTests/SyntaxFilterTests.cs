@@ -47,7 +47,7 @@ class TestClass
         
         public override void DefaultVisit(SyntaxNode node)
         {
-            if (SyntaxFilter.IsSubstituteCall(node))
+            if (SyntaxFilter.IsSubstituteCall(node, default))
             {
                 MatchingNodes.Add(node);
             }

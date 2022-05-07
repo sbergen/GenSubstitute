@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
+using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
 using GenSubstitute.SourceGenerator.SourceBuilders;
 using Microsoft.CodeAnalysis;
@@ -8,62 +8,65 @@ using Microsoft.CodeAnalysis;
 namespace GenSubstitute.SourceGenerator
 {
     [Generator]
-    internal class MockGenerator : ISourceGenerator
+    internal class MockGenerator : IIncrementalGenerator
     {
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-        }
+            var models = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    SyntaxFilter.IsSubstituteCall,
+                    ModelExtractor.ExtractTypeNameFromSubstituteCall)
+                .Collect()
+                .SelectMany(FilterNullsAndDuplicates)
+                .Combine(context.CompilationProvider)
+                .Select((data, ct) => ModelExtractor
+                    .ExtractModelFromCompilationAndName(data.Left, data.Right, ct));
 
-        public void Execute(GeneratorExecutionContext context)
-        {
-            try
+            context.RegisterSourceOutput(models, (spContext, maybeModel) =>
             {
-                var generateCalls = ((SyntaxReceiver)context.SyntaxReceiver!).GenerateCalls;
-                if (generateCalls.Any())
+                if (maybeModel is {} model)
                 {
-                    var includedMocks = new HashSet<string>();
-                    
-                    foreach (var syntax in generateCalls)
-                    {
-                        var maybeMock = ModelExtractor.ExtractMockModelFromSubstituteCall(
-                            syntax,
-                            context.Compilation.GetSemanticModel(syntax.SyntaxTree),
-                            context.CancellationToken);
-
-                        if (context.CancellationToken.IsCancellationRequested)
-                        {
-                            return;
-                        }
-
-                        if (maybeMock is {} mock && !includedMocks.Contains(mock.FullyQualifiedName))
-                        {
-                            includedMocks.Add(mock.FullyQualifiedName);
-
-                            var builderName = MakeBuilderName(mock);
-                            context.AddSource(
-                                $"{builderName}.cs",
-                                MockBuilder.BuildMock(mock, builderName));
-                        }
-                    }
+                    var builderName = MakeBuilderName(model);
+                    spContext.AddSource(
+                        $"{builderName}.cs",
+                        MockBuilder.BuildMock(model, builderName));
                 }
-            }
-            catch (Exception e)
-            {
-                // TODO, produce diagnostic, currently just working on a hunch...
-                Console.WriteLine(e);
-            }
+            });
         }
 
         private static string MakeBuilderName(TypeModel model)
         {
+            // TODO, build better names during aggregation?
             var nameValidForType = model.FullyQualifiedName
                 .Replace("global::", "")
                 .Replace(".", "_")
+                .Replace(",", "_")
                 .Replace("<", "_")
-                .Replace(">", "_");
+                .Replace(">", "");
 
             return $"{nameValidForType}_Builder";
+        }
+
+        private static IEnumerable<TypeLookupInfo> FilterNullsAndDuplicates(
+            ImmutableArray<TypeLookupInfo?> candidates,
+            CancellationToken cancellationToken)
+        {
+            var includedMocks = new HashSet<string>();
+
+            foreach (var maybeCandidate in candidates)
+            {
+                if (maybeCandidate is {} candidate &&
+                    !includedMocks.Contains(candidate.FullyQualifiedName))
+                {
+                    includedMocks.Add(candidate.FullyQualifiedName);
+                    yield return candidate;
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
+            }
         }
     }
 }

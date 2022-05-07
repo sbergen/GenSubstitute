@@ -21,7 +21,7 @@ namespace GenSubstitute.SourceGenerator.Models
                 ? "void"
                 : symbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            var parametersBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
+            var parametersBuilder = ImmutableArray.CreateBuilder<ParameterModel>(symbol.Parameters.Length);
             foreach (var parameter in symbol.Parameters)
             {
                 parametersBuilder.Add(new ParameterModel(parameter));
