@@ -19,7 +19,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("}");
         }
 
-        public void AddGenerateMethod(TypeModel model) => AppendLine(
-            $"public static {model.BuilderTypeName} Build(this GenerateMarker<{model.MockedTypeName}> m) => new();");
+        public void AddGenerateMethod(TypeModel model, string builderName) => AppendLine(
+            $"public static {builderName} Build(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
     }
 }

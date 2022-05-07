@@ -9,9 +9,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         private const string ImplementationClassName = "Implementation";
         private readonly IndentationScope _indent;
 
-        public static string BuildMock(TypeModel model)
+        public static string BuildMock(TypeModel model, string builderName)
         {
-            var builder = new MockBuilder(model.BuilderTypeName);
+            var builder = new MockBuilder(builderName);
             builder.Build(model);
             return builder.GetResult();
         }
@@ -34,7 +34,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var methods = model.Methods;
             var configuredCalls = methods.Select(MakeConfiguredCall).ToList();
             
-            AppendLine($"private class {ImplementationClassName} : {model.MockedTypeName}");
+            AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
             AppendLine("{");
             using (Indent())
             {
@@ -51,7 +51,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             EmptyLine();
             AppendLine($"private readonly {ImplementationClassName} _implementation = new();");
             EmptyLine();
-            AppendLine($"public {model.MockedTypeName} Object => _implementation;");
+            AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
             
             for (var i = 0; i < methods.Length; ++i)
             {

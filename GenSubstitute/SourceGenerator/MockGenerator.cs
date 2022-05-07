@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GenSubstitute.SourceGenerator.Models;
 using GenSubstitute.SourceGenerator.SourceBuilders;
 using Microsoft.CodeAnalysis;
 
@@ -36,15 +37,15 @@ namespace GenSubstitute.SourceGenerator
                             return;
                         }
 
-                        if (maybeMock is {} mock && !includedMocks.Contains(mock.MockedTypeName))
+                        if (maybeMock is {} mock && !includedMocks.Contains(mock.FullyQualifiedName))
                         {
-                            includedMocks.Add(mock.MockedTypeName);
-                            
-                            extensionsBuilder.AddGenerateMethod(mock);
-                            
+                            includedMocks.Add(mock.FullyQualifiedName);
+
+                            var builderName = MakeBuilderName(mock);
+                            extensionsBuilder.AddGenerateMethod(mock, builderName);
                             context.AddSource(
-                                $"{mock.BuilderTypeName}.cs",
-                                MockBuilder.BuildMock(mock));
+                                $"{builderName}.cs",
+                                MockBuilder.BuildMock(mock, builderName));
                         }
                     }
                     
@@ -58,6 +59,17 @@ namespace GenSubstitute.SourceGenerator
                 // TODO, produce diagnostic, currently just working on a hunch...
                 Console.WriteLine(e);
             }
+        }
+
+        private static string MakeBuilderName(TypeModel model)
+        {
+            var nameValidForType = model.FullyQualifiedName
+                .Replace("global::", "")
+                .Replace(".", "_")
+                .Replace("<", "_")
+                .Replace(">", "_");
+
+            return $"{nameValidForType}_Builder";
         }
     }
 }
