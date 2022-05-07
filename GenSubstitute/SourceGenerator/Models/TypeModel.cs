@@ -1,36 +1,39 @@
-using System.Collections.Generic;
+using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
-namespace GenSubstitute.SourceGenerator
+namespace GenSubstitute.SourceGenerator.Models
 {
-    internal sealed class MockInfo
+    internal readonly struct TypeModel : IEquatable<TypeModel>
     {
         public readonly string MockedTypeName;
         public readonly string BuilderTypeName;
-        public readonly IReadOnlyList<MockMethodInfo> Methods;
+        public readonly ImmutableArray<MethodModel> Methods;
 
-        public MockInfo(INamedTypeSymbol symbol)
+        public TypeModel(INamedTypeSymbol symbol)
         {
             MockedTypeName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             var nameValidForType = MockedTypeName
-                .Replace(".", "_")
                 .Replace("global::", "")
+                .Replace(".", "_")
                 .Replace("<", "_")
                 .Replace(">", "_");
             
             BuilderTypeName = $"{nameof(GenSubstitute)}_{nameValidForType}_Builder";
 
-            var methods = new List<MockMethodInfo>();
+            var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>();
             foreach (var member in symbol.GetMembers())
             {
                 if (member is IMethodSymbol methodSymbol)
                 {
-                    methods.Add(new MockMethodInfo(methodSymbol));
+                    methodsBuilder.Add(new MethodModel(methodSymbol));
                 }
             }
 
-            Methods = methods;
+            Methods = methodsBuilder.ToImmutable();
         }
+
+        public bool Equals(TypeModel other) => MockedTypeName == other.MockedTypeName;
     }
 }

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using GenSubstitute.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator
@@ -18,14 +20,15 @@ namespace GenSubstitute.SourceGenerator
         {
             try
             {
-                var typesSyntaxToMock = ((SyntaxReceiver)context.SyntaxReceiver!).TypesToMock;
-                if (typesSyntaxToMock.Any())
+                var generateCalls = ((SyntaxReceiver)context.SyntaxReceiver!).GenerateCalls;
+                if (generateCalls.Any())
                 {
-                    var mocks = typesSyntaxToMock
-                        .Select(syntax => TypeSymbolResolver.TryResolve(context, syntax))
-                        .Distinct(SymbolEqualityComparer.Default)
-                        .Cast<INamedTypeSymbol>()
-                        .Select(symbol => new MockInfo(symbol))
+                    var mocks = generateCalls
+                        .Select(syntax => ModelExtractor.ExtractMockModelFromSubstituteCall(
+                            syntax, context.Compilation.GetSemanticModel(syntax.SyntaxTree)))
+                        .Where(model => model != null)
+                        .Select(m => m.Value)
+                        .Distinct(EqualityComparer<TypeModel>.Default)
                         .ToList();
                 
                     var builder = new SourceBuilder();

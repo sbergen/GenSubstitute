@@ -11,6 +11,7 @@ public class MockGeneratorTests
 using GenSubstitute;
 
 var builder = Gen.Substitute<IFoo>().Build();
+var builder2 = Gen.Substitute<IFoo>().Build();
 
 interface IFoo
 {
