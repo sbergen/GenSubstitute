@@ -11,7 +11,7 @@ namespace GenSubstitute.SourceGenerator
         public static TypeModel? ExtractMockModelFromSubstituteCall(
             SyntaxNode node,
             SemanticModel nodeModel,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
             if (SyntaxFilter.ExtractTypeFromSubstituteCall(node) is {} typeSyntax)
             {

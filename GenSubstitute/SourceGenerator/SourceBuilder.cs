@@ -35,64 +35,63 @@ namespace GenSubstitute.SourceGenerator
             _result.AppendLine("  }");
         }
 
-        public void GenerateBuilders(IEnumerable<TypeModel> mocks)
+        public void GenerateBuilder(TypeModel mock)
         {
-            foreach (var mock in mocks)
+            _result.AppendLine($"   internal sealed class {mock.BuilderTypeName}");
+            _result.AppendLine("    {");
+            _result.AppendLine($"      private class Implementation : {mock.MockedTypeName}");
+            _result.AppendLine("      {");
+            _result.AppendLine("        public readonly ConfiguredCalls Calls = new();");
+
+            foreach (var method in mock.Methods)
             {
-                _result.AppendLine($"   internal sealed class {mock.BuilderTypeName}");
-                _result.AppendLine("    {");
-                _result.AppendLine($"      private class Implementation : {mock.MockedTypeName}");
-                _result.AppendLine("      {");
-                _result.AppendLine("        public readonly ConfiguredCalls Calls = new();");
+                var parametersWithTypes = string.Join(", ", method.Parameters
+                    .Select(p => $"{p.Type} {p.Name}"));
 
-                foreach (var method in mock.Methods)
+                var parameterNames = string.Join(", ", method.Parameters.Select(p => p.Name));
+
+                _result.AppendLine();
+                _result.AppendLine($"        public {method.ReturnType} {method.Name}({parametersWithTypes})");
+                _result.AppendLine("        {");
+                _result.AppendLine($"          var call = Calls.Get<{method.ConfiguredCallType}>(");
+                _result.AppendLine($"            typeof({method.ReturnType}),");
+                _result.AppendLine("            new TypeValuePair[]");
+                _result.AppendLine("            {");
+                foreach (var p in method.Parameters)
                 {
-                    var parametersWithTypes = string.Join(", ", method.Parameters
-                        .Select(p => $"{p.Type} {p.Name}"));
-                    
-                    var parameterNames = string.Join(", ", method.Parameters.Select(p => p.Name));
-
-                    _result.AppendLine();
-                    _result.AppendLine($"        public {method.ReturnType} {method.Name}({parametersWithTypes})");
-                    _result.AppendLine("        {");
-                    _result.AppendLine($"          var call = Calls.Get<{method.ConfiguredCallType}>(");
-                    _result.AppendLine($"            typeof({method.ReturnType}),");
-                    _result.AppendLine("            new TypeValuePair[]");
-                    _result.AppendLine("            {");
-                    foreach (var p in method.Parameters)
-                    {
-                        _result.AppendLine($"              {nameof(TypeValuePair)}.Make({p.Name}),");
-                    }
-                    _result.AppendLine("            });");
-                    _result.AppendLine(method.ReturnsVoid
-                        ? $"          call?.Execute({parameterNames});"
-                        : $"          return call != null ? call.Execute({parameterNames}) : default!;");
-                    _result.AppendLine("        }");
+                    _result.AppendLine($"              {nameof(TypeValuePair)}.Make({p.Name}),");
                 }
-                
-                _result.AppendLine("      }");
 
-                _result.AppendLine();
-                _result.AppendLine("      private readonly Implementation _implementation = new();");
-                _result.AppendLine();
-                _result.AppendLine($"      public {mock.MockedTypeName} Object => _implementation;");
-                _result.AppendLine();
-
-                foreach (var method in mock.Methods)
-                {
-                    var argParameters = string.Join(", ", method.Parameters
-                        .Select(p => $"Arg<{p.Type}>? {p.Name}"));
-                    
-                    var parameterNames = string.Join(", ", method.Parameters
-                        .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
-                
-                    _result.AppendLine();
-                    _result.AppendLine($"      public {method.ConfiguredCallType} {method.Name}({argParameters}) =>");
-                    _result.AppendLine($"        _implementation.Calls.Add(new {method.ConfiguredCallType}({parameterNames}));");
-                }
-                
-                _result.AppendLine("    }");
+                _result.AppendLine("            });");
+                _result.AppendLine(method.ReturnsVoid
+                    ? $"          call?.Execute({parameterNames});"
+                    : $"          return call != null ? call.Execute({parameterNames}) : default!;");
+                _result.AppendLine("        }");
             }
+
+            _result.AppendLine("      }");
+
+            _result.AppendLine();
+            _result.AppendLine("      private readonly Implementation _implementation = new();");
+            _result.AppendLine();
+            _result.AppendLine($"      public {mock.MockedTypeName} Object => _implementation;");
+            _result.AppendLine();
+
+            foreach (var method in mock.Methods)
+            {
+                var argParameters = string.Join(", ", method.Parameters
+                    .Select(p => $"Arg<{p.Type}>? {p.Name}"));
+
+                var parameterNames = string.Join(", ", method.Parameters
+                    .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
+
+                _result.AppendLine();
+                _result.AppendLine($"      public {method.ConfiguredCallType} {method.Name}({argParameters}) =>");
+                _result.AppendLine(
+                    $"        _implementation.Calls.Add(new {method.ConfiguredCallType}({parameterNames}));");
+            }
+
+            _result.AppendLine("    }");
         }
 
         private void GenerateConfigureMethod(TypeModel typeModel)

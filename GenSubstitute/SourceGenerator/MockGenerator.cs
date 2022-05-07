@@ -23,19 +23,41 @@ namespace GenSubstitute.SourceGenerator
                 var generateCalls = ((SyntaxReceiver)context.SyntaxReceiver!).GenerateCalls;
                 if (generateCalls.Any())
                 {
-                    var mocks = generateCalls
-                        .Select(syntax => ModelExtractor.ExtractMockModelFromSubstituteCall(
-                            syntax, context.Compilation.GetSemanticModel(syntax.SyntaxTree)))
-                        .Where(model => model != null)
-                        .Select(m => m.Value)
-                        .Distinct(EqualityComparer<TypeModel>.Default)
-                        .ToList();
-                
+                    var mocks = new List<TypeModel>();
+                    var includedMocks = new HashSet<string>();
+                    foreach (var syntax in generateCalls)
+                    {
+                        var mock = ModelExtractor.ExtractMockModelFromSubstituteCall(
+                            syntax,
+                            context.Compilation.GetSemanticModel(syntax.SyntaxTree),
+                            context.CancellationToken);
+
+                        if (context.CancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
+                        if (mock != null && !includedMocks.Contains(mock.Value.MockedTypeName))
+                        {
+                            includedMocks.Add(mock.Value.MockedTypeName);
+                            mocks.Add(mock.Value);
+                        }
+                    }
+
                     var builder = new SourceBuilder();
                 
                     builder.GenerateGenExtensions(mocks);
-                    builder.GenerateBuilders(mocks);
-                
+
+                    foreach (var mock in mocks)
+                    {
+                        if (context.CancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        
+                        builder.GenerateBuilder(mock);
+                    }
+
                     context.AddSource(OutputFileName, builder.Complete());
                 }
             }
