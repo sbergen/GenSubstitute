@@ -26,25 +26,11 @@ namespace GenSubstitute.SourceGenerator
             {
                 if (maybeModel is {} model)
                 {
-                    var builderName = MakeBuilderName(model);
                     spContext.AddSource(
-                        $"{builderName}.cs",
-                        MockBuilder.BuildMock(model, builderName));
+                        $"{model.BuilderTypeName}.cs",
+                        MockBuilder.BuildMock(model));
                 }
             });
-        }
-
-        private static string MakeBuilderName(TypeModel model)
-        {
-            // TODO, build better names during aggregation?
-            var nameValidForType = model.FullyQualifiedName
-                .Replace("global::", "")
-                .Replace(".", "_")
-                .Replace(",", "_")
-                .Replace("<", "_")
-                .Replace(">", "");
-
-            return $"{nameValidForType}_Builder";
         }
 
         private static IEnumerable<TypeLookupInfo> FilterNullsAndDuplicates(
@@ -62,10 +48,7 @@ namespace GenSubstitute.SourceGenerator
                     yield return candidate;
                 }
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    yield break;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
             }
         }
     }

@@ -8,13 +8,15 @@ namespace GenSubstitute.SourceGenerator.Models
     internal readonly struct TypeModel : IEquatable<TypeModel>
     {
         public readonly string FullyQualifiedName;
+        public readonly string BuilderTypeName;
         public readonly ImmutableArray<string> TypeParameters;
         public readonly ImmutableArray<MethodModel> Methods;
 
         public TypeModel(INamedTypeSymbol symbol)
         {
             FullyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
+            BuilderTypeName = MakeBuilderName(symbol);
+            
             var members = symbol.GetMembers();
             var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>(members.Length);
             foreach (var member in members)
@@ -39,5 +41,13 @@ namespace GenSubstitute.SourceGenerator.Models
         public bool Equals(TypeModel other) =>
             FullyQualifiedName == other.FullyQualifiedName &&
             Methods.SequenceEqual(other.Methods);
+
+        private static string MakeBuilderName(INamedTypeSymbol symbol) => string.Join(
+            "_",
+            symbol
+                .ToDisplayParts()
+                .TakeWhile(s => s.ToString() != "<")
+                .Where(s => s.Kind != SymbolDisplayPartKind.Punctuation)
+                .Append(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, "Builder")));
     }
 }

@@ -8,10 +8,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     {
         private const string ImplementationClassName = "Implementation";
 
-        public static string BuildMock(TypeModel model, string builderName) =>
-            new MockBuilder(model, builderName).GetResult();
+        public static string BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
 
-        private MockBuilder(TypeModel model, string builderTypeName)
+        private MockBuilder(TypeModel model)
         {
             var typeParameters = model.TypeParameters.IsEmpty ? "" : $"<{BuildList(model.TypeParameters)}>";
 
@@ -20,13 +19,13 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             using (Indent())
             {
                 AppendLine(
-                    $"public static {builderTypeName}{typeParameters} Build{typeParameters}(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
+                    $"public static {model.BuilderTypeName}{typeParameters} Build{typeParameters}(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
             }
             AppendLine("}");
             
             EmptyLine();
             
-            AppendLine($"internal sealed class {builderTypeName}{typeParameters}");
+            AppendLine($"internal sealed class {model.BuilderTypeName}{typeParameters}");
             AppendLine("{");
             using (Indent())
             {
