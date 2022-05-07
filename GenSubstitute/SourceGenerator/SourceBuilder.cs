@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GenSubstitute.SourceGenerator.Models;
@@ -20,19 +19,6 @@ namespace GenSubstitute.SourceGenerator
         {
             _result.AppendLine("}");
             return _result.ToString();
-        }
-
-        public void GenerateGenExtensions(IEnumerable<TypeModel> mocks)
-        {
-            _result.AppendLine("  internal static class GenExtensions");
-            _result.AppendLine("  {");
-
-            foreach (var mock in mocks)
-            {
-                GenerateConfigureMethod(mock);
-            }
-            
-            _result.AppendLine("  }");
         }
 
         public void GenerateBuilder(TypeModel mock)
@@ -92,12 +78,6 @@ namespace GenSubstitute.SourceGenerator
             }
 
             _result.AppendLine("    }");
-        }
-
-        private void GenerateConfigureMethod(TypeModel typeModel)
-        {
-            _result.AppendLine(
-                $"    public static {typeModel.BuilderTypeName} Build(this GenerateMarker<{typeModel.MockedTypeName}> m) => new();");
         }
     }
 }

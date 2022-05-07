@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GenSubstitute.SourceGenerator.Models;
+using GenSubstitute.SourceGenerator.SourceBuilders;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator
@@ -9,7 +9,8 @@ namespace GenSubstitute.SourceGenerator
     [Generator]
     internal class MockGenerator : ISourceGenerator
     {
-        internal const string OutputFileName = "GenSubstituteMocks.cs";
+        internal const string MocksFileName = "GenSubstituteMocks.cs";
+        internal const string ExtensionsFileName = "GenSubstitute_GeneratorMarkerExtensions.cs";
         
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -23,11 +24,13 @@ namespace GenSubstitute.SourceGenerator
                 var generateCalls = ((SyntaxReceiver)context.SyntaxReceiver!).GenerateCalls;
                 if (generateCalls.Any())
                 {
-                    var mocks = new List<TypeModel>();
+                    var extensionsBuilder = new GeneratorMarkerExtensionsBuilder();
+                    var mocksBuilder = new SourceBuilder();
                     var includedMocks = new HashSet<string>();
+                    
                     foreach (var syntax in generateCalls)
                     {
-                        var mock = ModelExtractor.ExtractMockModelFromSubstituteCall(
+                        var maybeMock = ModelExtractor.ExtractMockModelFromSubstituteCall(
                             syntax,
                             context.Compilation.GetSemanticModel(syntax.SyntaxTree),
                             context.CancellationToken);
@@ -37,28 +40,17 @@ namespace GenSubstitute.SourceGenerator
                             return;
                         }
 
-                        if (mock != null && !includedMocks.Contains(mock.Value.MockedTypeName))
+                        if (maybeMock is {} mock && !includedMocks.Contains(mock.MockedTypeName))
                         {
-                            includedMocks.Add(mock.Value.MockedTypeName);
-                            mocks.Add(mock.Value);
+                            includedMocks.Add(mock.MockedTypeName);
+                            
+                            extensionsBuilder.AddGenerateMethod(mock);
+                            mocksBuilder.GenerateBuilder(mock);
                         }
                     }
-
-                    var builder = new SourceBuilder();
-                
-                    builder.GenerateGenExtensions(mocks);
-
-                    foreach (var mock in mocks)
-                    {
-                        if (context.CancellationToken.IsCancellationRequested)
-                        {
-                            return;
-                        }
-                        
-                        builder.GenerateBuilder(mock);
-                    }
-
-                    context.AddSource(OutputFileName, builder.Complete());
+                    
+                    context.AddSource(ExtensionsFileName, extensionsBuilder.GetResult());
+                    context.AddSource(MocksFileName, mocksBuilder.Complete());
                 }
             }
             catch (Exception e)

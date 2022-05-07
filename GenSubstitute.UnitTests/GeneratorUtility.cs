@@ -30,7 +30,7 @@ internal static class GeneratorUtility
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
         var generatedCode = outputCompilation.SyntaxTrees
-            .Single(c => c.FilePath.Contains(MockGenerator.OutputFileName));
+            .Single(c => c.FilePath.Contains(MockGenerator.MocksFileName));
         
         diagnostics.Should().BeEmpty();
         outputCompilation.GetDiagnostics().Should()

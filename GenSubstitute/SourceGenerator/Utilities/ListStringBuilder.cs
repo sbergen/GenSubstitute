@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace GenSubstitute.SourceGenerator
+namespace GenSubstitute.SourceGenerator.Utilities
 {
     internal static class ListStringBuilder
     {
