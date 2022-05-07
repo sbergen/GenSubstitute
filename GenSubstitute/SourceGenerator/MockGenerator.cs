@@ -22,7 +22,6 @@ namespace GenSubstitute.SourceGenerator
                 var generateCalls = ((SyntaxReceiver)context.SyntaxReceiver!).GenerateCalls;
                 if (generateCalls.Any())
                 {
-                    var extensionsBuilder = new GeneratorMarkerExtensionsBuilder();
                     var includedMocks = new HashSet<string>();
                     
                     foreach (var syntax in generateCalls)
@@ -42,16 +41,11 @@ namespace GenSubstitute.SourceGenerator
                             includedMocks.Add(mock.FullyQualifiedName);
 
                             var builderName = MakeBuilderName(mock);
-                            extensionsBuilder.AddGenerateMethod(mock, builderName);
                             context.AddSource(
                                 $"{builderName}.cs",
                                 MockBuilder.BuildMock(mock, builderName));
                         }
                     }
-                    
-                    context.AddSource(
-                        "GenSubstitute_GeneratorMarkerExtensions.cs",
-                        extensionsBuilder.GetResult());
                 }
             }
             catch (Exception e)

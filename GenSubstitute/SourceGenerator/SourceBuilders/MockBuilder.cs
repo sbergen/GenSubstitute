@@ -7,29 +7,33 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     internal class MockBuilder : SourceBuilder
     {
         private const string ImplementationClassName = "Implementation";
-        private readonly IndentationScope _indent;
 
-        public static string BuildMock(TypeModel model, string builderName)
-        {
-            var builder = new MockBuilder(builderName);
-            builder.Build(model);
-            return builder.GetResult();
-        }
+        public static string BuildMock(TypeModel model, string builderName) =>
+            new MockBuilder(model, builderName).GetResult();
 
-        private MockBuilder(string builderTypeName)
+        private MockBuilder(TypeModel model, string builderTypeName)
         {
+            AppendLine("internal static partial class GeneratorMarkerExtensions");
+            AppendLine("{");
+            using (Indent())
+            {
+                AppendLine(
+                    $"public static {builderTypeName} Build(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
+            }
+            AppendLine("}");
+            
+            EmptyLine();
+            
             AppendLine($"internal sealed class {builderTypeName}");
             AppendLine("{");
-            _indent = Indent();
-        }
-
-        protected override void GenerateEnd()
-        {
-            _indent.Dispose();
+            using (Indent())
+            {
+                BuildBuilderContents(model);
+            }
             AppendLine("}");
         }
 
-        private void Build(TypeModel model)
+        private void BuildBuilderContents(TypeModel model)
         {
             var methods = model.Methods;
             var configuredCalls = methods.Select(MakeConfiguredCall).ToList();

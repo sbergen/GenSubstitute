@@ -16,8 +16,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             ++_indentation;
         }
 
-        protected abstract void GenerateEnd();
-        
         public string GetResult()
         {
             if (_builder == null)
@@ -25,7 +23,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 throw new InvalidOperationException($"{GetType().Name} result already used!");
             }
             
-            GenerateEnd();
             --_indentation;
             _builder.AppendLine("}");
             
