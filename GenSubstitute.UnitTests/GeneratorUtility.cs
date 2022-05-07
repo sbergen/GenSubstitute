@@ -27,7 +27,7 @@ internal static class GeneratorUtility
     public static void AssertNoInspections(string inputCode)
     {
         var compilation = CreateCompilation(inputCode);
-        var driver = CSharpGeneratorDriver.Create(new MockGenerator());
+        var driver = CSharpGeneratorDriver.Create(new GenSubstituteGenerator());
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
         diagnostics.Should().BeEmpty();

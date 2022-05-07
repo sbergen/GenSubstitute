@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 namespace GenSubstitute.SourceGenerator
 {
     [Generator]
-    internal class MockGenerator : IIncrementalGenerator
+    internal class GenSubstituteGenerator : IIncrementalGenerator
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
