@@ -71,6 +71,7 @@ namespace GenSubstitute
 <#= argMembers #>
         private Func<#= funcGenerics #>? _execute;
         private TReturn? _returnValue;
+        private bool _isConfigured;
 
 <#
         if (constructorArgs.Length > 0)
@@ -84,27 +85,47 @@ namespace GenSubstitute
         }#>
         public void Configure(Func<#= funcGenerics #> implementation)
         {
+            ThrowIfConfigured();
             _execute = implementation;
-            _returnValue = default;
         }
 
         public void Returns(TReturn value)
         {
-            _execute = null;
+            ThrowIfConfigured();
             _returnValue = value;
         }
 
-        public TReturn Execute(<#= executeArgs #>) => (_execute, _returnValue) switch
+        public TReturn Execute(<#= executeArgs #>)
         {
-            ({ } execute, _) => execute(<#= executeCall #>),
-            (_, { } returnValue) => returnValue,
-            _ => throw new InvalidOperationException("Method call was not fully configured!"),
-        };
+            if (!_isConfigured)
+            {
+                throw new InvalidOperationException("Method call was not fully configured");
+            }
+            
+            if (_execute != null)
+            {
+                return _execute(<#= executeCall #>);
+            }
+            else
+            {
+                return _returnValue!;
+            }
+        }
 
         public bool Matches(IReceivedCall call) =>
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(TReturn)
 <#= callArgMatcher #>;
+
+        private void ThrowIfConfigured()
+        {
+            if (_isConfigured)
+            {
+                throw new InvalidOperationException("Method call was already configured");
+            }
+
+            _isConfigured = true;
+        }
     }
 
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
@@ -124,11 +145,25 @@ namespace GenSubstitute
         }#>
         public void Configure(Action<#= actionGenerics #> implementation)
         {
+            if (_execute != null)
+            {
+                throw new InvalidOperationException("Method call was already configured");
+            }
+
             _execute = implementation;
         }
 
-        public void Execute(<#= executeArgs #>) =>
-            _execute?.Invoke(<#= executeCall #>);
+        public void Execute(<#= executeArgs #>)
+        {
+            if (_execute != null)
+            {
+                _execute(<#= executeCall #>);
+            }
+            else
+            {
+                throw new InvalidOperationException("Method call was not fully configured");
+            }
+        }
 
         public bool Matches(IReceivedCall call) =>
             call is ReceivedCall<#= actionGenerics #> c
