@@ -15,6 +15,7 @@ namespace GenSubstitute
     var ctorBodyList = new List<string>();
     var receivedCtorBodyList = new List<string>();
     var callArgMatchList = new List<string>();
+    var argMemberNamesList = new List<string>();
     
     for (var i = 0; i < 17; ++i)
     {
@@ -29,6 +30,7 @@ namespace GenSubstitute
             ctorBodyList.Add($"            _arg{i} = arg{i};");
             receivedCtorBodyList.Add($"            Arg{i} = arg{i};");
             callArgMatchList.Add($"            && _arg{i}.Matches(c.Arg{i})");
+            argMemberNamesList.Add($"Arg{i}");
         }
         
         // <TArg, ..., TReturn>
@@ -65,6 +67,9 @@ namespace GenSubstitute
         // && _arg1.Matches(c.Arg1)
         // ...
         var callArgMatcher = string.Join("\n", callArgMatchList);
+        
+        // Arg1, ...
+        var argMemberNames = string.Join(", ", argMemberNamesList);
 #>
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
@@ -173,13 +178,15 @@ namespace GenSubstitute
 
     public class ReceivedCall<#= actionGenerics #> : IReceivedCall
     {
-        public readonly Type ReturnType;
+        public Type ReturnType { get; }
 <#= valueMembers #>
         public ReceivedCall(Type returnType<#= executeArgs.Length == 0 ? "" : ", " #><#= executeArgs #>)
         {
             ReturnType = returnType;
 <#= receivedCtorBody #>
         }
+
+        public object?[] GetArguments() => new object?[] { <#= argMemberNames #> };
     }
 
 <#

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
@@ -7,6 +8,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     internal class MockBuilder : SourceBuilder
     {
         private const string ImplementationClassName = "Implementation";
+        private const string ReceivedCallClassName = "ReceivedCallsData";
 
         public static string BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
 
@@ -36,16 +38,21 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
+            // Cache reused info (could iterate methods only once to maybe optimize?)
             var methods = model.Methods;
             var configuredCalls = methods.Select(MakeConfiguredCall).ToList();
             var generics = methods.Select(m => new GenericSpecifiers(m)).ToList();
+            var argLists = methods.Select(m => new ArgLists(m)).ToList();
             
             AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
             AppendLine("{");
             using (Indent())
             {
-                AppendLine("public readonly ConfiguredCalls Calls = new();");
-
+                AppendLine($"public readonly {nameof(ConfiguredCalls)} ConfiguredCalls = new();");
+                AppendLine($"public readonly {nameof(ReceivedCalls)} _receivedCalls;");
+                EmptyLine();
+                AppendLine($"internal {ImplementationClassName}({nameof(ReceivedCalls)} receivedCalls) => _receivedCalls = receivedCalls;");
+                
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
@@ -54,15 +61,42 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
             AppendLine("}");
             
+            AppendLine($"public class {ReceivedCallClassName}");
+            AppendLine("{");
+            using (Indent())
+            {
+                AppendLine($"private readonly {nameof(ReceivedCalls)} _calls;");
+                EmptyLine();
+                AppendLine($"internal {ReceivedCallClassName}({nameof(ReceivedCalls)} calls) => _calls = calls;");
+                
+                for (var i = 0; i < methods.Length; ++i)
+                {
+                    EmptyLine();
+                    BuildReceivedCallsMethod(methods[i], configuredCalls[i], generics[i], argLists[i]);
+                }
+            }
+            AppendLine("}");
+            
             EmptyLine();
-            AppendLine($"private readonly {ImplementationClassName} _implementation = new();");
+            AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
+            AppendLine($"private readonly {ImplementationClassName} _implementation;");
             EmptyLine();
             AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
+            AppendLine($"public {ReceivedCallClassName} Received {{ get; }}");
+            
+            AppendLine($"internal {model.BuilderTypeName}()");
+            AppendLine("{");
+            using (Indent())
+            {
+                AppendLine("_implementation = new(_receivedCalls);");
+                AppendLine("Received = new(_receivedCalls);");
+            }
+            AppendLine("}");
             
             for (var i = 0; i < methods.Length; ++i)
             {
                 EmptyLine();
-                BuildConfigureMethod(methods[i], configuredCalls[i], generics[i]);
+                BuildConfigureMethod(methods[i], configuredCalls[i], generics[i], argLists[i]);
             }
         }
 
@@ -86,7 +120,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             using (Indent())
             {
                 AppendLine($"var receivedCall = new {receivedCallType}({receivedCallConstructorArgs});");
-                AppendLine($"var call = Calls.Get<{configuredCallType}>($\"{method.Name}{generics.FullNames}\", receivedCall);");
+                AppendLine($"_receivedCalls.Add($\"{method.Name}{generics.FullNames}\", receivedCall);");
+                AppendLine($"var call = ConfiguredCalls.Get<{configuredCallType}>($\"{method.Name}{generics.FullNames}\", receivedCall);");
 
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
@@ -95,18 +130,30 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("}");
         }
 
-        private void BuildConfigureMethod(MethodModel method, string configuredCallType, GenericSpecifiers generics)
+        private void BuildConfigureMethod(
+            MethodModel method,
+            string configuredCallType,
+            GenericSpecifiers generics,
+            ArgLists argLists)
         {
-            var argParameters = BuildList(method.Parameters
-                .Select(p => $"Arg<{p.Type}>? {p.Name}"));
-
-            var parameterNames = BuildList(method.Parameters
-                .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
-            
-            AppendLine($"public {configuredCallType} {method.Name}{generics.GenericNames}({argParameters}) =>");
+            AppendLine($"public {configuredCallType} {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_implementation.Calls.Add($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({parameterNames}));");
+                AppendLine($"_implementation.ConfiguredCalls.Add($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
+            }
+        }
+        
+        private void BuildReceivedCallsMethod(
+            MethodModel method,
+            string configuredCallType,
+            GenericSpecifiers generics,
+            ArgLists argLists)
+        {
+            // The next line is identical to configure methods, maybe optimize?
+            AppendLine($"public {nameof(IReadOnlyList<ReceivedCallInfo>)}<{nameof(ReceivedCallInfo)}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
+            using (Indent())
+            {
+                AppendLine($"_calls.GetMatching($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
             }
         }
 
@@ -128,12 +175,15 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
         }
         
+        // Caches string used in multiple places
         private readonly struct GenericSpecifiers
         {
+            // E.g. "<T1, T2>"
             public readonly string GenericNames;
+            
+            // E.g. "<{typeof(T1).FullName}, {typeof(T2).FullName}>
             public readonly string FullNames;
-            
-            
+
             public GenericSpecifiers(MethodModel method)
             {
                 if (method.GenericParameterNames.Length == 0)
@@ -149,6 +199,25 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                         .Select(p => $"{{typeof({p}).FullName}}");
                     FullNames = $"<{BuildList(fullNames)}>";
                 }
+            }
+        }
+
+        // Caches string used in multiple places
+        private readonly struct ArgLists
+        {
+            // E.g. "Arg<int>? intArg, Arg<double>? doubleArg"
+            public readonly string ArgParameters;
+
+            // E.g. "intArg ?? Arg<int>.Default, doubleArg ?? Arg<double>.Default"
+            public readonly string SafeParameterNames;
+
+            public ArgLists(MethodModel method)
+            {
+                ArgParameters = BuildList(method.Parameters
+                    .Select(p => $"Arg<{p.Type}>? {p.Name}"));
+                
+                SafeParameterNames = BuildList(method.Parameters
+                    .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
             }
         }
     }

@@ -1,7 +1,10 @@
+using System;
+
 namespace GenSubstitute
 {
     public interface IReceivedCall
     {
-        // Currently just a "tag" interface
+        Type ReturnType { get; }
+        object?[] GetArguments();
     }
 }

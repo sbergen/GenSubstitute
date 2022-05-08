@@ -10,9 +10,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         protected SourceBuilder()
         {
-            _builder.AppendLine("#nullable enable");
-            _builder.AppendLine("namespace GenSubstitute");
-            _builder.AppendLine("{");
+            AppendLine("#nullable enable");
+            EmptyLine();
+            AppendLine("using System.Collections.Generic;");
+            EmptyLine();
+            AppendLine("namespace GenSubstitute");
+            AppendLine("{");
             ++_indentation;
         }
 
@@ -24,7 +27,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
             
             --_indentation;
-            _builder.AppendLine("}");
+            AppendLine("}");
             
             var result = _builder.ToString();
             _builder = null!;

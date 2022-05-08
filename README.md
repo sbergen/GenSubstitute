@@ -16,7 +16,6 @@ GenSubstitute is a C# source generator based mocking library.
 
 ## TODO
 - Write a proper REAMDE :)
-- Support call logging, hopefully assertions can use your assertion framework of choice!
 - Support properties
 - Proper diagnostics for errors
 - ref and out?

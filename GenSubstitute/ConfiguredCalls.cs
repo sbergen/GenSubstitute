@@ -1,26 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GenSubstitute.Utilities;
 
 namespace GenSubstitute
 {
+    /// <summary>
+    /// Keeps track of configured calls, only intended for internal use
+    /// (TODO, move to Internal namespace?)
+    /// </summary>
     public class ConfiguredCalls
     {
         private readonly Dictionary<string, List<IConfiguredCall>> _calls = new();
     
         public T Add<T>(string methodName, T call)
-            where T : IConfiguredCall
+            where T : class, IConfiguredCall
         {
-            if (_calls.TryGetValue(methodName, out var values))
-            {
-                values.Add(call);
-            }
-            else
-            {
-                values = new List<IConfiguredCall> { call };
-                _calls.Add(methodName, values);
-            }
-
+            _calls.AddToList(methodName, call);
             return call;
         }
 
