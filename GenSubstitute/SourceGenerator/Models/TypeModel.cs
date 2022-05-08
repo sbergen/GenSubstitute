@@ -17,15 +17,8 @@ namespace GenSubstitute.SourceGenerator.Models
             FullyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             BuilderTypeName = MakeBuilderName(symbol);
             
-            var members = symbol.GetMembers();
-            var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>(members.Length);
-            foreach (var member in members)
-            {
-                if (member is IMethodSymbol methodSymbol)
-                {
-                    methodsBuilder.Add(new MethodModel(methodSymbol));
-                }
-            }
+            var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>();
+            GatherAllMethods(symbol, methodsBuilder);
 
             var typeParametersBuilder = ImmutableArray.CreateBuilder<string>(symbol.TypeParameters.Length);
             foreach (var typeParameter in symbol.TypeParameters)
@@ -49,5 +42,27 @@ namespace GenSubstitute.SourceGenerator.Models
                 .TakeWhile(s => s.ToString() != "<")
                 .Where(s => s.Kind != SymbolDisplayPartKind.Punctuation)
                 .Append(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, "Builder")));
+
+        private static void GatherAllMethods(
+            INamedTypeSymbol symbol,
+            ImmutableArray<MethodModel>.Builder builder)
+        {
+            static void AddMembers(INamedTypeSymbol type, ImmutableArray<MethodModel>.Builder builder)
+            {
+                foreach (var member in type.GetMembers())
+                {
+                    if (member is IMethodSymbol methodSymbol)
+                    {
+                        builder.Add(new MethodModel(methodSymbol));
+                    }
+                }
+            }
+            
+            AddMembers(symbol, builder);
+            foreach (var iface in symbol.AllInterfaces)
+            {
+                AddMembers(iface, builder);
+            }
+        }
     }
 }
