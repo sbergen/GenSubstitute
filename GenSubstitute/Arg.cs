@@ -3,15 +3,22 @@ using System.Collections.Generic;
 
 namespace GenSubstitute
 {
+    public abstract class Arg
+    {
+        public static readonly AnyArg Any = new();
+    }
+    
     public class Arg<T>
     {
         private readonly Func<T, bool> _matches;
         private Arg(Func<T, bool> matcher) => _matches = matcher;
 
+        public static readonly Arg<T> Any = new (_ => true);
+        
+        public static implicit operator Arg<T>(AnyArg any) => Any;
+
         public static readonly Arg<T> Default =
             new(val => EqualityComparer<T>.Default.Equals(val, default));
-        
-        public static readonly Arg<T> Any = new (_ => true);
 
         public static Arg<T> When(Func<T, bool> matcher) => new(matcher);
 
