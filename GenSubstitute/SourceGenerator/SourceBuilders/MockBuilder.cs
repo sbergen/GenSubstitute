@@ -118,16 +118,16 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
-                ? $"typeof({method.ReturnType})"
-                : $"typeof({method.ReturnType}), {parameterNames}";
+                ? $"{generics.ResolvedMethodName}, typeof({method.ReturnType})"
+                : $"{generics.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
             
             AppendLine($"public {method.ReturnType} {method.Name}{generics.GenericNames}({parametersWithTypes})");
             AppendLine("{");
             using (Indent())
             {
                 AppendLine($"var receivedCall = new {receivedCallType}({receivedCallConstructorArgs});");
-                AppendLine($"_receivedCalls.Add($\"{method.Name}{generics.FullNames}\", receivedCall);");
-                AppendLine($"var call = ConfiguredCalls.Get<{configuredCallType}>($\"{method.Name}{generics.FullNames}\", receivedCall);");
+                AppendLine("_receivedCalls.Add(receivedCall);");
+                AppendLine($"var call = ConfiguredCalls.Get<{configuredCallType}>({generics.ResolvedMethodName}, receivedCall);");
 
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
@@ -145,7 +145,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine($"public {configuredCallType} {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_implementation.ConfiguredCalls.Add($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
+                AppendLine($"_implementation.ConfiguredCalls.Add({generics.ResolvedMethodName}, new {configuredCallType}({argLists.SafeParameterNames}));");
             }
         }
         
@@ -160,7 +160,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine($"public {nameof(IReadOnlyList<bool>)}<{receivedCallType}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_calls.GetMatching<{receivedCallType}>($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
+                AppendLine($"_calls.GetMatching<{receivedCallType}>({generics.ResolvedMethodName}, new {configuredCallType}({argLists.SafeParameterNames}));");
             }
         }
 
@@ -185,18 +185,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         // Caches string used in multiple places
         private readonly struct GenericSpecifiers
         {
-            // E.g. "<T1, T2>"
+            // E.g. <T1, T2>
             public readonly string GenericNames;
             
-            // E.g. "<{typeof(T1).FullName}, {typeof(T2).FullName}>
-            public readonly string FullNames;
+            // E.g. $"SomeMethod<{typeof(T1).FullName}, {typeof(T2).FullName}>
+            public readonly string ResolvedMethodName;
 
             public GenericSpecifiers(MethodModel method)
             {
                 if (method.GenericParameterNames.Length == 0)
                 {
                     GenericNames = "";
-                    FullNames = "";
+                    ResolvedMethodName = $"\"{method.Name}\"";
                 }
                 else
                 {
@@ -204,7 +204,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     
                     var fullNames = method.GenericParameterNames
                         .Select(p => $"{{typeof({p}).FullName}}");
-                    FullNames = $"<{BuildList(fullNames)}>";
+                    ResolvedMethodName = $"$\"{method.Name}<{BuildList(fullNames)}>\"";
                 }
             }
         }

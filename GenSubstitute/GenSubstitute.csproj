@@ -17,12 +17,7 @@
       <Compile Update="Templates\Calls.cs">
         <AutoGen>True</AutoGen>
         <DesignTime>True</DesignTime>
-        <DependentUpon>ConfiguredCalls.tt</DependentUpon>
-      </Compile>
-      <Compile Update="Templates\ConfiguredCalls.cs">
-        <AutoGen>True</AutoGen>
-        <DesignTime>True</DesignTime>
-        <DependentUpon>ConfiguredCalls.tt</DependentUpon>
+        <DependentUpon>Calls.tt</DependentUpon>
       </Compile>
     </ItemGroup>
 

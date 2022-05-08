@@ -13,7 +13,7 @@ namespace GenSubstitute
     {
         private readonly Dictionary<string, List<IReceivedCall>> _calls = new();
 
-        public void Add(string methodName, IReceivedCall call) => _calls.AddToList(methodName, call);
+        public void Add(IReceivedCall call) => _calls.AddToList(call.MethodName, call);
 
         // Note: reusing IConfiguredCall here for convenience,
         // not sure if this should use a distinct type or base type?
