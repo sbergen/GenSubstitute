@@ -2,7 +2,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.Models
 {
@@ -11,6 +10,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly bool ReturnsVoid;
         public readonly string ReturnType;
         public readonly string Name;
+        public readonly ImmutableArray<string> GenericParameterNames;
         public readonly ImmutableArray<ParameterModel> Parameters;
 
         public MethodModel(IMethodSymbol symbol)
@@ -28,23 +28,16 @@ namespace GenSubstitute.SourceGenerator.Models
             }
 
             Parameters = parametersBuilder.ToImmutable();
-            Name = BuildName(symbol);
+            Name = symbol.Name;
+            GenericParameterNames = symbol.IsGenericMethod
+                ? ImmutableArray.CreateRange(symbol.TypeParameters.Select(t => t.Name))
+                : ImmutableArray<string>.Empty;
         }
 
         public bool Equals(MethodModel other) =>
             Name == other.Name &&
             ReturnType == other.ReturnType &&
+            GenericParameterNames.SequenceEqual(other.GenericParameterNames) &&
             Parameters.SequenceEqual(other.Parameters);
-
-        private static string BuildName(IMethodSymbol symbol)
-        {
-            var generics = "";
-            if (symbol.IsGenericMethod)
-            {
-                generics = $"<{BuildList(symbol.TypeParameters.Select(t => t.Name))}>";
-            }
-            
-            return symbol.Name + generics;
-        }
     }
 }

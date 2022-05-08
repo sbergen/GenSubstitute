@@ -38,6 +38,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         {
             var methods = model.Methods;
             var configuredCalls = methods.Select(MakeConfiguredCall).ToList();
+            var generics = methods.Select(m => new GenericSpecifiers(m)).ToList();
             
             AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
             AppendLine("{");
@@ -48,7 +49,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
-                    BuildImplementationMethod(methods[i], configuredCalls[i]);
+                    BuildImplementationMethod(methods[i], configuredCalls[i], generics[i]);
                 }
             }
             AppendLine("}");
@@ -61,11 +62,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             for (var i = 0; i < methods.Length; ++i)
             {
                 EmptyLine();
-                BuildConfigureMethod(methods[i], configuredCalls[i]);
+                BuildConfigureMethod(methods[i], configuredCalls[i], generics[i]);
             }
         }
 
-        private void BuildImplementationMethod(MethodModel method, string configuredCallType)
+        private void BuildImplementationMethod(MethodModel method, string configuredCallType, GenericSpecifiers generics)
         {
             var parametersWithTypes = BuildList(
                 method.Parameters
@@ -80,12 +81,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 ? $"typeof({method.ReturnType})"
                 : $"typeof({method.ReturnType}), {parameterNames}";
             
-            AppendLine($"public {method.ReturnType} {method.Name}({parametersWithTypes})");
+            AppendLine($"public {method.ReturnType} {method.Name}{generics.GenericNames}({parametersWithTypes})");
             AppendLine("{");
             using (Indent())
             {
                 AppendLine($"var receivedCall = new {receivedCallType}({receivedCallConstructorArgs});");
-                AppendLine($"var call = Calls.Get<{configuredCallType}>(\"{method.Name}\", receivedCall);");
+                AppendLine($"var call = Calls.Get<{configuredCallType}>($\"{method.Name}{generics.FullNames}\", receivedCall);");
 
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
@@ -94,7 +95,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("}");
         }
 
-        private void BuildConfigureMethod(MethodModel method, string configuredCallType)
+        private void BuildConfigureMethod(MethodModel method, string configuredCallType, GenericSpecifiers generics)
         {
             var argParameters = BuildList(method.Parameters
                 .Select(p => $"Arg<{p.Type}>? {p.Name}"));
@@ -102,10 +103,10 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var parameterNames = BuildList(method.Parameters
                 .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
             
-            AppendLine($"public {configuredCallType} {method.Name}({argParameters}) =>");
+            AppendLine($"public {configuredCallType} {method.Name}{generics.GenericNames}({argParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_implementation.Calls.Add(\"{method.Name}\", new {configuredCallType}({parameterNames}));");
+                AppendLine($"_implementation.Calls.Add($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({parameterNames}));");
             }
         }
 
@@ -124,6 +125,30 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     : parameterArguments.Append(method.ReturnType);
 
                 return $"{callType}<{BuildList(allArguments)}>";
+            }
+        }
+        
+        private readonly struct GenericSpecifiers
+        {
+            public readonly string GenericNames;
+            public readonly string FullNames;
+            
+            
+            public GenericSpecifiers(MethodModel method)
+            {
+                if (method.GenericParameterNames.Length == 0)
+                {
+                    GenericNames = "";
+                    FullNames = "";
+                }
+                else
+                {
+                    GenericNames = $"<{BuildList(method.GenericParameterNames)}>";
+                    
+                    var fullNames = method.GenericParameterNames
+                        .Select(p => $"{{typeof({p}).FullName}}");
+                    FullNames = $"<{BuildList(fullNames)}>";
+                }
             }
         }
     }
