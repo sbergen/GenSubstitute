@@ -6,10 +6,10 @@ namespace GenSubstitute
 {
     public class ConfiguredCalls
     {
-        private readonly Dictionary<string, List<ConfiguredCall>> _calls = new();
+        private readonly Dictionary<string, List<IConfiguredCall>> _calls = new();
     
         public T Add<T>(string methodName, T call)
-            where T : ConfiguredCall
+            where T : IConfiguredCall
         {
             if (_calls.TryGetValue(methodName, out var values))
             {
@@ -17,20 +17,20 @@ namespace GenSubstitute
             }
             else
             {
-                values = new List<ConfiguredCall> { call };
+                values = new List<IConfiguredCall> { call };
                 _calls.Add(methodName!, values);
             }
 
             return call;
         }
 
-        public T Get<T>(string methodName, Type returnType, TypeValuePair[] args)
-            where T : ConfiguredCall
+        public T Get<T>(string methodName, IReceivedCall receivedCall)
+            where T : class, IConfiguredCall
         {
             if (_calls.TryGetValue(methodName, out var values))
             {
                 var matches = values
-                    .Where(c => c.Matches(returnType, args))
+                    .Where(c => c.Matches(receivedCall))
                     .ToList();
             
                 return matches.Count switch

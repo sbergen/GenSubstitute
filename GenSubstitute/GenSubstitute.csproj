@@ -19,6 +19,11 @@
         <DesignTime>True</DesignTime>
         <DependentUpon>ConfiguredCalls.tt</DependentUpon>
       </Compile>
+      <Compile Update="Templates\ConfiguredCalls.cs">
+        <AutoGen>True</AutoGen>
+        <DesignTime>True</DesignTime>
+        <DependentUpon>ConfiguredCalls.tt</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

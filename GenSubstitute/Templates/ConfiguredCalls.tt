@@ -5,37 +5,76 @@ using System;
 namespace GenSubstitute
 {
 <#
+    // These are here mostly because T4 doesn't support Linq :(
     var genericArgs = new List<string>();
     var constructorArgsList = new List<string>();
-    var argsConstructorList = new List<string>();
+    var argMembersList = new List<string>();
+    var valueMembersList = new List<string>();
     var executeArgsList = new List<string>();
     var executeCallList = new List<string>();
+    var ctorBodyList = new List<string>();
+    var receivedCtorBodyList = new List<string>();
+    var callArgMatchList = new List<string>();
+    
     for (var i = 0; i < 17; ++i)
     {
         if (i > 0)
         {
             genericArgs.Add($"TArg{i}");
             constructorArgsList.Add($"Arg<TArg{i}> arg{i}");
-            argsConstructorList.Add($"arg{i}");
+            argMembersList.Add($"        private readonly Arg<TArg{i}> _arg{i};");
+            valueMembersList.Add($"        public readonly TArg{i} Arg{i};");
             executeArgsList.Add($"TArg{i} arg{i}");
             executeCallList.Add($"arg{i}");
+            ctorBodyList.Add($"            _arg{i} = arg{i};");
+            receivedCtorBodyList.Add($"            Arg{i} = arg{i};");
+            callArgMatchList.Add($"            && _arg{i}.Matches(c.Arg{i})");
         }
         
+        // <TArg, ..., TReturn>
         var funcGenerics = $"<{string.Join(", ", genericArgs)}{(i > 0 ? ", " : "")}TReturn>";
+        
+        // <TArg, ...>
         var actionGenerics = i > 0 ? $"<{string.Join(", ", genericArgs)}>" : "";
+        
+        // Arg<T1> arg1, ... 
         var constructorArgs = string.Join(", ", constructorArgsList);
-        var argsConstructorArgs = string.Join(", ", argsConstructorList);
+        
+        // private readonly Arg<T1> _arg1; 
+        // ...
+        var argMembers = string.Join("\n", argMembersList);
+        
+        // public readonly T1 Arg1; 
+        // ...
+        var valueMembers = string.Join("\n", valueMembersList);
+
+        // TArg1 arg1, ...
         var executeArgs = string.Join(", ", executeArgsList);
+        
+        // arg1, ...
         var executeCall = string.Join(", ", executeCallList);
+        
+        // _arg1 = arg1;
+        // ...
+        var constructorBody = string.Join("\n", ctorBodyList);
+        
+        // Arg1 = arg1;
+        // ...
+        var receivedCtorBody = string.Join("\n", receivedCtorBodyList);
+        
+        // && _arg1.Matches(c.Arg1)
+        // ...
+        var callArgMatcher = string.Join("\n", callArgMatchList);
 #>
-    public class ConfiguredFunc<#= funcGenerics #> : ConfiguredCall
+    public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
+<#= argMembers #>
         private Func<#= funcGenerics #> _execute;
         private TReturn _returnValue;
     
         public ConfiguredFunc(<#= constructorArgs #>)
-            : base(new Args(<#= argsConstructorArgs #>), typeof(TReturn))
         {
+<#= constructorBody #>
         }
     
         public void Configure(Func<#= funcGenerics #> implementation)
@@ -56,15 +95,21 @@ namespace GenSubstitute
                 ? _execute(<#= executeCall #>)
                 : _returnValue;
         }
+
+        public bool Matches(IReceivedCall call) =>
+            call is ReceivedCall<#= actionGenerics #> c
+            && c.ReturnType == typeof(TReturn)
+<#= callArgMatcher #>;
     }
 
-    public class ConfiguredAction<#= actionGenerics #> : ConfiguredCall
+    public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
     {
+<#= argMembers #>
         private Action<#= actionGenerics #> _execute;
     
         public ConfiguredAction(<#= constructorArgs #>)
-            : base(new Args(<#= argsConstructorArgs #>), typeof(void))
         {
+<#= constructorBody #>
         }
     
         public void Configure(Action<#= actionGenerics #> implementation)
@@ -74,7 +119,25 @@ namespace GenSubstitute
 
         public void Execute(<#= executeArgs #>) =>
             _execute(<#= executeCall #>);
+
+        public bool Matches(IReceivedCall call) =>
+            call is ReceivedCall<#= actionGenerics #> c
+            && c.ReturnType == typeof(void)
+<#= callArgMatcher #>;
     }
+
+    public class ReceivedCall<#= actionGenerics #> : IReceivedCall
+    {
+        public readonly Type ReturnType;
+<#= valueMembers #>
+
+        public ReceivedCall(Type returnType<#= executeArgs.Length == 0 ? "" : ", " #><#= executeArgs #>)
+        {
+            ReturnType = returnType;
+<#= receivedCtorBody #>
+        }
+    }
+
 <#
     }
 #>

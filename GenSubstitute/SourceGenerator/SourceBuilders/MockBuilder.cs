@@ -72,28 +72,21 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 .Select(p => $"{p.Type} {p.Name}"));
 
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
+            var receivedCallType = method.Parameters.Length == 0
+                ? "ReceivedCall"
+                : $"ReceivedCall<{BuildList(method.Parameters.Select(p => p.Type))}>";
+
+            var receivedCallConstructorArgs = method.Parameters.Length == 0
+                ? $"typeof({method.ReturnType})"
+                : $"typeof({method.ReturnType}), {parameterNames}";
             
             AppendLine($"public {method.ReturnType} {method.Name}({parametersWithTypes})");
             AppendLine("{");
             using (Indent())
             {
-                AppendLine($"var call = Calls.Get<{configuredCallType}>(");
-                using (Indent())
-                {
-                    AppendLine($"\"{method.Name}\",");
-                    AppendLine($"typeof({method.ReturnType}),");
-                    AppendLine("new TypeValuePair[]");
-                    AppendLine("{");
-                    using (Indent())
-                    {
-                        foreach (var p in method.Parameters)
-                        {
-                            AppendLine($"{nameof(TypeValuePair)}.Make({p.Name}),");
-                        }
-                    }
-                    AppendLine("});");
-                }
-                
+                AppendLine($"var receivedCall = new {receivedCallType}({receivedCallConstructorArgs});");
+                AppendLine($"var call = Calls.Get<{configuredCallType}>(\"{method.Name}\", receivedCall);");
+
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
                     : $"return call != null ? call.Execute({parameterNames}) : default!;");
