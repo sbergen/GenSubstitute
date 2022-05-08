@@ -18,7 +18,7 @@ namespace GenSubstitute
         public static implicit operator Arg<T>(AnyArg any) => Any;
 
         public static readonly Arg<T> Default =
-            new(val => EqualityComparer<T>.Default.Equals(val, default));
+            new(val => EqualityComparer<T>.Default.Equals(val, default!));
 
         public static Arg<T> When(Func<T, bool> matcher) => new(matcher);
 

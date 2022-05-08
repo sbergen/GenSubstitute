@@ -58,7 +58,7 @@ public class FullyQualifiedMetadataNameTests
         var declaration = FindTypeDeclaration(syntaxTree, simpleName);
         
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
-        var name = semanticModel.GetDeclaredSymbol(declaration).FullyQualifiedMetadataName();
+        var name = semanticModel.GetDeclaredSymbol(declaration)!.FullyQualifiedMetadataName();
         return compilation.GetTypeByMetadataName(name);
     }
 

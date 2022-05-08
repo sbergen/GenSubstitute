@@ -69,14 +69,19 @@ namespace GenSubstitute
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
 <#= argMembers #>
-        private Func<#= funcGenerics #> _execute;
-        private TReturn _returnValue;
-    
+        private Func<#= funcGenerics #>? _execute;
+        private TReturn? _returnValue;
+
+<#
+        if (constructorArgs.Length > 0)
+        {#>
         public ConfiguredFunc(<#= constructorArgs #>)
         {
 <#= constructorBody #>
         }
-    
+
+<#
+        }#>
         public void Configure(Func<#= funcGenerics #> implementation)
         {
             _execute = implementation;
@@ -89,12 +94,12 @@ namespace GenSubstitute
             _returnValue = value;
         }
 
-        public TReturn Execute(<#= executeArgs #>)
+        public TReturn Execute(<#= executeArgs #>) => (_execute, _returnValue) switch
         {
-            return _execute != null
-                ? _execute(<#= executeCall #>)
-                : _returnValue;
-        }
+            ({ } execute, _) => execute(<#= executeCall #>),
+            (_, { } returnValue) => returnValue,
+            _ => throw new InvalidOperationException("Method call was not fully configured!"),
+        };
 
         public bool Matches(IReceivedCall call) =>
             call is ReceivedCall<#= actionGenerics #> c
@@ -105,20 +110,25 @@ namespace GenSubstitute
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
     {
 <#= argMembers #>
-        private Action<#= actionGenerics #> _execute;
+        private Action<#= actionGenerics #>? _execute;
     
+<#
+        if (constructorArgs.Length > 0)
+        {#>
         public ConfiguredAction(<#= constructorArgs #>)
         {
 <#= constructorBody #>
         }
-    
+        
+<#
+        }#>
         public void Configure(Action<#= actionGenerics #> implementation)
         {
             _execute = implementation;
         }
 
         public void Execute(<#= executeArgs #>) =>
-            _execute(<#= executeCall #>);
+            _execute?.Invoke(<#= executeCall #>);
 
         public bool Matches(IReceivedCall call) =>
             call is ReceivedCall<#= actionGenerics #> c
@@ -130,7 +140,6 @@ namespace GenSubstitute
     {
         public readonly Type ReturnType;
 <#= valueMembers #>
-
         public ReceivedCall(Type returnType<#= executeArgs.Length == 0 ? "" : ", " #><#= executeArgs #>)
         {
             ReturnType = returnType;

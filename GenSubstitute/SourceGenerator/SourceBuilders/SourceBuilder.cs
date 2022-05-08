@@ -27,7 +27,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             _builder.AppendLine("}");
             
             var result = _builder.ToString();
-            _builder = null;
+            _builder = null!;
             return result;
         }
 

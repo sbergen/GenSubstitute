@@ -6,7 +6,7 @@ namespace GenSubstitute.SourceGenerator.Models
     // TODO consider using some OneOf library here...
     internal readonly struct TypeModelOrDiagnostic : IEquatable<TypeModelOrDiagnostic>
     {
-        public readonly Diagnostic Diagnostic;
+        public readonly Diagnostic? Diagnostic;
         public readonly TypeModel? Model;
 
         public static implicit operator TypeModelOrDiagnostic(TypeModel model) => new(model);

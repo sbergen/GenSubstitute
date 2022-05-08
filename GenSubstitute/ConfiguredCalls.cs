@@ -18,13 +18,13 @@ namespace GenSubstitute
             else
             {
                 values = new List<IConfiguredCall> { call };
-                _calls.Add(methodName!, values);
+                _calls.Add(methodName, values);
             }
 
             return call;
         }
 
-        public T Get<T>(string methodName, IReceivedCall receivedCall)
+        public T? Get<T>(string methodName, IReceivedCall receivedCall)
             where T : class, IConfiguredCall
         {
             if (_calls.TryGetValue(methodName, out var values))

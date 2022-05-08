@@ -22,7 +22,7 @@ namespace GenSubstitute.SourceGenerator
                 },
             };
         
-        public static TypeSyntax ExtractTypeFromSubstituteCall(SyntaxNode node)
+        public static TypeSyntax? ExtractTypeFromSubstituteCall(SyntaxNode node)
         {
             return node is InvocationExpressionSyntax
             {
