@@ -13,7 +13,9 @@ namespace GenSubstitute.SourceGenerator
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
-        public static Diagnostic SymbolNotFound(TypeLookupInfo symbol) => Diagnostic
-            .Create(SymbolNotFoundDescriptor, Location.None, symbol.Name);
+        public static Diagnostic SymbolNotFound(TypeLookupInfo typeInfo) => Diagnostic.Create(
+            SymbolNotFoundDescriptor,
+            Location.None,
+            typeInfo.FullyQualifiedName);
     }
 }

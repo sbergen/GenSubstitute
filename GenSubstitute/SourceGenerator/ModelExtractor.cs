@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -34,21 +33,10 @@ namespace GenSubstitute.SourceGenerator
         public static TypeModelOrDiagnostic ExtractModelFromCompilationAndName(
             TypeLookupInfo typeInfo,
             Compilation compilation,
-            CancellationToken cancellationToken)
-        {
-            var symbol = compilation
-                .GetSymbolsWithName(typeInfo.Name, SymbolFilter.Type, cancellationToken)
-                .OfType<INamedTypeSymbol>()
-                .SingleOrDefault(symbol => symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == typeInfo.FullyQualifiedName);
-            
-            if (symbol != null)
+            CancellationToken cancellationToken) => compilation.GetTypeByMetadataName(typeInfo.MetadataName) switch
             {
-                return new TypeModel(symbol);
-            }
-            else
-            {
-                return Diagnostics.SymbolNotFound(typeInfo);
-            }
-        }
+                { } symbol => new TypeModel(symbol),
+                _ => Diagnostics.SymbolNotFound(typeInfo),
+            };
     }
 }

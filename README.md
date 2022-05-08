@@ -19,8 +19,8 @@ GenSubstitute is a C# source generator based mocking library.
 - Support call logging, hopefully assertions can use your assertion framework of choice!
 - Support properties
 - Proper diagnostics for errors
+- ref and out?
 - Support default value policies for return value
 - Received.InOrder equivalent?
-- Multiple return values?
-- ref and out?
+- Sequential return values?
 - Support non-interfaces?

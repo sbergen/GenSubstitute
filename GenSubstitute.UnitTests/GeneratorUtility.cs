@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using FluentAssertions;
 using GenSubstitute.SourceGenerator;
@@ -11,22 +10,9 @@ namespace GenSubstitute.UnitTests;
 
 internal static class GeneratorUtility
 {
-    private static readonly string[] AssemblyNames =
-    {
-        "netstandard, Version=2.0.0.0",
-        "System.Runtime, Version=6.0.0.0",
-        "System.Private.CoreLib, Version=6.0.0.0",
-    };
-
-    private static readonly PortableExecutableReference[] References = AssemblyNames
-        .Select(name => Assembly.Load(name).Location)
-        .Append(typeof(Gen).Assembly.Location)
-        .Select(file => MetadataReference.CreateFromFile(file))
-        .ToArray();
-    
     public static void AssertNoInspections(string inputCode)
     {
-        var compilation = CreateCompilation(inputCode);
+        var compilation = inputCode.CreateCompilation();
         var driver = CSharpGeneratorDriver.Create(new GenSubstituteGenerator());
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
@@ -57,17 +43,5 @@ internal static class GeneratorUtility
         }
 
         return builder.ToString();
-    }
-
-    private static Compilation CreateCompilation(string sourceCode)
-    {
-        var options = new CSharpCompilationOptions(OutputKind.ConsoleApplication);
-        var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
-
-        return CSharpCompilation.Create(
-            "GeneratorTestAssembly",
-            new[] { syntaxTree },
-            References,
-            options);
     }
 }

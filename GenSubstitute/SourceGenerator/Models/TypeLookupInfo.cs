@@ -1,12 +1,13 @@
 using System;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
 {
     internal readonly struct TypeLookupInfo : IEquatable<TypeLookupInfo>
     {
+        public readonly string MetadataName;
         public readonly string FullyQualifiedName;
-        public readonly string Name;
 
         public TypeLookupInfo(INamedTypeSymbol symbol)
         {
@@ -14,10 +15,10 @@ namespace GenSubstitute.SourceGenerator.Models
                 ? symbol.ConstructedFrom
                 : symbol;
 
+            MetadataName = nameSource.FullyQualifiedMetadataName();
             FullyQualifiedName = nameSource.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            Name = nameSource.Name;
         }
 
-        public bool Equals(TypeLookupInfo other) => FullyQualifiedName == other.FullyQualifiedName;
+        public bool Equals(TypeLookupInfo other) => MetadataName == other.MetadataName;
     }
 }
