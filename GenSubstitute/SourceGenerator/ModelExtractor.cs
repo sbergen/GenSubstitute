@@ -26,11 +26,12 @@ namespace GenSubstitute.SourceGenerator
             }
             else
             {
+                // TODO diagnostic
                 return null;
             }
         }
 
-        public static TypeModel? ExtractModelFromCompilationAndName(
+        public static TypeModelOrDiagnostic ExtractModelFromCompilationAndName(
             TypeLookupInfo typeInfo,
             Compilation compilation,
             CancellationToken cancellationToken)
@@ -46,8 +47,7 @@ namespace GenSubstitute.SourceGenerator
             }
             else
             {
-                // TODO diagnostic
-                return null;
+                return Diagnostics.SymbolNotFound(typeInfo);
             }
         }
     }

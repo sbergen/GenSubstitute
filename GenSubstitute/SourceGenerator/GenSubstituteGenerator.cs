@@ -22,13 +22,17 @@ namespace GenSubstitute.SourceGenerator
                 .Select((data, ct) => ModelExtractor
                     .ExtractModelFromCompilationAndName(data.Left, data.Right, ct));
 
-            context.RegisterSourceOutput(models, (spContext, maybeModel) =>
+            context.RegisterSourceOutput(models, (spContext, modelOrDiagnostic) =>
             {
-                if (maybeModel is {} model)
+                if (modelOrDiagnostic is { Model: {} model })
                 {
                     spContext.AddSource(
                         $"{model.BuilderTypeName}.cs",
                         MockBuilder.BuildMock(model));
+                }
+                else if (modelOrDiagnostic is { Diagnostic: {} diagnostic })
+                {
+                    spContext.ReportDiagnostic(diagnostic);
                 }
             });
         }
