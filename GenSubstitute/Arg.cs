@@ -8,7 +8,7 @@ namespace GenSubstitute
         public static readonly AnyArg Any = new();
     }
     
-    public class Arg<T>
+    public readonly struct Arg<T>
     {
         private readonly Func<T, bool> _matches;
         private Arg(Func<T, bool> matcher) => _matches = matcher;

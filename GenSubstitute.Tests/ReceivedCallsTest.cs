@@ -8,7 +8,7 @@ public static class ReceivedCallsTest
     public interface ITestInterface
     {
         public void Method();
-        public void MethodWithArgs(int arg);
+        public void MethodWithArg(int arg);
     }
     
     [Fact]
@@ -25,12 +25,15 @@ public static class ReceivedCallsTest
     public static void CallCount_MatchesExpected_WithArgs()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Object.MethodWithArgs(1);
-        builder.Object.MethodWithArgs(2);
-        builder.Object.MethodWithArgs(3);
-        builder.Object.MethodWithArgs(4);
 
-        builder.Received.MethodWithArgs(Arg<int>.When(i => i <= 2)).Should().HaveCount(2);
-        builder.Received.MethodWithArgs(Arg.Any).Should().HaveCount(4);
+        var mock = builder.Object;
+        mock.MethodWithArg(1);
+        mock.MethodWithArg(2);
+        mock.MethodWithArg(3);
+        mock.MethodWithArg(4);
+
+        builder.Received.MethodWithArg(Arg<int>.When(i => i <= 2)).Should().HaveCount(2);
+        builder.Received.MethodWithArg(Arg.Any).Should().HaveCount(4);
+        builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
     }
 }

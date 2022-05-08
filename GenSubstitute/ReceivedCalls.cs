@@ -17,18 +17,19 @@ namespace GenSubstitute
 
         // Note: reusing IConfiguredCall here for convenience,
         // not sure if this should use a distinct type or base type?
-        public IReadOnlyList<ReceivedCallInfo> GetMatching(string methodName, IConfiguredCall matcher)
+        public IReadOnlyList<T> GetMatching<T>(string methodName, IConfiguredCall matcher)
+            where T : IReceivedCall
         {
             if (_calls.TryGetValue(methodName, out var calls))
             {
                 return calls
                     .Where(matcher.Matches)
-                    .Select(c => new ReceivedCallInfo(methodName, c))
+                    .Cast<T>()
                     .ToList();
             }
             else
             {
-                return Array.Empty<ReceivedCallInfo>();
+                return Array.Empty<T>();
             }
         }
     }

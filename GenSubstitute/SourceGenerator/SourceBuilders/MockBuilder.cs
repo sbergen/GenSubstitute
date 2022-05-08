@@ -38,11 +38,16 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
-            // Cache reused info (could iterate methods only once to maybe optimize?)
+            // Cache reused info (could preallocate and iterate methods only once to maybe optimize?)
             var methods = model.Methods;
             var configuredCalls = methods.Select(MakeConfiguredCall).ToList();
             var generics = methods.Select(m => new GenericSpecifiers(m)).ToList();
             var argLists = methods.Select(m => new ArgLists(m)).ToList();
+            var receivedCallTypes = methods
+                .Select(m => m.Parameters.Length == 0
+                    ? "ReceivedCall"
+                    : $"ReceivedCall<{BuildList(m.Parameters.Select(p => p.Type))}>")
+                .ToList();
             
             AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
             AppendLine("{");
@@ -56,7 +61,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
-                    BuildImplementationMethod(methods[i], configuredCalls[i], generics[i]);
+                    BuildImplementationMethod(methods[i], configuredCalls[i], receivedCallTypes[i], generics[i]);
                 }
             }
             AppendLine("}");
@@ -72,7 +77,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
-                    BuildReceivedCallsMethod(methods[i], configuredCalls[i], generics[i], argLists[i]);
+                    BuildReceivedCallsMethod(methods[i], configuredCalls[i], receivedCallTypes[i], generics[i], argLists[i]);
                 }
             }
             AppendLine("}");
@@ -100,16 +105,17 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
         }
 
-        private void BuildImplementationMethod(MethodModel method, string configuredCallType, GenericSpecifiers generics)
+        private void BuildImplementationMethod(
+            MethodModel method,
+            string configuredCallType,
+            string receivedCallType,
+            GenericSpecifiers generics)
         {
             var parametersWithTypes = BuildList(
                 method.Parameters
                 .Select(p => $"{p.Type} {p.Name}"));
 
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
-            var receivedCallType = method.Parameters.Length == 0
-                ? "ReceivedCall"
-                : $"ReceivedCall<{BuildList(method.Parameters.Select(p => p.Type))}>";
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
                 ? $"typeof({method.ReturnType})"
@@ -146,14 +152,15 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         private void BuildReceivedCallsMethod(
             MethodModel method,
             string configuredCallType,
+            string receivedCallType,
             GenericSpecifiers generics,
             ArgLists argLists)
         {
             // The next line is identical to configure methods, maybe optimize?
-            AppendLine($"public {nameof(IReadOnlyList<ReceivedCallInfo>)}<{nameof(ReceivedCallInfo)}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
+            AppendLine($"public {nameof(IReadOnlyList<bool>)}<{receivedCallType}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_calls.GetMatching($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
+                AppendLine($"_calls.GetMatching<{receivedCallType}>($\"{method.Name}{generics.FullNames}\", new {configuredCallType}({argLists.SafeParameterNames}));");
             }
         }
 
