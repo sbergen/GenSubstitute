@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -35,5 +37,31 @@ public static class ReceivedCallsTest
         builder.Received.MethodWithArg(Arg<int>.When(i => i <= 2)).Should().HaveCount(2);
         builder.Received.MethodWithArg(Arg.Any).Should().HaveCount(4);
         builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
+    }
+    
+    [Fact]
+    public static void CallArgs_CanBeAccessedEasily()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+        
+        builder.Object.MethodWithArg(1);
+        builder.Object.MethodWithArg(2);
+        
+        builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
+    }
+
+    [Fact]
+    public static void AllReceived_ReturnsExpectedData()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+
+        builder.Object.Method();
+        builder.Object.MethodWithArg(2);
+
+        builder.AllReceived.Select(call => call.MethodName).Should()
+            .Equal(nameof(ITestInterface.Method), nameof(ITestInterface.MethodWithArg));
+
+        builder.AllReceived[0].GetArguments().Should().Equal(Array.Empty<object?>());
+        builder.AllReceived[1].GetArguments().Should().Equal(2);
     }
 }

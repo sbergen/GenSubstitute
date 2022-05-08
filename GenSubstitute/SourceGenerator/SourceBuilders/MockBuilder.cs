@@ -54,7 +54,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             using (Indent())
             {
                 AppendLine($"public readonly {nameof(ConfiguredCalls)} ConfiguredCalls = new();");
-                AppendLine($"public readonly {nameof(ReceivedCalls)} _receivedCalls;");
+                AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
                 EmptyLine();
                 AppendLine($"internal {ImplementationClassName}({nameof(ReceivedCalls)} receivedCalls) => _receivedCalls = receivedCalls;");
                 
@@ -88,6 +88,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             EmptyLine();
             AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
             AppendLine($"public {ReceivedCallClassName} Received {{ get; }}");
+            AppendLine($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
             
             AppendLine($"internal {model.BuilderTypeName}()");
             AppendLine("{");
@@ -157,7 +158,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             ArgLists argLists)
         {
             // The next line is identical to configure methods, maybe optimize?
-            AppendLine($"public {nameof(IReadOnlyList<bool>)}<{receivedCallType}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
+            AppendLine($"public IReadOnlyList<{receivedCallType}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
             using (Indent())
             {
                 AppendLine($"_calls.GetMatching<{receivedCallType}>({generics.ResolvedMethodName}, new {configuredCallType}({argLists.SafeParameterNames}));");

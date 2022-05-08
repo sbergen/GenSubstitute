@@ -11,26 +11,18 @@ namespace GenSubstitute
     /// </summary>
     public class ReceivedCalls
     {
-        private readonly Dictionary<string, List<IReceivedCall>> _calls = new();
+        private readonly List<IReceivedCall> _calls = new();
 
-        public void Add(IReceivedCall call) => _calls.AddToList(call.MethodName, call);
+        public IReadOnlyList<IReceivedCall> All => _calls;
+        public void Add(IReceivedCall call) => _calls.Add(call);
 
         // Note: reusing IConfiguredCall here for convenience,
         // not sure if this should use a distinct type or base type?
         public IReadOnlyList<T> GetMatching<T>(string methodName, IConfiguredCall matcher)
-            where T : IReceivedCall
-        {
-            if (_calls.TryGetValue(methodName, out var calls))
-            {
-                return calls
-                    .Where(matcher.Matches)
-                    .Cast<T>()
-                    .ToList();
-            }
-            else
-            {
-                return Array.Empty<T>();
-            }
-        }
+            where T : IReceivedCall =>
+            _calls
+                .Where(c => c.MethodName == methodName && matcher.Matches(c))
+                .Cast<T>()
+                .ToList();
     }
 }

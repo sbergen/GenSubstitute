@@ -16,6 +16,7 @@ namespace GenSubstitute
     var receivedCtorBodyList = new List<string>();
     var callArgMatchList = new List<string>();
     var argMemberValuesList = new List<string>();
+    var argMemberNamesList = new List<string>();
     
     for (var i = 0; i < 17; ++i)
     {
@@ -31,6 +32,7 @@ namespace GenSubstitute
             receivedCtorBodyList.Add($"            Arg{i} = arg{i};");
             callArgMatchList.Add($"            && _arg{i}.Matches(c.Arg{i})");
             argMemberValuesList.Add($"{{Arg{i}?.ToString() ?? \"null\"}}");
+            argMemberNamesList.Add($"Arg{i}");
         }
         
         // <TArg, ..., TReturn>
@@ -70,6 +72,10 @@ namespace GenSubstitute
         
         // {Arg1?.ToString() ?? "null"}, ...
         var argMemberValues = string.Join(", ", argMemberValuesList);
+        
+        // Arg1, ...
+        var argMemberNames = string.Join(", ", argMemberNamesList);
+        
 #>
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
@@ -190,6 +196,8 @@ namespace GenSubstitute
 
         public override string ToString() =>
             $"{ReturnType.Name} {MethodName}(<#= argMemberValues #>)";
+
+        public object?[] GetArguments() => new object?[] { <#= argMemberNames #> };
     }
 
 <#
