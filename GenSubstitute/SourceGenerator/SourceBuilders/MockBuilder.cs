@@ -80,6 +80,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 AppendLine($"var call = Calls.Get<{configuredCallType}>(");
                 using (Indent())
                 {
+                    AppendLine($"\"{method.Name}\",");
                     AppendLine($"typeof({method.ReturnType}),");
                     AppendLine("new TypeValuePair[]");
                     AppendLine("{");
@@ -111,7 +112,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine($"public {configuredCallType} {method.Name}({argParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_implementation.Calls.Add(new {configuredCallType}({parameterNames}));");
+                AppendLine($"_implementation.Calls.Add(\"{method.Name}\", new {configuredCallType}({parameterNames}));");
             }
         }
 

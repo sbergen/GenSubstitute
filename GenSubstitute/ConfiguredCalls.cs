@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace GenSubstitute
 {
@@ -9,10 +8,10 @@ namespace GenSubstitute
     {
         private readonly Dictionary<string, List<ConfiguredCall>> _calls = new();
     
-        public T Add<T>(T call, [CallerMemberName] string methodName = default)
+        public T Add<T>(string methodName, T call)
             where T : ConfiguredCall
         {
-            if (_calls.TryGetValue(methodName!, out var values))
+            if (_calls.TryGetValue(methodName, out var values))
             {
                 values.Add(call);
             }
@@ -25,10 +24,10 @@ namespace GenSubstitute
             return call;
         }
 
-        public T Get<T>(Type returnType, TypeValuePair[] args, [CallerMemberName] string methodName = default)
+        public T Get<T>(string methodName, Type returnType, TypeValuePair[] args)
             where T : ConfiguredCall
         {
-            if (_calls.TryGetValue(methodName!, out var values))
+            if (_calls.TryGetValue(methodName, out var values))
             {
                 var matches = values
                     .Where(c => c.Matches(returnType, args))
