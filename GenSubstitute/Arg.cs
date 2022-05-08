@@ -13,6 +13,9 @@ namespace GenSubstitute
         private readonly Func<T, bool> _matches;
         private Arg(Func<T, bool> matcher) => _matches = matcher;
 
+        public Arg(T value) : this(val => EqualityComparer<T>.Default.Equals(val, value))
+        {}
+
         public static readonly Arg<T> Any = new (_ => true);
         
         public static implicit operator Arg<T>(AnyArg any) => Any;
@@ -22,8 +25,7 @@ namespace GenSubstitute
 
         public static Arg<T> When(Func<T, bool> matcher) => new(matcher);
 
-        public static implicit operator Arg<T>(T configuredValue) =>
-            new(val => EqualityComparer<T>.Default.Equals(val, configuredValue));
+        public static implicit operator Arg<T>(T value) => new(value);
 
         public bool Matches(T val) => _matches(val);
     }

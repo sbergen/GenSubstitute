@@ -29,7 +29,7 @@ namespace Some.Nested.Namespace
                 int Foo(int arg);
                 void Bar(); 
                 T2 Generic<T2>();
-                double MultipleArgs(int i1, int i2, int i3);
+                double MultipleArgs(int i1, int i2, int i3 = 42);
             }
         }
     }

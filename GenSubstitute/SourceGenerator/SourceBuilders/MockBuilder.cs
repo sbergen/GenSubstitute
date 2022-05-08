@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
+using Microsoft.CodeAnalysis.CSharp;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -222,11 +222,23 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             public ArgLists(MethodModel method)
             {
                 ArgParameters = BuildList(method.Parameters
-                    .Select(p => $"Arg<{p.Type}>? {p.Name}"));
+                    .Select(p => p.HasDefaultValue
+                        ? $"Arg<{p.Type}>? {p.Name} = default"
+                        : $"Arg<{p.Type}>? {p.Name}"));
                 
                 SafeParameterNames = BuildList(method.Parameters
-                    .Select(p => $"{p.Name} ?? Arg<{p.Type}>.Default"));
+                    .Select(p =>
+                    {
+                        var fallbackValue = p.HasDefaultValue && p.DefaultValue is { } defaultValue
+                            ? $"new Arg<{p.Type}>({DefaultValueToString(defaultValue, p.Type)})"
+                            : $"Arg<{p.Type}>.Default";
+                        return $"{p.Name} ?? {fallbackValue}";
+                    }));
             }
+
+            // TODO, are there cases where this wouldn't work?
+            private static string DefaultValueToString(object obj, string typeName) =>
+                $"({typeName}){SymbolDisplay.FormatPrimitive(obj, quoteStrings: true, useHexadecimalNumbers: false)}";
         }
     }
 }
