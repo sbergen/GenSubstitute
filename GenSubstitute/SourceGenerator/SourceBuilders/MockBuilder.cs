@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
@@ -112,9 +114,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             string receivedCallType,
             GenericSpecifiers generics)
         {
+            // TODO: Is there a better way to do this?
+            static string RefString(ParameterModel p) => p.RefKind switch
+            {
+                RefKind.None => "",
+                RefKind.Ref => "ref ",
+                RefKind.Out => "out ",
+                RefKind.In => "in ",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
             var parametersWithTypes = BuildList(
                 method.Parameters
-                .Select(p => $"{p.Type} {p.Name}"));
+                .Select(p => $"{RefString(p)}{p.Type} {p.Name}"));
 
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
 

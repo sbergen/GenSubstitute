@@ -26,7 +26,7 @@ namespace Some.Nested.Namespace
         {
             public interface IFoo<T>
             {
-                int Foo(int arg);
+                int Foo(ref int arg);
                 void Bar(); 
                 T2 Generic<T2>();
                 double MultipleArgs(int i1, int i2, int i3 = 42);

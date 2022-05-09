@@ -10,6 +10,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string Name;
         public readonly bool HasDefaultValue;
         public readonly object? DefaultValue;
+        public readonly RefKind RefKind;
         
         public ParameterModel(IParameterSymbol symbol)
         {
@@ -18,6 +19,7 @@ namespace GenSubstitute.SourceGenerator.Models
             Name = symbol.Name;
             HasDefaultValue = symbol.HasExplicitDefaultValue;
             DefaultValue = HasDefaultValue ? symbol.ExplicitDefaultValue : null;
+            RefKind = symbol.RefKind;
         }
 
         public bool Equals(ParameterModel other) =>
