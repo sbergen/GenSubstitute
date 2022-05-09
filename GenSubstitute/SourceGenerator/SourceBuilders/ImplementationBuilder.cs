@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
@@ -55,6 +56,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         
         private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
         {
+            var parameters = method.Parameters;
+            
             // TODO: Is there a better way to do this?
             static string RefString(ParameterModel p) => p.RefKind switch
             {
@@ -83,9 +86,47 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("_receivedCalls.Add(receivedCall);");
                 Line($"var call = _configuredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
 
+                EmptyLine();
+                var callParameterArray = new string[parameters.Length];
+                for (var i = 0; i < parameters.Length; ++i)
+                {
+                    var parameter = parameters[i];
+                    if (parameter.RefKind == RefKind.Ref)
+                    {
+                        // TODO, uniqueness not guaranteed here!
+                        var name = $"{parameter.Name}_RefArg";
+                        Line($"var {name} = new RefArg<{parameter.Type}>({parameter.Name});");
+                        callParameterArray[i] = name;
+                    }
+                    else
+                    {
+                        callParameterArray[i] = parameter.Name;
+                    }
+                }
+                EmptyLine();
+
+                var callParametersStr = BuildList(callParameterArray);
                 Line(method.ReturnsVoid
-                    ? $"call?.Execute({parameterNames});"
-                    : $"return call != null ? call.Execute({parameterNames}) : default!;");
+                    ? $"call?.Execute({callParametersStr});"
+                    : $"var result = call != null ? call.Execute({callParametersStr}) : default!;");
+
+                // TODO, this is really damn ugly right now!
+                EmptyLine();
+                foreach (var parameter in parameters)
+                {
+                    if (parameter.RefKind == RefKind.Ref)
+                    {
+                        // TODO, uniqueness not guaranteed here!
+                        var name = $"{parameter.Name}_RefArg";
+                        Line($"{parameter.Name} = {name};");
+                    }
+                }
+                EmptyLine();
+                
+                if (!method.ReturnsVoid)
+                {
+                    Line("return result;");
+                }
             }
             Line("}");
         }

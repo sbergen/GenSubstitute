@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
@@ -45,16 +46,34 @@ namespace GenSubstitute.SourceGenerator.Models
             }
             
             ArgParameters = BuildList(method.Parameters
-                .Select(p => p.HasDefaultValue
-                    ? $"Arg<{p.Type}>? {p.Name} = default"
-                    : $"Arg<{p.Type}>? {p.Name}"));
+                .Select(p =>
+                {
+                    var argType = p.RefKind switch
+                    {
+                        RefKind.Ref => $"RefArg<{p.Type}>",
+                        // TODO handle other types
+                        _ => $"Arg<{p.Type}>",
+                    };
+                    
+                    return p.HasDefaultValue
+                        ? $"{argType}? {p.Name} = default"
+                        : $"{argType}? {p.Name}";
+                }));
                 
             SafeParameterNames = BuildList(method.Parameters
                 .Select(p =>
                 {
+                    // TODO, cache these?
+                    var argType = p.RefKind switch
+                    {
+                        RefKind.Ref => $"RefArg<{p.Type}>",
+                        // TODO handle other types
+                        _ => $"Arg<{p.Type}>",
+                    };
+                    
                     var fallbackValue = p.HasDefaultValue && p.DefaultValue is { } defaultValue
-                        ? $"new Arg<{p.Type}>({DefaultValueToString(defaultValue, p.Type)})"
-                        : $"Arg<{p.Type}>.Default";
+                        ? $"new {argType}({DefaultValueToString(defaultValue, p.Type)})"
+                        : $"{argType}.Default";
                     return $"{p.Name} ?? {fallbackValue}";
                 }));
             
@@ -65,7 +84,14 @@ namespace GenSubstitute.SourceGenerator.Models
             else
             {
                 var callType = method.ReturnsVoid ? nameof(ConfiguredAction) : nameof(ConfiguredFunc<int>);
-                var parameterArguments = method.Parameters.Select(p => p.Type);
+                var parameterArguments = method.Parameters
+                    .Select(p => p.RefKind switch
+                    {
+                        RefKind.Ref => $"RefArg<{p.Type}>",
+                        // TODO handle other types
+                        _ => p.Type,
+                    });
+                
                 var allArguments = method.ReturnsVoid
                     ? parameterArguments
                     : parameterArguments.Append(method.ReturnType);
@@ -73,11 +99,20 @@ namespace GenSubstitute.SourceGenerator.Models
                 ConfiguredCallType = $"{callType}<{BuildList(allArguments)}>";
             }
             
+            // TODO TODO TODO, ugly
+            var types = method.Parameters
+                .Select(p => p.RefKind switch
+                {
+                    RefKind.Ref => $"RefArg<{p.Type}>",
+                    // TODO handle other types
+                    _ => p.Type,
+                });
+            
             ReceivedCallType = method.Parameters.Length == 0
                 ? "ReceivedCall"
-                : $"ReceivedCall<{BuildList(method.Parameters.Select(p => p.Type))}>";
+                : $"ReceivedCall<{BuildList(types)}>";
         }
-        
+
         // TODO, are there cases where this wouldn't work?
         private static string DefaultValueToString(object obj, string typeName) =>
             $"({typeName}){SymbolDisplay.FormatPrimitive(obj, quoteStrings: true, useHexadecimalNumbers: false)}";
