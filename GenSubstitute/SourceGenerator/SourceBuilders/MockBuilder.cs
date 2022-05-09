@@ -34,26 +34,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
-            var methods = model.Methods;
-            var enrichedMethodInfo = ImmutableArray
-                .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
-
-            ImplementationBuilder.Build(this, model, enrichedMethodInfo);
-            EmptyLine();
-            ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
-            EmptyLine();
-            ConfigurerBuilder.Build(this, methods, enrichedMethodInfo);
-            
-            EmptyLine();
             Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls = new();");
             Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
             Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
-            Line($"public {model.FullyQualifiedName} Object => _implementation;");
-            Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
-            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
-            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
-            EmptyLine();
+            
             Line($"internal {model.BuilderTypeName}()");
             Line("{");
             using (Indent())
@@ -62,7 +47,25 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("Received = new(_receivedCalls);");
                 Line("Configure = new(_configuredCalls);");
             }
+
             Line("}");
+
+            var methods = model.Methods;
+            var enrichedMethodInfo = ImmutableArray
+                .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
+
+            EmptyLine();
+            ImplementationBuilder.Build(this, model, enrichedMethodInfo);
+            EmptyLine();
+            ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
+            EmptyLine();
+            ConfigurerBuilder.Build(this, methods, enrichedMethodInfo);
+            EmptyLine();
+            
+            Line($"public {model.FullyQualifiedName} Object => _implementation;");
+            Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
+            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
+            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
         }
     }
 }
