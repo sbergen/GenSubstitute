@@ -82,7 +82,7 @@ namespace GenSubstitute
 <#= argMembers #>
         private Func<#= funcGenerics #>? _execute;
         private TReturn? _returnValue;
-        private bool _isConfigured;
+        private ConfiguredAs _configuredAs;
 
 <#
         if (constructorArgs.Length > 0)
@@ -96,47 +96,27 @@ namespace GenSubstitute
         }#>
         public void Configure(Func<#= funcGenerics #> implementation)
         {
-            ThrowIfConfigured();
+            _configuredAs = ConfiguredAs.Method;
             _execute = implementation;
         }
 
         public void Returns(TReturn value)
         {
-            ThrowIfConfigured();
+            _configuredAs = ConfiguredAs.Value;
             _returnValue = value;
         }
 
-        public TReturn Execute(<#= executeArgs #>)
+        public TReturn Execute(<#= executeArgs #>) => _configuredAs switch
         {
-            if (!_isConfigured)
-            {
-                throw new InvalidOperationException("Method call was not fully configured");
-            }
-            
-            if (_execute != null)
-            {
-                return _execute(<#= executeCall #>);
-            }
-            else
-            {
-                return _returnValue!;
-            }
-        }
+            ConfiguredAs.Method => _execute!(<#= executeCall #>),
+            ConfiguredAs.Value => _returnValue!,
+            _ => throw new InvalidOperationException("Method call was not fully configured"),
+        };
 
         public bool Matches(IReceivedCall call) =>
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(TReturn)
 <#= callArgMatcher #>;
-
-        private void ThrowIfConfigured()
-        {
-            if (_isConfigured)
-            {
-                throw new InvalidOperationException("Method call was already configured");
-            }
-
-            _isConfigured = true;
-        }
     }
 
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
@@ -156,11 +136,6 @@ namespace GenSubstitute
         }#>
         public void Configure(Action<#= actionGenerics #> implementation)
         {
-            if (_execute != null)
-            {
-                throw new InvalidOperationException("Method call was already configured");
-            }
-
             _execute = implementation;
         }
 
