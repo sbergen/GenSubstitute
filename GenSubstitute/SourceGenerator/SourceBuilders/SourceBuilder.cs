@@ -44,7 +44,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         protected IndentationScope Indent() => new(this);
 
-        protected readonly struct IndentationScope : IDisposable
+        // This exists just for shorter syntax, as this stuff is used a lot.
+        public abstract class Nested
+        {
+            private readonly SourceBuilder _parent;
+
+            protected Nested(SourceBuilder parent) => _parent = parent;
+
+            protected void AppendLine(string line) => _parent.AppendLine(line);
+            protected void EmptyLine() => _parent.EmptyLine();
+            protected IndentationScope Indent() => new(_parent);
+        }
+        
+        internal readonly struct IndentationScope : IDisposable
         {
             private readonly SourceBuilder _parent;
 

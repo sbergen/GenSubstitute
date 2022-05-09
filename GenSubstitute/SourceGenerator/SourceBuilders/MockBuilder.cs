@@ -9,8 +9,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
     internal class MockBuilder : SourceBuilder
     {
-        private const string ImplementationClassName = "Implementation";
-        private const string ReceivedCallClassName = "ReceivedCallsData";
+        public const string ImplementationClassName = "Implementation";
 
         public static string BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
 
@@ -60,29 +59,15 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 }
             }
             AppendLine("}");
-            
-            AppendLine($"public class {ReceivedCallClassName}");
-            AppendLine("{");
-            using (Indent())
-            {
-                AppendLine($"private readonly {nameof(ReceivedCalls)} _calls;");
-                EmptyLine();
-                AppendLine($"internal {ReceivedCallClassName}({nameof(ReceivedCalls)} calls) => _calls = calls;");
-                
-                for (var i = 0; i < methods.Length; ++i)
-                {
-                    EmptyLine();
-                    BuildReceivedCallsMethod(methods[i], enrichedMethodInfo[i]);
-                }
-            }
-            AppendLine("}");
+
+            ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
             
             EmptyLine();
             AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
             AppendLine($"private readonly {ImplementationClassName} _implementation;");
             EmptyLine();
             AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
-            AppendLine($"public {ReceivedCallClassName} Received {{ get; }}");
+            AppendLine($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             AppendLine($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
             
             AppendLine($"internal {model.BuilderTypeName}()");
@@ -144,16 +129,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             using (Indent())
             {
                 AppendLine($"_implementation.ConfiguredCalls.Add({enriched.ResolvedMethodName}, new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
-            }
-        }
-        
-        private void BuildReceivedCallsMethod(MethodModel method, EnrichedMethodModel enriched)
-        {
-            // The next line is identical to configure methods, maybe optimize?
-            AppendLine($"public IReadOnlyList<{enriched.ReceivedCallType}> {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
-            using (Indent())
-            {
-                AppendLine($"_calls.GetMatching<{enriched.ReceivedCallType}>({enriched.ResolvedMethodName}, new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
             }
         }
     }
