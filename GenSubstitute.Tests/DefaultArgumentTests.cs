@@ -16,7 +16,6 @@ public class DefaultArgumentTests
     {
         var builder = Gen.Substitute<IWithDefaultArguments>().Build();
         builder.MethodWithVariousArgs().Returns(1);
-        builder.Object.MethodWithVariousArgs(TypeKind.Array, "foo").Should().Be(1);
+        builder.Object.MethodWithVariousArgs().Should().Be(1);
     }
-    
 }

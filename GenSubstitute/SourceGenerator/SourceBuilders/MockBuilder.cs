@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -40,17 +40,10 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
-            // Cache reused info (could preallocate and iterate methods only once to maybe optimize?)
             var methods = model.Methods;
-            var configuredCalls = methods.Select(MakeConfiguredCall).ToList();
-            var generics = methods.Select(m => new GenericSpecifiers(m)).ToList();
-            var argLists = methods.Select(m => new ArgLists(m)).ToList();
-            var receivedCallTypes = methods
-                .Select(m => m.Parameters.Length == 0
-                    ? "ReceivedCall"
-                    : $"ReceivedCall<{BuildList(m.Parameters.Select(p => p.Type))}>")
-                .ToList();
-            
+            var enrichedMethodInfo = ImmutableArray
+                .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
+
             AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
             AppendLine("{");
             using (Indent())
@@ -63,7 +56,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
-                    BuildImplementationMethod(methods[i], configuredCalls[i], receivedCallTypes[i], generics[i]);
+                    BuildImplementationMethod(methods[i], enrichedMethodInfo[i]);
                 }
             }
             AppendLine("}");
@@ -79,7 +72,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 for (var i = 0; i < methods.Length; ++i)
                 {
                     EmptyLine();
-                    BuildReceivedCallsMethod(methods[i], configuredCalls[i], receivedCallTypes[i], generics[i], argLists[i]);
+                    BuildReceivedCallsMethod(methods[i], enrichedMethodInfo[i]);
                 }
             }
             AppendLine("}");
@@ -104,15 +97,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             for (var i = 0; i < methods.Length; ++i)
             {
                 EmptyLine();
-                BuildConfigureMethod(methods[i], configuredCalls[i], generics[i], argLists[i]);
+                BuildConfigureMethod(methods[i], enrichedMethodInfo[i]);
             }
         }
 
-        private void BuildImplementationMethod(
-            MethodModel method,
-            string configuredCallType,
-            string receivedCallType,
-            GenericSpecifiers generics)
+        private void BuildImplementationMethod(MethodModel method, EnrichedMethodModel enriched)
         {
             // TODO: Is there a better way to do this?
             static string RefString(ParameterModel p) => p.RefKind switch
@@ -131,16 +120,16 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
-                ? $"{generics.ResolvedMethodName}, typeof({method.ReturnType})"
-                : $"{generics.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
+                ? $"{enriched.ResolvedMethodName}, typeof({method.ReturnType})"
+                : $"{enriched.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
             
-            AppendLine($"public {method.ReturnType} {method.Name}{generics.GenericNames}({parametersWithTypes})");
+            AppendLine($"public {method.ReturnType} {method.Name}{enriched.GenericNames}({parametersWithTypes})");
             AppendLine("{");
             using (Indent())
             {
-                AppendLine($"var receivedCall = new {receivedCallType}({receivedCallConstructorArgs});");
+                AppendLine($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
                 AppendLine("_receivedCalls.Add(receivedCall);");
-                AppendLine($"var call = ConfiguredCalls.Get<{configuredCallType}>({generics.ResolvedMethodName}, receivedCall);");
+                AppendLine($"var call = ConfiguredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
 
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
@@ -149,108 +138,23 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("}");
         }
 
-        private void BuildConfigureMethod(
-            MethodModel method,
-            string configuredCallType,
-            GenericSpecifiers generics,
-            ArgLists argLists)
+        private void BuildConfigureMethod(MethodModel method, EnrichedMethodModel enriched)
         {
-            AppendLine($"public {configuredCallType} {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
+            AppendLine($"public {enriched.ConfiguredCallType} {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_implementation.ConfiguredCalls.Add({generics.ResolvedMethodName}, new {configuredCallType}({argLists.SafeParameterNames}));");
+                AppendLine($"_implementation.ConfiguredCalls.Add({enriched.ResolvedMethodName}, new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
             }
         }
         
-        private void BuildReceivedCallsMethod(
-            MethodModel method,
-            string configuredCallType,
-            string receivedCallType,
-            GenericSpecifiers generics,
-            ArgLists argLists)
+        private void BuildReceivedCallsMethod(MethodModel method, EnrichedMethodModel enriched)
         {
             // The next line is identical to configure methods, maybe optimize?
-            AppendLine($"public IReadOnlyList<{receivedCallType}> {method.Name}{generics.GenericNames}({argLists.ArgParameters}) =>");
+            AppendLine($"public IReadOnlyList<{enriched.ReceivedCallType}> {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_calls.GetMatching<{receivedCallType}>({generics.ResolvedMethodName}, new {configuredCallType}({argLists.SafeParameterNames}));");
+                AppendLine($"_calls.GetMatching<{enriched.ReceivedCallType}>({enriched.ResolvedMethodName}, new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
             }
-        }
-
-        private static string MakeConfiguredCall(MethodModel method)
-        {
-            if (method.Parameters.Length == 0 && method.ReturnsVoid)
-            {
-                return nameof(ConfiguredAction);
-            }
-            else
-            {
-                var callType = method.ReturnsVoid ? nameof(ConfiguredAction) : nameof(ConfiguredFunc<int>);
-                var parameterArguments = method.Parameters.Select(p => p.Type);
-                var allArguments = method.ReturnsVoid
-                    ? parameterArguments
-                    : parameterArguments.Append(method.ReturnType);
-
-                return $"{callType}<{BuildList(allArguments)}>";
-            }
-        }
-        
-        // Caches string used in multiple places
-        private readonly struct GenericSpecifiers
-        {
-            // E.g. <T1, T2>
-            public readonly string GenericNames;
-            
-            // E.g. $"SomeMethod<{typeof(T1).FullName}, {typeof(T2).FullName}>
-            public readonly string ResolvedMethodName;
-
-            public GenericSpecifiers(MethodModel method)
-            {
-                if (method.GenericParameterNames.Length == 0)
-                {
-                    GenericNames = "";
-                    ResolvedMethodName = $"\"{method.Name}\"";
-                }
-                else
-                {
-                    GenericNames = $"<{BuildList(method.GenericParameterNames)}>";
-                    
-                    var fullNames = method.GenericParameterNames
-                        .Select(p => $"{{typeof({p}).FullName}}");
-                    ResolvedMethodName = $"$\"{method.Name}<{BuildList(fullNames)}>\"";
-                }
-            }
-        }
-
-        // Caches string used in multiple places
-        private readonly struct ArgLists
-        {
-            // E.g. "Arg<int>? intArg, Arg<double>? doubleArg"
-            public readonly string ArgParameters;
-
-            // E.g. "intArg ?? Arg<int>.Default, doubleArg ?? Arg<double>.Default"
-            public readonly string SafeParameterNames;
-
-            public ArgLists(MethodModel method)
-            {
-                ArgParameters = BuildList(method.Parameters
-                    .Select(p => p.HasDefaultValue
-                        ? $"Arg<{p.Type}>? {p.Name} = default"
-                        : $"Arg<{p.Type}>? {p.Name}"));
-                
-                SafeParameterNames = BuildList(method.Parameters
-                    .Select(p =>
-                    {
-                        var fallbackValue = p.HasDefaultValue && p.DefaultValue is { } defaultValue
-                            ? $"new Arg<{p.Type}>({DefaultValueToString(defaultValue, p.Type)})"
-                            : $"Arg<{p.Type}>.Default";
-                        return $"{p.Name} ?? {fallbackValue}";
-                    }));
-            }
-
-            // TODO, are there cases where this wouldn't work?
-            private static string DefaultValueToString(object obj, string typeName) =>
-                $"({typeName}){SymbolDisplay.FormatPrimitive(obj, quoteStrings: true, useHexadecimalNumbers: false)}";
         }
     }
 }
