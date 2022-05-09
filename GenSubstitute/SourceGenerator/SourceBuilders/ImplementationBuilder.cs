@@ -28,21 +28,21 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             TypeModel model,
             ImmutableArray<EnrichedMethodModel> enrichedMethods)
         {
-            AppendLine($"private class {ClassName} : {model.FullyQualifiedName}");
-            AppendLine("{");
+            Line($"private class {ClassName} : {model.FullyQualifiedName}");
+            Line("{");
             using (Indent())
             {
-                AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
-                AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
+                Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
+                Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
                 EmptyLine();
-                AppendLine($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
-                AppendLine("{");
+                Line($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
+                Line("{");
                 using (Indent())
                 {
-                    AppendLine("_receivedCalls = receivedCalls;");
-                    AppendLine("_configuredCalls = configuredCalls;");
+                    Line("_receivedCalls = receivedCalls;");
+                    Line("_configuredCalls = configuredCalls;");
                 }
-                AppendLine("}");
+                Line("}");
 
                 for (var i = 0; i < model.Methods.Length; ++i)
                 {
@@ -50,7 +50,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     BuildMethod(model.Methods[i], enrichedMethods[i]);
                 }
             }
-            AppendLine("}");
+            Line("}");
         }
         
         private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
@@ -75,19 +75,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 ? $"{enriched.ResolvedMethodName}, typeof({method.ReturnType})"
                 : $"{enriched.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
             
-            AppendLine($"public {method.ReturnType} {method.Name}{enriched.GenericNames}({parametersWithTypes})");
-            AppendLine("{");
+            Line($"public {method.ReturnType} {method.Name}{enriched.GenericNames}({parametersWithTypes})");
+            Line("{");
             using (Indent())
             {
-                AppendLine($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
-                AppendLine("_receivedCalls.Add(receivedCall);");
-                AppendLine($"var call = _configuredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
+                Line($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
+                Line("_receivedCalls.Add(receivedCall);");
+                Line($"var call = _configuredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
 
-                AppendLine(method.ReturnsVoid
+                Line(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"
                     : $"return call != null ? call.Execute({parameterNames}) : default!;");
             }
-            AppendLine("}");
+            Line("}");
         }
     }
 }

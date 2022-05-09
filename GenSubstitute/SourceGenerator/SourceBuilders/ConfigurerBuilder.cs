@@ -24,19 +24,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             ImmutableArray<MethodModel> methods,
             ImmutableArray<EnrichedMethodModel> enrichedMethods)
         {
-            AppendLine($"public class {ClassName}");
-            AppendLine("{");
+            Line($"public class {ClassName}");
+            Line("{");
             using (Indent())
             {
-                AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
+                Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
                 EmptyLine();
-                AppendLine($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
-                AppendLine("{");
+                Line($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
+                Line("{");
                 using (Indent())
                 {
-                    AppendLine("_configuredCalls = configuredCalls;");
+                    Line("_configuredCalls = configuredCalls;");
                 }
-                AppendLine("}");
+                Line("}");
                 
                 for (var i = 0; i < methods.Length; ++i)
                 {
@@ -44,19 +44,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     BuildMethod(methods[i], enrichedMethods[i]);
                 }
             }
-            AppendLine("}");
+            Line("}");
         }
         
         private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
         {
-            AppendLine($"public {enriched.ConfiguredCallType} {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
+            Line($"public {enriched.ConfiguredCallType} {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine("_configuredCalls.Add(");
+                Line("_configuredCalls.Add(");
                 using (Indent())
                 {
-                    AppendLine($"{enriched.ResolvedMethodName},");
-                    AppendLine($"new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
+                    Line($"{enriched.ResolvedMethodName},");
+                    Line($"new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
                 }
             }
         }

@@ -10,12 +10,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         protected SourceBuilder()
         {
-            AppendLine("#nullable enable");
+            Line("#nullable enable");
             EmptyLine();
-            AppendLine("using System.Collections.Generic;");
+            Line("using System.Collections.Generic;");
             EmptyLine();
-            AppendLine("namespace GenSubstitute");
-            AppendLine("{");
+            Line("namespace GenSubstitute");
+            Line("{");
             ++_indentation;
         }
 
@@ -27,14 +27,14 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
             
             --_indentation;
-            AppendLine("}");
+            Line("}");
             
             var result = _builder.ToString();
             _builder = null!;
             return result;
         }
 
-        protected void AppendLine(string line)
+        protected void Line(string line)
         {
             _builder.Append('\t', this._indentation);
             _builder.AppendLine(line);
@@ -51,7 +51,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
             protected Nested(SourceBuilder parent) => _parent = parent;
 
-            protected void AppendLine(string line) => _parent.AppendLine(line);
+            protected void Line(string line) => _parent.Line(line);
             protected void EmptyLine() => _parent.EmptyLine();
             protected IndentationScope Indent() => new(_parent);
         }

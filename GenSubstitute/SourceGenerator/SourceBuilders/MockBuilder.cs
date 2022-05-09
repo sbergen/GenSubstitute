@@ -12,24 +12,24 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         {
             var typeParameters = model.TypeParameters.IsEmpty ? "" : $"<{BuildList(model.TypeParameters)}>";
 
-            AppendLine("internal static partial class GeneratorMarkerExtensions");
-            AppendLine("{");
+            Line("internal static partial class GeneratorMarkerExtensions");
+            Line("{");
             using (Indent())
             {
-                AppendLine(
+                Line(
                     $"public static {model.BuilderTypeName}{typeParameters} Build{typeParameters}(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
             }
-            AppendLine("}");
+            Line("}");
             
             EmptyLine();
             
-            AppendLine($"internal sealed class {model.BuilderTypeName}{typeParameters}");
-            AppendLine("{");
+            Line($"internal sealed class {model.BuilderTypeName}{typeParameters}");
+            Line("{");
             using (Indent())
             {
                 BuildBuilderContents(model);
             }
-            AppendLine("}");
+            Line("}");
         }
 
         private void BuildBuilderContents(TypeModel model)
@@ -45,24 +45,24 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             ConfigurerBuilder.Build(this, methods, enrichedMethodInfo);
             
             EmptyLine();
-            AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls = new();");
-            AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
-            AppendLine($"private readonly {ImplementationBuilder.ClassName} _implementation;");
+            Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls = new();");
+            Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
+            Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
-            AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
-            AppendLine($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
-            AppendLine($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
-            AppendLine($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
+            Line($"public {model.FullyQualifiedName} Object => _implementation;");
+            Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
+            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
+            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
             EmptyLine();
-            AppendLine($"internal {model.BuilderTypeName}()");
-            AppendLine("{");
+            Line($"internal {model.BuilderTypeName}()");
+            Line("{");
             using (Indent())
             {
-                AppendLine("_implementation = new(_receivedCalls, _configuredCalls);");
-                AppendLine("Received = new(_receivedCalls);");
-                AppendLine("Configure = new(_configuredCalls);");
+                Line("_implementation = new(_receivedCalls, _configuredCalls);");
+                Line("Received = new(_receivedCalls);");
+                Line("Configure = new(_configuredCalls);");
             }
-            AppendLine("}");
+            Line("}");
         }
     }
 }
