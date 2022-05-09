@@ -32,14 +32,17 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("{");
             using (Indent())
             {
-                AppendLine($"public readonly {nameof(ConfiguredCalls)} ConfiguredCalls = new();");
+                AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
                 AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
                 EmptyLine();
-                AppendLine($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls) =>");
+                AppendLine($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
+                AppendLine("{");
                 using (Indent())
                 {
                     AppendLine("_receivedCalls = receivedCalls;");
+                    AppendLine("_configuredCalls = configuredCalls;");
                 }
+                AppendLine("}");
 
                 for (var i = 0; i < model.Methods.Length; ++i)
                 {
@@ -78,7 +81,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             {
                 AppendLine($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
                 AppendLine("_receivedCalls.Add(receivedCall);");
-                AppendLine($"var call = ConfiguredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
+                AppendLine($"var call = _configuredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
 
                 AppendLine(method.ReturnsVoid
                     ? $"call?.Execute({parameterNames});"

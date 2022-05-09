@@ -15,7 +15,7 @@ public static class DefaultHandlingTests
     public static void Default_MatchesDefaultValue_WithValueType()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(default(int)).Returns(42);
+        builder.Configure.Method(default(int)).Returns(42);
         builder.Object.Method(0).Should().Be(42);
     }
     
@@ -23,7 +23,7 @@ public static class DefaultHandlingTests
     public static void Default_MatchesDefaultValue_WithReferenceType()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(default(object)).Returns(42);
+        builder.Configure.Method(default(object)).Returns(42);
         builder.Object.Method(null).Should().Be(42);
     }
     
@@ -31,7 +31,7 @@ public static class DefaultHandlingTests
     public static void Default_DoesNotMatchNonDefaultValue_WithValueType()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(default(int)).Returns(42);
+        builder.Configure.Method(default(int)).Returns(42);
         builder.Object.Method(1).Should().Be(0);
     }
     
@@ -39,7 +39,7 @@ public static class DefaultHandlingTests
     public static void Default_DoesNotMatchNonDefaultValue_WithReferenceType()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(null).Returns(42);
+        builder.Configure.Method(null).Returns(42);
         builder.Object.Method(new object()).Should().Be(0);
     }
 }

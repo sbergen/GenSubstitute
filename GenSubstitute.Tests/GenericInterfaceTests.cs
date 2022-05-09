@@ -15,7 +15,7 @@ public static class GenericInterfaceTests
     public static void GenericInterface_CanConfigureReturnValue()
     {
         var builder = Gen.Substitute<IGeneric<int>>().Build();
-        builder.MethodReturningT().Returns(42);
+        builder.Configure.MethodReturningT().Returns(42);
         builder.Object.MethodReturningT().Should().Be(42);
     }
 
@@ -25,7 +25,7 @@ public static class GenericInterfaceTests
         var builder = Gen.Substitute<IGeneric<int>>().Build();
         int? receivedValue = null;
         
-        builder.MethodTakingT(42).Configure(val => receivedValue = val);
+        builder.Configure.MethodTakingT(42).Configure(val => receivedValue = val);
         
         builder.Object.MethodTakingT(42);
         receivedValue.Should().Be(42);

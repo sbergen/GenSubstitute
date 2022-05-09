@@ -15,7 +15,7 @@ public static class ArgMatcherTests
     public static void ValueAsArg_MatchesOnlyThatValue()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(10).Returns(10);
+        builder.Configure.Method(10).Returns(10);
         
         builder.Object.Method(10).Should().Be(10);
         builder.Object.Method(11).Should().Be(0);
@@ -25,7 +25,7 @@ public static class ArgMatcherTests
     public static void ArgMatcher_ConfiguresReturnValue_WhenItMatches()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(Arg<int>.When(i => i > 10)).Returns(10);
+        builder.Configure.Method(Arg<int>.When(i => i > 10)).Returns(10);
         builder.Object.Method(11).Should().Be(10);
     }
     
@@ -33,7 +33,7 @@ public static class ArgMatcherTests
     public static void ArgMatcher_DoesNotConfigureReturnValue_WhenItDoesNotMatch()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(Arg<int>.When(i => i < 10)).Returns(10);
+        builder.Configure.Method(Arg<int>.When(i => i < 10)).Returns(10);
         builder.Object.Method(11).Should().Be(default);
     }
 
@@ -41,8 +41,8 @@ public static class ArgMatcherTests
     public static void MultipleMatchers_CanBeUsedAtTheSameTime()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(Arg<int>.When(i => i < 0)).Returns(-1);
-        builder.Method(Arg<int>.When(i => i > 0)).Returns(1);
+        builder.Configure.Method(Arg<int>.When(i => i < 0)).Returns(-1);
+        builder.Configure.Method(Arg<int>.When(i => i > 0)).Returns(1);
 
         builder.Object.Method(-100).Should().Be(-1);
         builder.Object.Method(-0).Should().Be(0);
@@ -53,8 +53,8 @@ public static class ArgMatcherTests
     public static void OverlappingMatchers_ThrowException_WhenInvoked()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Method(Arg<int>.When(i => i < 0)).Returns(-1);
-        builder.Method(Arg<int>.When(i => i < -10)).Returns(1);
+        builder.Configure.Method(Arg<int>.When(i => i < 0)).Returns(-1);
+        builder.Configure.Method(Arg<int>.When(i => i < -10)).Returns(1);
 
         Action ambiguousInvoke = () => builder.Object.Method(-20);
 

@@ -15,8 +15,8 @@ public class GenericMethodTests
     public static void GenericMethods_CanConfiguredSeparately()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.GenericMethod<int>().Returns(1);
-        builder.GenericMethod<int, double>().Returns(2);
+        builder.Configure.GenericMethod<int>().Returns(1);
+        builder.Configure.GenericMethod<int, double>().Returns(2);
 
         builder.Object.GenericMethod<int>().Should().Be(1, "matching generic argument");
         builder.Object.GenericMethod<double>().Should().Be(0, "non matching generic argument");

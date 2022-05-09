@@ -39,39 +39,30 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
 
             ImplementationBuilder.Build(this, model, enrichedMethodInfo);
+            EmptyLine();
             ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
+            EmptyLine();
+            ConfigurerBuilder.Build(this, methods, enrichedMethodInfo);
             
             EmptyLine();
+            AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls = new();");
             AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
             AppendLine($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
             AppendLine($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
+            AppendLine($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
             AppendLine($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
-            
+            EmptyLine();
             AppendLine($"internal {model.BuilderTypeName}()");
             AppendLine("{");
             using (Indent())
             {
-                AppendLine("_implementation = new(_receivedCalls);");
+                AppendLine("_implementation = new(_receivedCalls, _configuredCalls);");
                 AppendLine("Received = new(_receivedCalls);");
+                AppendLine("Configure = new(_configuredCalls);");
             }
             AppendLine("}");
-            
-            for (var i = 0; i < methods.Length; ++i)
-            {
-                EmptyLine();
-                BuildConfigureMethod(methods[i], enrichedMethodInfo[i]);
-            }
-        }
-
-        private void BuildConfigureMethod(MethodModel method, EnrichedMethodModel enriched)
-        {
-            AppendLine($"public {enriched.ConfiguredCallType} {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
-            using (Indent())
-            {
-                AppendLine($"_implementation.ConfiguredCalls.Add({enriched.ResolvedMethodName}, new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
-            }
         }
     }
 }

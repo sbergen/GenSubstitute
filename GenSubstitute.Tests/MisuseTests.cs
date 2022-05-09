@@ -17,7 +17,7 @@ public class MisuseTests
     public void UsingPartiallyConfiguredMethod_ThrowsException_WhenMethodHasReturnValue()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.MethodWithReturnValue();
+        builder.Configure.MethodWithReturnValue();
         var callIncompleteMethod = () => builder.Object.MethodWithReturnValue();
         
         callIncompleteMethod.Should().Throw<InvalidOperationException>();
@@ -27,7 +27,7 @@ public class MisuseTests
     public void UsingPartiallyConfiguredMethod_ThrowsException_WhenMethodHasNoReturnValue()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.MethodWithoutReturnValue();
+        builder.Configure.MethodWithoutReturnValue();
         var callIncompleteMethod = () => builder.Object.MethodWithoutReturnValue();
         
         callIncompleteMethod.Should().Throw<InvalidOperationException>();
@@ -37,7 +37,7 @@ public class MisuseTests
     public void ConfiguringMethodTwice_ThrowsException_WhenMethodHasReturnValue()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        var configure = builder.MethodWithReturnValue();
+        var configure = builder.Configure.MethodWithReturnValue();
         configure.Configure(() => 1);
         
         var configureAgain = () => configure.Configure(() => 1);
@@ -51,7 +51,7 @@ public class MisuseTests
     public void ConfiguringMethodTwice_ThrowsException_WhenMethodHasNoReturnValue()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        var configure = builder.MethodWithoutReturnValue();
+        var configure = builder.Configure.MethodWithoutReturnValue();
         configure.Configure(() => { });
         
         var configureAgain = () => configure.Configure(() => { });

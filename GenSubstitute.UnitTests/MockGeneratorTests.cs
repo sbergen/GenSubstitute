@@ -10,13 +10,10 @@ public class MockGeneratorTests
     {
         GeneratorUtility.AssertNoInspections(@"
 using GenSubstitute;
-using System;
 using Some.Nested.Namespace;
 
 var builder = Gen.Substitute<SomeClass.SomeNestedClass.IFoo<int>>().Build();
-var builder2 = Gen.Substitute<SomeClass.SomeNestedClass.IFoo<int>>().Build();
-
-var externalBuilder = Gen.Substitute<IDisposable>().Build();
+var builder2 = Gen.Substitute<SomeClass.SomeNestedClass.IFoo<double>>().Build();
 
 namespace Some.Nested.Namespace
 {
@@ -34,6 +31,17 @@ namespace Some.Nested.Namespace
         }
     }
 }
+");
+    }
+
+    [Fact]
+    public void ExternalTypeSmokeTest()
+    {
+        GeneratorUtility.AssertNoInspections(@"
+using GenSubstitute;
+using System;
+
+var externalBuilder = Gen.Substitute<IDisposable>().Build();
 ");
     }
 }

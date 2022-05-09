@@ -20,8 +20,8 @@ public class MultipleInterfaceTests
     {
         var builder = Gen.Substitute<IDerived>().Build();
         
-        builder.BaseMethod().Returns(1);
-        builder.DerivedMethod().Returns(2);
+        builder.Configure.BaseMethod().Returns(1);
+        builder.Configure.DerivedMethod().Returns(2);
         
         builder.Object.BaseMethod().Should().Be(1);
         builder.Object.DerivedMethod().Should().Be(2);

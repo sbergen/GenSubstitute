@@ -19,7 +19,7 @@ public static class InterfaceMethodTests
     public static void MethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.MethodReturningInt().Returns(42);
+        builder.Configure.MethodReturningInt().Returns(42);
         builder.Object.MethodReturningInt().Should().Be(42);
     }
     
@@ -27,7 +27,7 @@ public static class InterfaceMethodTests
     public static void GenericMethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.GenericMethod<int>().Returns(42);
+        builder.Configure.GenericMethod<int>().Returns(42);
         builder.Object.GenericMethod<int>().Should().Be(42);
     }
 
@@ -36,7 +36,7 @@ public static class InterfaceMethodTests
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
         int? receivedValue = null;
-        builder.MethodTakingInt(Arg.Any).Configure(val => receivedValue = val);
+        builder.Configure.MethodTakingInt(Arg.Any).Configure(val => receivedValue = val);
         builder.Object.MethodTakingInt(42);
         receivedValue.Should().Be(42);
     }
@@ -45,7 +45,7 @@ public static class InterfaceMethodTests
     public static void MethodTakingMultipleArgs_CanBeConfigured()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
+        builder.Configure.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
             .Configure((i1, i2, i3) => i1 + i2 + i3);
         builder.Object.MultipleArgs(10, 30, 2).Should().Be(42.0);
     }
@@ -54,8 +54,8 @@ public static class InterfaceMethodTests
     public static void MethodWithOverloads_CanBeConfiguredSeparately()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.MethodWithOverload(Arg<double>.Any).Returns(1);
-        builder.MethodWithOverload(Arg<int>.Any).Returns(2);
+        builder.Configure.MethodWithOverload(Arg<double>.Any).Returns(1);
+        builder.Configure.MethodWithOverload(Arg<int>.Any).Returns(2);
 
         builder.Object.MethodWithOverload(0.0).Should().Be(1);
         builder.Object.MethodWithOverload(0).Should().Be(2);

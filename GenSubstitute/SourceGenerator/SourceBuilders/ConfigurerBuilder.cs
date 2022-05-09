@@ -3,19 +3,19 @@ using GenSubstitute.SourceGenerator.Models;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
-    internal class ReceivedCallsBuilder : SourceBuilder.Nested
+    internal class ConfigurerBuilder : SourceBuilder.Nested
     {
-        public const string ClassName = "ReceivedCallsData";
-        
+        public const string ClassName = "Configurer";
+
         public static void Build(
             SourceBuilder parent,
             ImmutableArray<MethodModel> methods,
             ImmutableArray<EnrichedMethodModel> enrichedMethods)
         {
-            new ReceivedCallsBuilder(parent).BuildContent(methods, enrichedMethods);
+            new ConfigurerBuilder(parent).BuildContent(methods, enrichedMethods);
         }
 
-        private ReceivedCallsBuilder(SourceBuilder parent)
+        private ConfigurerBuilder(SourceBuilder parent)
             : base(parent)
         {
         }
@@ -28,13 +28,13 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendLine("{");
             using (Indent())
             {
-                AppendLine($"private readonly {nameof(ReceivedCalls)} _calls;");
+                AppendLine($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
                 EmptyLine();
-                AppendLine($"internal {ClassName}({nameof(ReceivedCalls)} calls)");
+                AppendLine($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
                 AppendLine("{");
                 using (Indent())
                 {
-                    AppendLine("_calls = calls;");
+                    AppendLine("_configuredCalls = configuredCalls;");
                 }
                 AppendLine("}");
                 
@@ -49,17 +49,15 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         
         private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
         {
-            // The next line is identical to configure methods, maybe optimize?
-            AppendLine($"public IReadOnlyList<{enriched.ReceivedCallType}> {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
+            AppendLine($"public {enriched.ConfiguredCallType} {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
             using (Indent())
             {
-                AppendLine($"_calls.GetMatching<{enriched.ReceivedCallType}>(");
+                AppendLine("_configuredCalls.Add(");
                 using (Indent())
                 {
                     AppendLine($"{enriched.ResolvedMethodName},");
                     AppendLine($"new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
                 }
-                
             }
         }
     }
