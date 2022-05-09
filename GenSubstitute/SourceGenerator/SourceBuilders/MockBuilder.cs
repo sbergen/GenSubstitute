@@ -1,16 +1,11 @@
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
-using Microsoft.CodeAnalysis;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
     internal class MockBuilder : SourceBuilder
     {
-        public const string ImplementationClassName = "Implementation";
-
         public static string BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
 
         private MockBuilder(TypeModel model)
@@ -43,28 +38,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var enrichedMethodInfo = ImmutableArray
                 .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
 
-            AppendLine($"private class {ImplementationClassName} : {model.FullyQualifiedName}");
-            AppendLine("{");
-            using (Indent())
-            {
-                AppendLine($"public readonly {nameof(ConfiguredCalls)} ConfiguredCalls = new();");
-                AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
-                EmptyLine();
-                AppendLine($"internal {ImplementationClassName}({nameof(ReceivedCalls)} receivedCalls) => _receivedCalls = receivedCalls;");
-                
-                for (var i = 0; i < methods.Length; ++i)
-                {
-                    EmptyLine();
-                    BuildImplementationMethod(methods[i], enrichedMethodInfo[i]);
-                }
-            }
-            AppendLine("}");
-
+            ImplementationBuilder.Build(this, model, enrichedMethodInfo);
             ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
             
             EmptyLine();
             AppendLine($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
-            AppendLine($"private readonly {ImplementationClassName} _implementation;");
+            AppendLine($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             AppendLine($"public {model.FullyQualifiedName} Object => _implementation;");
             AppendLine($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
@@ -84,43 +63,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 EmptyLine();
                 BuildConfigureMethod(methods[i], enrichedMethodInfo[i]);
             }
-        }
-
-        private void BuildImplementationMethod(MethodModel method, EnrichedMethodModel enriched)
-        {
-            // TODO: Is there a better way to do this?
-            static string RefString(ParameterModel p) => p.RefKind switch
-            {
-                RefKind.None => "",
-                RefKind.Ref => "ref ",
-                RefKind.Out => "out ",
-                RefKind.In => "in ",
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            
-            var parametersWithTypes = BuildList(
-                method.Parameters
-                .Select(p => $"{RefString(p)}{p.Type} {p.Name}"));
-
-            var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
-
-            var receivedCallConstructorArgs = method.Parameters.Length == 0
-                ? $"{enriched.ResolvedMethodName}, typeof({method.ReturnType})"
-                : $"{enriched.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
-            
-            AppendLine($"public {method.ReturnType} {method.Name}{enriched.GenericNames}({parametersWithTypes})");
-            AppendLine("{");
-            using (Indent())
-            {
-                AppendLine($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
-                AppendLine("_receivedCalls.Add(receivedCall);");
-                AppendLine($"var call = ConfiguredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
-
-                AppendLine(method.ReturnsVoid
-                    ? $"call?.Execute({parameterNames});"
-                    : $"return call != null ? call.Execute({parameterNames}) : default!;");
-            }
-            AppendLine("}");
         }
 
         private void BuildConfigureMethod(MethodModel method, EnrichedMethodModel enriched)
