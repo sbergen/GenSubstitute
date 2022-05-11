@@ -30,7 +30,8 @@ namespace GenSubstitute.SourceGenerator.Models
         // E.g. "", "ref ", or " out"
         public readonly string RefKindString;
 
-        public readonly bool IsRefOrOut;
+        public readonly bool IsRef;
+        public readonly bool IsOut;
         
         public EnrichedParameterModel(ParameterModel parameter)
         {
@@ -47,14 +48,15 @@ namespace GenSubstitute.SourceGenerator.Models
                 _ => throw new ArgumentOutOfRangeException()
             };
             
-            // TODO handle other types
             WrappedType = parameter.RefKind switch
             {
                 RefKind.Ref => $"RefArg<{parameter.Type}>",
+                RefKind.Out => $"OutArg<{parameter.Type}>",
                 _ => $"Arg<{parameter.Type}>",
             };
 
-            IsRefOrOut = parameter.RefKind is RefKind.Ref or RefKind.Out;
+            IsRef = parameter.RefKind is RefKind.Ref;
+            IsOut = parameter.RefKind is RefKind.Out;
 
             CallObjectType = parameter.RefKind == RefKind.None
                 ? parameter.Type

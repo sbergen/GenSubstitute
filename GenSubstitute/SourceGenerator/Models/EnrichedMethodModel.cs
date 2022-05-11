@@ -94,7 +94,7 @@ namespace GenSubstitute.SourceGenerator.Models
             var callArgumentsBuilder = ImmutableArray.CreateBuilder<string>(Parameters.Length);
             foreach (var parameter in Parameters)
             {
-                if (parameter.IsRefOrOut)
+                if (parameter.IsRef || parameter.IsOut)
                 {
                     var refOrOutModel = new RefOrOutParameterModel(parameter);
                     refOrOutBuilder.Add(refOrOutModel);

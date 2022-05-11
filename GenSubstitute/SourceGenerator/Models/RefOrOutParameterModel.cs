@@ -13,9 +13,10 @@ namespace GenSubstitute.SourceGenerator.Models
         public RefOrOutParameterModel(EnrichedParameterModel parameter)
         {
             // TODO: ensure uniqueness!
-            LocalVariableName = $"{parameter.Name}_RefArg";
+            LocalVariableName = $"{parameter.Name}_local";
 
-            LocalVariableDeclaration = $"var {LocalVariableName} = new {parameter.WrappedType}({parameter.Name});";
+            var initializerValue = parameter.IsRef ? parameter.Name : "";
+            LocalVariableDeclaration = $"var {LocalVariableName} = new {parameter.WrappedType}({initializerValue});";
             ResultAssignment = $"{parameter.Name} = {LocalVariableName};";
         }
     }

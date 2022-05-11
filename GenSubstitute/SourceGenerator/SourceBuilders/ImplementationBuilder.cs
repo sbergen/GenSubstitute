@@ -30,11 +30,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 method.Parameters
                     .Select(p => $"{p.RefKindString}{p.Type} {p.Name}"));
 
-            var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
+            var receivedCallParameterArguments = BuildList(method.Parameters
+                .Select(p => p.IsOut ? "Arg.Any" : p.Name));
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
                 ? $"{method.ResolvedMethodName}, typeof({method.ReturnType})"
-                : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
+                : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {receivedCallParameterArguments}";
             
             EmptyLine();
             Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");

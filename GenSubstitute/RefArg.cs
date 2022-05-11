@@ -13,11 +13,16 @@ namespace GenSubstitute
 
         public RefArg(T value) => Value = value;
         
+        public static readonly RefArg<T> Default = new(default!); // TODO, what if this is modified?
+        public static readonly RefArg<T> Any = new(default!);
+
         public static implicit operator RefArg<T>(T val) => new (val);
+        public static implicit operator RefArg<T>(AnyArg unused) => Any;
         public static implicit operator T(RefArg<T> val) => val.Value;
 
-        public static readonly RefArg<T> Default = new(default!);
-
-        public bool Equals(RefArg<T> other) => EqualityComparer<T>.Default.Equals(Value, other.Value);
+        public bool Equals(RefArg<T> other) =>
+            this == Any ||
+            other == Any ||
+            EqualityComparer<T>.Default.Equals(Value, other.Value);
     }
 }

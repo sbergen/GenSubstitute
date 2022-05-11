@@ -8,7 +8,8 @@ public class ArgMatchingTests
     [Fact]
     public void RefArgsWrappedInArgs_Match()
     {
-        // TODO, should we really have these?
         new Arg<RefArg<int>>(5).Matches(new RefArg<int>(5)).Should().BeTrue();
     }
+
+    // TODO, should probably write more tests here
 }
