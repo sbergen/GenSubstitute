@@ -60,6 +60,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             
+            Line($"public {model.FullyQualifiedName} Object => _implementation;");
+            Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
+            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
+            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
+            EmptyLine();
+            
             Line($"internal {model.BuilderTypeName}()");
             Line("{");
             using (Indent())
@@ -71,9 +77,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
             Line("}");
 
-            var implementationBuilder = new ImplementationBuilder(model);
-            var receivedBuilder = new ReceivedCallsBuilder();
-            var configurerBuilder = new ConfigurerBuilder();
+            var implementationBuilder = new ImplementationBuilder(this, model);
+            var receivedBuilder = new ReceivedCallsBuilder(this);
+            var configurerBuilder = new ConfigurerBuilder(this);
 
             foreach (var method in model.Methods)
             {
@@ -84,17 +90,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
 
             EmptyLine();
-            Line(implementationBuilder.GetResult());
+            AppendWithoutIndent(implementationBuilder.GetResult());
             EmptyLine();
-            Line(receivedBuilder.GetResult());
+            AppendWithoutIndent(receivedBuilder.GetResult());
             EmptyLine();
-            Line(configurerBuilder.GetResult());
-            EmptyLine();
-            
-            Line($"public {model.FullyQualifiedName} Object => _implementation;");
-            Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
-            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
-            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
+            AppendWithoutIndent(configurerBuilder.GetResult());
         }
     }
 }

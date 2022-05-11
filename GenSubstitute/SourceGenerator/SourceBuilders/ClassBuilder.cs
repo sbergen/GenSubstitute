@@ -2,9 +2,10 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
     internal abstract class ClassBuilder : SourceBuilder
     {
-        private IndentationScope _indent;
-        
-        protected ClassBuilder(string classDeclaration)
+        private readonly IndentationScope _indent;
+
+        protected ClassBuilder(SourceBuilder parent, string classDeclaration)
+            : base(parent)
         {
             Line(classDeclaration);
             Line("{");

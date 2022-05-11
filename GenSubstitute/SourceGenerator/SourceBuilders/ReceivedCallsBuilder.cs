@@ -6,8 +6,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     {
         public const string ClassName = "ReceivedCallsData";
 
-        public ReceivedCallsBuilder()
-            : base($"public class {ClassName}")
+        public ReceivedCallsBuilder(SourceBuilder parent)
+            : base(parent, $"public class {ClassName}")
         {
             Line($"private readonly {nameof(ReceivedCalls)} _calls;");
             EmptyLine();

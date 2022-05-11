@@ -8,8 +8,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     {
         public const string ClassName = "Implementation";
 
-        public ImplementationBuilder(TypeModel model)
-            : base($"private class {ClassName} : {model.FullyQualifiedName}")
+        public ImplementationBuilder(SourceBuilder parent, TypeModel model)
+            : base(parent, $"private class {ClassName} : {model.FullyQualifiedName}")
         {
             Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
             Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");

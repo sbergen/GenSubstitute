@@ -9,6 +9,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         private int _indentation;
 
         protected abstract void FinalizeContent();
+
+        protected SourceBuilder()
+        {
+        }
+        
+        /// <summary>
+        /// Constructor for nested builders, which will inherit the indentation level 
+        /// </summary>
+        protected SourceBuilder(SourceBuilder parent)
+        {
+            _indentation = parent._indentation;
+        }
         
         public string GetResult()
         {
@@ -27,6 +39,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         {
             _builder.Append('\t', _indentation);
             _builder.AppendLine(line);
+        }
+
+        protected void AppendWithoutIndent(string content)
+        {
+            _builder.Append(content);
         }
 
         protected void EmptyLine() => _builder.AppendLine();

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using GenSubstitute.SourceGenerator.Models;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -7,8 +6,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
     {
         public const string ClassName = "Configurer";
 
-        public ConfigurerBuilder()
-            : base($"public class {ClassName}")
+        public ConfigurerBuilder(SourceBuilder parent)
+            : base(parent, $"public class {ClassName}")
         {
             Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
             EmptyLine();
