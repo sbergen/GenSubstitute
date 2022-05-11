@@ -1,4 +1,5 @@
 using System.Linq;
+using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 

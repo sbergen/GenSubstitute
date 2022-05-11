@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GenSubstitute
+namespace GenSubstitute.Internal
 {
     /// <summary>
     /// Keeps track of received calls, only intended for internal use
-    /// (TODO, move to Internal namespace?)
     /// </summary>
     public class ReceivedCalls
     {

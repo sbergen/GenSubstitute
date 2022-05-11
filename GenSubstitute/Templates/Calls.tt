@@ -110,7 +110,7 @@ namespace GenSubstitute
         {
             ConfiguredAs.Method => _execute!(<#= executeCall #>),
             ConfiguredAs.Value => _returnValue!,
-            _ => throw new InvalidOperationException("Method call was not fully configured"),
+            _ => throw new IncompletelyConfiguredCallException(),
         };
 
         public bool Matches(IReceivedCall call) =>
@@ -147,7 +147,7 @@ namespace GenSubstitute
             }
             else
             {
-                throw new InvalidOperationException("Method call was not fully configured");
+                throw new IncompletelyConfiguredCallException();
             }
         }
 

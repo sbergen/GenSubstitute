@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GenSubstitute.Utilities;
 
-namespace GenSubstitute
+namespace GenSubstitute.Internal
 {
     /// <summary>
     /// Keeps track of configured calls, only intended for internal use
-    /// (TODO, move to Internal namespace?)
     /// </summary>
     public class ConfiguredCalls
     {
@@ -33,7 +31,7 @@ namespace GenSubstitute
                 {
                     0 => null,
                     1 => (T)matches[0],
-                    _ => throw new Exception("Multiple matches"),
+                    _ => throw new AmbiguousConfiguredCallMatchException(),
                 };
             }
             else

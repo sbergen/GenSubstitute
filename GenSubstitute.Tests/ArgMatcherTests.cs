@@ -57,8 +57,7 @@ public static class ArgMatcherTests
         builder.Configure.Method(Arg<int>.When(i => i < -10)).Returns(1);
 
         Action ambiguousInvoke = () => builder.Object.Method(-20);
-
-        // TODO better type here
-        ambiguousInvoke.Should().Throw<Exception>();
+        
+        ambiguousInvoke.Should().Throw<AmbiguousConfiguredCallMatchException>();
     }
 }

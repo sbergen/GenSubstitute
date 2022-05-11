@@ -1,3 +1,4 @@
+using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders

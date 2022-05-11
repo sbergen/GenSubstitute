@@ -4,7 +4,6 @@ using Xunit;
 
 namespace GenSubstitute.Tests;
 
-// TODO: Better exception types here?
 public class MisuseTests
 {
     public interface ITestInterface
@@ -20,7 +19,7 @@ public class MisuseTests
         builder.Configure.MethodWithReturnValue();
         var callIncompleteMethod = () => builder.Object.MethodWithReturnValue();
         
-        callIncompleteMethod.Should().Throw<InvalidOperationException>();
+        callIncompleteMethod.Should().Throw<IncompletelyConfiguredCallException>();
     }
     
     [Fact]
@@ -30,6 +29,6 @@ public class MisuseTests
         builder.Configure.MethodWithoutReturnValue();
         var callIncompleteMethod = () => builder.Object.MethodWithoutReturnValue();
         
-        callIncompleteMethod.Should().Throw<InvalidOperationException>();
+        callIncompleteMethod.Should().Throw<IncompletelyConfiguredCallException>();
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
 {
-    // TODO consider using some OneOf library here...
     internal readonly struct TypeModelOrDiagnostic : IEquatable<TypeModelOrDiagnostic>
     {
         public readonly Diagnostic? Diagnostic;

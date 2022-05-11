@@ -1,3 +1,4 @@
+using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
@@ -12,6 +13,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("#nullable enable");
             EmptyLine();
             Line("using System.Collections.Generic;");
+            Line("using GenSubstitute.Internal;");
             EmptyLine();
             Line("namespace GenSubstitute");
             Line("{");
