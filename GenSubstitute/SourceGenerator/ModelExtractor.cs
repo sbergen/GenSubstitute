@@ -1,5 +1,6 @@
 using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -15,6 +16,7 @@ namespace GenSubstitute.SourceGenerator
                 var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(typeSyntax.SyntaxTree);
                 if (semanticModel.GetSymbolInfo(typeSyntax, cancellationToken).Symbol is INamedTypeSymbol typeSymbol)
                 {
+                    // TODO: diagnostic, if not interface
                     return new TypeLookupInfo(typeSymbol);
                 }
                 else
@@ -30,7 +32,7 @@ namespace GenSubstitute.SourceGenerator
             }
         }
 
-        public static TypeModelOrDiagnostic ExtractModelFromCompilationAndName(
+        public static ResultOrDiagnostic<TypeModel> ExtractModelFromCompilationAndName(
             TypeLookupInfo typeInfo,
             Compilation compilation,
             CancellationToken cancellationToken) => compilation.GetTypeByMetadataName(typeInfo.MetadataName) switch

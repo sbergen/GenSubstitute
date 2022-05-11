@@ -24,16 +24,9 @@ namespace GenSubstitute.SourceGenerator
 
             context.RegisterSourceOutput(models, (spContext, modelOrDiagnostic) =>
             {
-                if (modelOrDiagnostic is { Model: {} model })
-                {
-                    spContext.AddSource(
-                        $"{model.BuilderTypeName}.cs",
-                        MockBuilder.BuildMock(model));
-                }
-                else if (modelOrDiagnostic is { Diagnostic: {} diagnostic })
-                {
-                    spContext.ReportDiagnostic(diagnostic);
-                }
+                modelOrDiagnostic.AddSourceOrDiagnostic(
+                    spContext,
+                    static model => ($"{model.BuilderTypeName}.cs", MockBuilder.BuildMock(model)));
             });
         }
 
