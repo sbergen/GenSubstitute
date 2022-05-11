@@ -1,3 +1,5 @@
+using GenSubstitute.SourceGenerator.Utilities;
+
 namespace GenSubstitute.SourceGenerator.Models
 {
     internal readonly struct RefOrOutParameterModel
@@ -10,10 +12,9 @@ namespace GenSubstitute.SourceGenerator.Models
         // E:g. var someArg = someArg_wrapped;
         public readonly string ResultAssignment; 
 
-        public RefOrOutParameterModel(EnrichedParameterModel parameter)
+        public RefOrOutParameterModel(LocalNameUniquifier localNameUniquifier, EnrichedParameterModel parameter)
         {
-            // TODO: ensure uniqueness!
-            LocalVariableName = $"{parameter.Name}_local";
+            LocalVariableName = localNameUniquifier.GetUniqueLocalName(parameter.Name);
 
             var initializerValue = parameter.IsRef ? $"{parameter.Name}, " : "";
             LocalVariableDeclaration =

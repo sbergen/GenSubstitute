@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using GenSubstitute.SourceGenerator.Utilities;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -90,13 +91,14 @@ namespace GenSubstitute.SourceGenerator.Models
                 ? "ReceivedCall"
                 : $"ReceivedCall<{callObjectParameterList}>";
 
+            var nameUniquifier = new LocalNameUniquifier(Parameters.Select(p => p.Name));
             var refOrOutBuilder = ImmutableArray.CreateBuilder<RefOrOutParameterModel>();
             var callArgumentsBuilder = ImmutableArray.CreateBuilder<string>(Parameters.Length);
             foreach (var parameter in Parameters)
             {
                 if (parameter.IsRef || parameter.IsOut)
                 {
-                    var refOrOutModel = new RefOrOutParameterModel(parameter);
+                    var refOrOutModel = new RefOrOutParameterModel(nameUniquifier, parameter);
                     refOrOutBuilder.Add(refOrOutModel);
                     callArgumentsBuilder.Add(refOrOutModel.LocalVariableName);
                 }
