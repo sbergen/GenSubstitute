@@ -17,9 +17,7 @@ GenSubstitute is a C# source generator based mocking library.
 ## TODO
 - Write a proper REAMDE :)
 - Support properties
-- Proper diagnostics for errors
-- ref and out?
-- Support default value policies for return value
+- Support default value policies for return values (instead of fully automatic recursive mocking)
 - Received.InOrder equivalent?
 - Sequential return values?
 - Support non-interfaces?
