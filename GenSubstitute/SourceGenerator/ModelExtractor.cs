@@ -16,8 +16,9 @@ namespace GenSubstitute.SourceGenerator
                 var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(typeSyntax.SyntaxTree);
                 if (semanticModel.GetSymbolInfo(typeSyntax, cancellationToken).Symbol is INamedTypeSymbol typeSymbol)
                 {
-                    // TODO: diagnostic, if not interface
-                    return new TypeLookupInfo(typeSymbol);
+                    return typeSymbol.TypeKind == TypeKind.Interface
+                        ? new TypeLookupInfo(typeSymbol)
+                        : Diagnostics.NotAnInterface(typeSyntax);
                 }
                 else
                 {
@@ -26,8 +27,9 @@ namespace GenSubstitute.SourceGenerator
             }
             else
             {
-                // TODO diagnostic
-                return null;
+                return Diagnostics.InternalError(
+                    "Could not resolve type from substitute call",
+                    context.Node.GetLocation());
             }
         }
 
