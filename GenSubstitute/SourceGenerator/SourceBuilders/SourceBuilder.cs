@@ -8,13 +8,16 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         private StringBuilder _builder = new();
         private int _indentation;
 
-        protected string GetResult()
+        protected abstract void FinalizeContent();
+        
+        public string GetResult()
         {
             if (_builder == null)
             {
                 throw new InvalidOperationException($"{GetType().Name} result already used!");
             }
 
+            FinalizeContent();
             var result = _builder.ToString();
             _builder = null!;
             return result;
@@ -30,18 +33,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         protected IndentationScope Indent() => new(this);
 
-        // This exists just for shorter syntax, as this stuff is used a lot.
-        public abstract class Nested
-        {
-            private readonly SourceBuilder _parent;
-
-            protected Nested(SourceBuilder parent) => _parent = parent;
-
-            protected void Line(string line) => _parent.Line(line);
-            protected void EmptyLine() => _parent.EmptyLine();
-            protected IndentationScope Indent() => new(_parent);
-        }
-        
         internal readonly struct IndentationScope : IDisposable
         {
             private readonly SourceBuilder _parent;

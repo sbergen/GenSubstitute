@@ -3,49 +3,27 @@ using GenSubstitute.SourceGenerator.Models;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
-    internal class ConfigurerBuilder : SourceBuilder.Nested
+    internal class ConfigurerBuilder : ClassBuilder
     {
         public const string ClassName = "Configurer";
 
-        public static void Build(
-            SourceBuilder parent,
-            ImmutableArray<EnrichedMethodModel> methods)
+        public ConfigurerBuilder()
+            : base($"public class {ClassName}")
         {
-            new ConfigurerBuilder(parent).BuildContent(methods);
-        }
-
-        private ConfigurerBuilder(SourceBuilder parent)
-            : base(parent)
-        {
-        }
-
-        private void BuildContent(ImmutableArray<EnrichedMethodModel> methods)
-        {
-            Line($"public class {ClassName}");
+            Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
+            EmptyLine();
+            Line($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
             Line("{");
             using (Indent())
             {
-                Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
-                EmptyLine();
-                Line($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
-                Line("{");
-                using (Indent())
-                {
-                    Line("_configuredCalls = configuredCalls;");
-                }
-                Line("}");
-
-                foreach (var method in methods)
-                {
-                    EmptyLine();
-                    BuildMethod(method);
-                }
+                Line("_configuredCalls = configuredCalls;");
             }
             Line("}");
         }
-        
-        private void BuildMethod(EnrichedMethodModel method)
+
+        public void AddMethod(EnrichedMethodModel method)
         {
+            EmptyLine();
             Line($"public {method.ConfiguredCallType} {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {

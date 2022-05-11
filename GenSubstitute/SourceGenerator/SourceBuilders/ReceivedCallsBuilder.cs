@@ -1,52 +1,28 @@
-using System.Collections.Immutable;
 using GenSubstitute.SourceGenerator.Models;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
-    internal class ReceivedCallsBuilder : SourceBuilder.Nested
+    internal class ReceivedCallsBuilder : ClassBuilder
     {
         public const string ClassName = "ReceivedCallsData";
-        
-        public static void Build(
-            SourceBuilder parent,
-            ImmutableArray<EnrichedMethodModel> methods)
-        {
-            new ReceivedCallsBuilder(parent).BuildContent(methods);
-        }
 
-        private ReceivedCallsBuilder(SourceBuilder parent)
-            : base(parent)
+        public ReceivedCallsBuilder()
+            : base($"public class {ClassName}")
         {
-        }
-
-        private void BuildContent(ImmutableArray<EnrichedMethodModel> methods)
-        {
-            Line($"public class {ClassName}");
+            Line($"private readonly {nameof(ReceivedCalls)} _calls;");
+            EmptyLine();
+            Line($"internal {ClassName}({nameof(ReceivedCalls)} calls)");
             Line("{");
             using (Indent())
             {
-                Line($"private readonly {nameof(ReceivedCalls)} _calls;");
-                EmptyLine();
-                Line($"internal {ClassName}({nameof(ReceivedCalls)} calls)");
-                Line("{");
-                using (Indent())
-                {
-                    Line("_calls = calls;");
-                }
-                Line("}");
-
-                foreach (var method in methods)
-                {
-                    EmptyLine();
-                    BuildMethod(method);
-                }
+                Line("_calls = calls;");
             }
             Line("}");
         }
-        
-        private void BuildMethod(EnrichedMethodModel method)
+
+        public void AddMethod(EnrichedMethodModel method)
         {
-            // The next line is identical to configure methods, maybe optimize?
+            EmptyLine();
             Line($"public IReadOnlyList<{method.ReceivedCallType}> {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {

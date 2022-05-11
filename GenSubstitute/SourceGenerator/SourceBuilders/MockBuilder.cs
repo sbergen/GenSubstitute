@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
@@ -23,6 +22,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
             
             Line("}");
+        }
+
+        protected override void FinalizeContent()
+        {
+            // Nothing to do
         }
 
         private void BuildNamespaceContents(TypeModel model)
@@ -66,16 +70,25 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
 
             Line("}");
-            
-            var enrichedMethods = ImmutableArray
-                .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
+
+            var implementationBuilder = new ImplementationBuilder(model);
+            var receivedBuilder = new ReceivedCallsBuilder();
+            var configurerBuilder = new ConfigurerBuilder();
+
+            foreach (var method in model.Methods)
+            {
+                var enrichedModel = new EnrichedMethodModel(method);
+                implementationBuilder.AddMethod(enrichedModel);
+                receivedBuilder.AddMethod(enrichedModel);
+                configurerBuilder.AddMethod(enrichedModel);
+            }
 
             EmptyLine();
-            ImplementationBuilder.Build(this, model, enrichedMethods);
+            Line(implementationBuilder.GetResult());
             EmptyLine();
-            ReceivedCallsBuilder.Build(this, enrichedMethods);
+            Line(receivedBuilder.GetResult());
             EmptyLine();
-            ConfigurerBuilder.Build(this, enrichedMethods);
+            Line(configurerBuilder.GetResult());
             EmptyLine();
             
             Line($"public {model.FullyQualifiedName} Object => _implementation;");

@@ -1,57 +1,30 @@
-using System.Collections.Immutable;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
-    internal class ImplementationBuilder : SourceBuilder.Nested
+    internal class ImplementationBuilder : ClassBuilder
     {
         public const string ClassName = "Implementation";
 
-        public static void Build(
-            SourceBuilder parent,
-            TypeModel model,
-            ImmutableArray<EnrichedMethodModel> enrichedMethods)
+        public ImplementationBuilder(TypeModel model)
+            : base($"private class {ClassName} : {model.FullyQualifiedName}")
         {
-            new ImplementationBuilder(parent).BuildContent(model, enrichedMethods);
-        }
-
-        private ImplementationBuilder(SourceBuilder parent)
-            : base(parent)
-        {
-        }
-
-        private void BuildContent(
-            TypeModel model,
-            ImmutableArray<EnrichedMethodModel> enrichedMethods)
-        {
-            Line($"private class {ClassName} : {model.FullyQualifiedName}");
+            Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
+            Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
+            EmptyLine();
+            Line($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
             Line("{");
             using (Indent())
             {
-                Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
-                Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
-                EmptyLine();
-                Line($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
-                Line("{");
-                using (Indent())
-                {
-                    Line("_receivedCalls = receivedCalls;");
-                    Line("_configuredCalls = configuredCalls;");
-                }
-                Line("}");
-
-                foreach (var method in enrichedMethods)
-                {
-                    EmptyLine();
-                    BuildMethod(method);   
-                }
+                Line("_receivedCalls = receivedCalls;");
+                Line("_configuredCalls = configuredCalls;");
             }
             Line("}");
         }
-        
-        private void BuildMethod(EnrichedMethodModel method)
+
+        public void AddMethod(EnrichedMethodModel method)
         {
             var parametersWithTypes = BuildList(
                 method.Parameters
@@ -63,6 +36,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 ? $"{method.ResolvedMethodName}, typeof({method.ReturnType})"
                 : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
             
+            EmptyLine();
             Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");
             Line("{");
             using (Indent())
@@ -77,11 +51,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     Line(parameter.LocalVariableDeclaration);
                 }
 
-                if (method.RefOrOutParameters.Any())
-                {
-                    EmptyLine();
-                }
-                
                 Line(method.ReturnsVoid
                     ? $"call?.Execute({method.ConfiguredCallArguments});"
                     : $"var result = call != null ? call.Execute({method.ConfiguredCallArguments}) : default!;");
@@ -92,13 +61,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     Line(parameter.ResultAssignment);
                 }
 
-                if (method.RefOrOutParameters.Any())
-                {
-                    EmptyLine();
-                }
-                
                 if (!method.ReturnsVoid)
                 {
+                    EmptyLine();
                     Line("return result;");
                 }
             }
