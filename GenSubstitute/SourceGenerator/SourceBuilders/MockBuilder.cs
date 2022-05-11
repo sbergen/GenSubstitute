@@ -10,6 +10,23 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private MockBuilder(TypeModel model)
         {
+            Line("#nullable enable");
+            EmptyLine();
+            Line("using System.Collections.Generic;");
+            EmptyLine();
+            Line("namespace GenSubstitute");
+            Line("{");
+            
+            using (Indent())
+            {
+                BuildNamespaceContents(model);
+            }
+            
+            Line("}");
+        }
+
+        private void BuildNamespaceContents(TypeModel model)
+        {
             var typeParameters = model.TypeParameters.IsEmpty ? "" : $"<{BuildList(model.TypeParameters)}>";
 
             Line("internal static partial class GeneratorMarkerExtensions");

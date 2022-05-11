@@ -8,27 +8,13 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         private StringBuilder _builder = new();
         private int _indentation;
 
-        protected SourceBuilder()
-        {
-            Line("#nullable enable");
-            EmptyLine();
-            Line("using System.Collections.Generic;");
-            EmptyLine();
-            Line("namespace GenSubstitute");
-            Line("{");
-            ++_indentation;
-        }
-
-        public string GetResult()
+        protected string GetResult()
         {
             if (_builder == null)
             {
                 throw new InvalidOperationException($"{GetType().Name} result already used!");
             }
-            
-            --_indentation;
-            Line("}");
-            
+
             var result = _builder.ToString();
             _builder = null!;
             return result;
@@ -36,7 +22,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         protected void Line(string line)
         {
-            _builder.Append('\t', this._indentation);
+            _builder.Append('\t', _indentation);
             _builder.AppendLine(line);
         }
 
