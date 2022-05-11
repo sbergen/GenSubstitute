@@ -13,14 +13,13 @@ public class RefParametersTest
     [Fact]
     public void InterfaceWithRefParameterMethod_ShouldBeMockable()
     {
-        // This doesn't yet support doing anything with the ref arg.
         var builder = Gen.Substitute<IRefParams>().Build();
         
-        builder.Configure.Modify(0, 0)
-            .Configure((i, r) => r.Value = 42);
+        builder.Configure.Modify(Arg.Any, 0)
+            .Configure((i, r) => r.Value = i);
         
         int foo = 0;
-        builder.Object.Modify(0, ref foo);
+        builder.Object.Modify(42, ref foo);
         foo.Should().Be(42);
     }
 }
