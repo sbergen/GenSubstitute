@@ -8,7 +8,7 @@ namespace GenSubstitute.SourceGenerator
 {
     internal static class ModelExtractor
     {
-        public static TypeLookupInfo? ExtractTypeNameFromSubstituteCall(
+        public static ResultOrDiagnostic<TypeLookupInfo> ExtractTypeNameFromSubstituteCall(
             GeneratorSyntaxContext context, CancellationToken cancellationToken)
         {
             if (SyntaxFilter.ExtractTypeFromSubstituteCall(context.Node) is {} typeSyntax)
@@ -21,8 +21,7 @@ namespace GenSubstitute.SourceGenerator
                 }
                 else
                 {
-                    // TODO diagnostic
-                    return null;
+                    return Diagnostics.SymbolNotFound(typeSyntax);
                 }
             }
             else
@@ -33,12 +32,14 @@ namespace GenSubstitute.SourceGenerator
         }
 
         public static ResultOrDiagnostic<TypeModel> ExtractModelFromCompilationAndName(
-            TypeLookupInfo typeInfo,
+            ResultOrDiagnostic<TypeLookupInfo> typeInfoOrDiagnostic,
             Compilation compilation,
-            CancellationToken cancellationToken) => compilation.GetTypeByMetadataName(typeInfo.MetadataName) switch
-            {
-                { } symbol => new TypeModel(symbol),
-                _ => Diagnostics.SymbolNotFound(typeInfo),
-            };
+            CancellationToken cancellationToken) => typeInfoOrDiagnostic
+            .SelectMany<TypeModel>(typeInfo =>
+                compilation.GetTypeByMetadataName(typeInfo.MetadataName) switch
+                {
+                    { } symbol => new TypeModel(symbol),
+                    _ => Diagnostics.SymbolNotFound(typeInfo),
+                });
     }
 }

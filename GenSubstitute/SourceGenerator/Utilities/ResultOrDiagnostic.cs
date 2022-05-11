@@ -29,7 +29,35 @@ namespace GenSubstitute.SourceGenerator.Utilities
                 context.ReportDiagnostic(_diagnostic!);
             }
         }
-        
+
+        public bool TryGetResult(out TResult result)
+        {
+            if (_isResult)
+            {
+                result = _result!;
+                return true;
+            }
+            else
+            {
+                result = default!;
+                return false;
+            }
+        }
+
+        public ResultOrDiagnostic<TSelectResult> SelectMany<TSelectResult>(
+            Func<TResult, ResultOrDiagnostic<TSelectResult>> selector)
+            where TSelectResult : IEquatable<TSelectResult>
+        {
+            if (_isResult)
+            {
+                return selector(_result!);
+            }
+            else
+            {
+                return _diagnostic!;
+            }
+        }
+
         private ResultOrDiagnostic(Diagnostic diagnostic)
         {
             _diagnostic = diagnostic;

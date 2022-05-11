@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
 using GenSubstitute.SourceGenerator.SourceBuilders;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator
@@ -17,7 +18,7 @@ namespace GenSubstitute.SourceGenerator
                     SyntaxFilter.IsSubstituteCall,
                     ModelExtractor.ExtractTypeNameFromSubstituteCall)
                 .Collect()
-                .SelectMany(FilterNullsAndDuplicates)
+                .SelectMany(FilterDuplicates)
                 .Combine(context.CompilationProvider)
                 .Select((data, ct) => ModelExtractor
                     .ExtractModelFromCompilationAndName(data.Left, data.Right, ct));
@@ -30,21 +31,27 @@ namespace GenSubstitute.SourceGenerator
             });
         }
 
-        private static IEnumerable<TypeLookupInfo> FilterNullsAndDuplicates(
-            ImmutableArray<TypeLookupInfo?> candidates,
+        private static IEnumerable<ResultOrDiagnostic<TypeLookupInfo>> FilterDuplicates(
+            ImmutableArray<ResultOrDiagnostic<TypeLookupInfo>> candidates,
             CancellationToken cancellationToken)
         {
             var includedMocks = new HashSet<string>();
 
-            foreach (var maybeCandidate in candidates)
+            foreach (var typeInfoOrDiagnostic in candidates)
             {
-                if (maybeCandidate is {} candidate &&
-                    !includedMocks.Contains(candidate.FullyQualifiedName))
+                if (typeInfoOrDiagnostic.TryGetResult(out var result))
                 {
-                    includedMocks.Add(candidate.FullyQualifiedName);
-                    yield return candidate;
+                    if (!includedMocks.Contains(result.FullyQualifiedName))
+                    {
+                        includedMocks.Add(result.FullyQualifiedName);
+                        yield return result;
+                    }
                 }
-
+                else
+                {
+                    yield return typeInfoOrDiagnostic;
+                }
+                
                 cancellationToken.ThrowIfCancellationRequested();
             }
         }
