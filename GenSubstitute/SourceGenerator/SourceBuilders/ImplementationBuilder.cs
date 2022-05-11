@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using GenSubstitute.SourceGenerator.Models;
-using Microsoft.CodeAnalysis;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -45,83 +42,60 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 }
                 Line("}");
 
-                for (var i = 0; i < model.Methods.Length; ++i)
+                foreach (var method in enrichedMethods)
                 {
                     EmptyLine();
-                    BuildMethod(model.Methods[i], enrichedMethods[i]);
+                    BuildMethod(method);   
                 }
             }
             Line("}");
         }
         
-        private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
+        private void BuildMethod(EnrichedMethodModel method)
         {
-            var parameters = method.Parameters;
-            
-            // TODO: Is there a better way to do this?
-            static string RefString(ParameterModel p) => p.RefKind switch
-            {
-                RefKind.None => "",
-                RefKind.Ref => "ref ",
-                RefKind.Out => "out ",
-                RefKind.In => "in ",
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            
             var parametersWithTypes = BuildList(
                 method.Parameters
-                    .Select(p => $"{RefString(p)}{p.Type} {p.Name}"));
+                    .Select(p => $"{p.RefKindString}{p.Type} {p.Name}"));
 
             var parameterNames = BuildList(method.Parameters.Select(p => p.Name));
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
-                ? $"{enriched.ResolvedMethodName}, typeof({method.ReturnType})"
-                : $"{enriched.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
+                ? $"{method.ResolvedMethodName}, typeof({method.ReturnType})"
+                : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {parameterNames}";
             
-            Line($"public {method.ReturnType} {method.Name}{enriched.GenericNames}({parametersWithTypes})");
+            Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");
             Line("{");
             using (Indent())
             {
-                Line($"var receivedCall = new {enriched.ReceivedCallType}({receivedCallConstructorArgs});");
+                Line($"var receivedCall = new {method.ReceivedCallType}({receivedCallConstructorArgs});");
                 Line("_receivedCalls.Add(receivedCall);");
-                Line($"var call = _configuredCalls.Get<{enriched.ConfiguredCallType}>({enriched.ResolvedMethodName}, receivedCall);");
+                Line($"var call = _configuredCalls.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
 
                 EmptyLine();
-                var callParameterArray = new string[parameters.Length];
-                for (var i = 0; i < parameters.Length; ++i)
+                foreach (var parameter in method.RefOrOutParameters)
                 {
-                    var parameter = parameters[i];
-                    if (parameter.RefKind == RefKind.Ref)
-                    {
-                        // TODO, uniqueness not guaranteed here!
-                        var name = $"{parameter.Name}_RefArg";
-                        Line($"var {name} = new RefArg<{parameter.Type}>({parameter.Name});");
-                        callParameterArray[i] = name;
-                    }
-                    else
-                    {
-                        callParameterArray[i] = parameter.Name;
-                    }
+                    Line(parameter.LocalVariableDeclaration);
                 }
-                EmptyLine();
 
-                var callParametersStr = BuildList(callParameterArray);
+                if (method.RefOrOutParameters.Any())
+                {
+                    EmptyLine();
+                }
+                
                 Line(method.ReturnsVoid
-                    ? $"call?.Execute({callParametersStr});"
-                    : $"var result = call != null ? call.Execute({callParametersStr}) : default!;");
-
-                // TODO, this is really damn ugly right now!
+                    ? $"call?.Execute({method.ConfiguredCallArguments});"
+                    : $"var result = call != null ? call.Execute({method.ConfiguredCallArguments}) : default!;");
+                
                 EmptyLine();
-                foreach (var parameter in parameters)
+                foreach (var parameter in method.RefOrOutParameters)
                 {
-                    if (parameter.RefKind == RefKind.Ref)
-                    {
-                        // TODO, uniqueness not guaranteed here!
-                        var name = $"{parameter.Name}_RefArg";
-                        Line($"{parameter.Name} = {name};");
-                    }
+                    Line(parameter.ResultAssignment);
                 }
-                EmptyLine();
+
+                if (method.RefOrOutParameters.Any())
+                {
+                    EmptyLine();
+                }
                 
                 if (!method.ReturnsVoid)
                 {

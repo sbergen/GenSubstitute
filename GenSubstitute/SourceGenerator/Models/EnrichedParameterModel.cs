@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -10,6 +11,7 @@ namespace GenSubstitute.SourceGenerator.Models
     internal readonly struct EnrichedParameterModel
     {
         public readonly string Name;
+        public readonly string Type;
         
         // e.g. Arg<int> or RefArg<int>
         public readonly string WrappedType;
@@ -25,9 +27,25 @@ namespace GenSubstitute.SourceGenerator.Models
         // E.g. new Arg<int>(42) or Arg<int>.Default
         public readonly string DefaultValueConstructor;
         
+        // E.g. "", "ref ", or " out"
+        public readonly string RefKindString;
+
+        public readonly bool IsRefOrOut;
+        
         public EnrichedParameterModel(ParameterModel parameter)
         {
             Name = parameter.Name;
+            Type = parameter.Type;
+            
+            // TODO, is there a better way to do this?
+            RefKindString = parameter.RefKind switch
+            {
+                RefKind.None => "",
+                RefKind.Ref => "ref ",
+                RefKind.Out => "out ",
+                RefKind.In => "in ",
+                _ => throw new ArgumentOutOfRangeException()
+            };
             
             // TODO handle other types
             WrappedType = parameter.RefKind switch
@@ -35,6 +53,8 @@ namespace GenSubstitute.SourceGenerator.Models
                 RefKind.Ref => $"RefArg<{parameter.Type}>",
                 _ => $"Arg<{parameter.Type}>",
             };
+
+            IsRefOrOut = parameter.RefKind is RefKind.Ref or RefKind.Out;
 
             CallObjectType = parameter.RefKind == RefKind.None
                 ? parameter.Type

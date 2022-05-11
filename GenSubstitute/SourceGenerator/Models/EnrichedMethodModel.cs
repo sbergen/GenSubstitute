@@ -10,7 +10,12 @@ namespace GenSubstitute.SourceGenerator.Models
     /// </summary>
     internal readonly struct EnrichedMethodModel
     {
+        public readonly string Name;
+        public readonly string ReturnType;
+        public readonly bool ReturnsVoid;
+        
         public readonly ImmutableArray<EnrichedParameterModel> Parameters;
+        public readonly ImmutableArray<RefOrOutParameterModel> RefOrOutParameters;
 
         // E.g. <T1, T2>
         public readonly string GenericNames;
@@ -30,8 +35,15 @@ namespace GenSubstitute.SourceGenerator.Models
         // E.g. ReceivedCall<int>
         public readonly string ReceivedCallType;
         
+        // E.g. normalArg, byRefArg_local
+        public readonly string ConfiguredCallArguments;
+        
         public EnrichedMethodModel(MethodModel method)
         {
+            Name = method.Name;
+            ReturnType = method.ReturnType;
+            ReturnsVoid = method.ReturnsVoid;
+            
             Parameters = ImmutableArray.CreateRange(
                 method.Parameters,
                 p => new EnrichedParameterModel(p));
@@ -77,6 +89,25 @@ namespace GenSubstitute.SourceGenerator.Models
             ReceivedCallType = method.Parameters.Length == 0
                 ? "ReceivedCall"
                 : $"ReceivedCall<{callObjectParameterList}>";
+
+            var refOrOutBuilder = ImmutableArray.CreateBuilder<RefOrOutParameterModel>();
+            var callArgumentsBuilder = ImmutableArray.CreateBuilder<string>(Parameters.Length);
+            foreach (var parameter in Parameters)
+            {
+                if (parameter.IsRefOrOut)
+                {
+                    var refOrOutModel = new RefOrOutParameterModel(parameter);
+                    refOrOutBuilder.Add(refOrOutModel);
+                    callArgumentsBuilder.Add(refOrOutModel.LocalVariableName);
+                }
+                else
+                {
+                    callArgumentsBuilder.Add(parameter.Name);
+                }
+            }
+
+            RefOrOutParameters = refOrOutBuilder.ToImmutable();
+            ConfiguredCallArguments = BuildList(callArgumentsBuilder);
         }
     }
 }

@@ -49,17 +49,16 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
 
             Line("}");
-
-            var methods = model.Methods;
-            var enrichedMethodInfo = ImmutableArray
+            
+            var enrichedMethods = ImmutableArray
                 .CreateRange(model.Methods, m => new EnrichedMethodModel(m));
 
             EmptyLine();
-            ImplementationBuilder.Build(this, model, enrichedMethodInfo);
+            ImplementationBuilder.Build(this, model, enrichedMethods);
             EmptyLine();
-            ReceivedCallsBuilder.Build(this, methods, enrichedMethodInfo);
+            ReceivedCallsBuilder.Build(this, enrichedMethods);
             EmptyLine();
-            ConfigurerBuilder.Build(this, methods, enrichedMethodInfo);
+            ConfigurerBuilder.Build(this, enrichedMethods);
             EmptyLine();
             
             Line($"public {model.FullyQualifiedName} Object => _implementation;");

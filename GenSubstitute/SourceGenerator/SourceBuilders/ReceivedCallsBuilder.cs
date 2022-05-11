@@ -9,10 +9,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         
         public static void Build(
             SourceBuilder parent,
-            ImmutableArray<MethodModel> methods,
-            ImmutableArray<EnrichedMethodModel> enrichedMethods)
+            ImmutableArray<EnrichedMethodModel> methods)
         {
-            new ReceivedCallsBuilder(parent).BuildContent(methods, enrichedMethods);
+            new ReceivedCallsBuilder(parent).BuildContent(methods);
         }
 
         private ReceivedCallsBuilder(SourceBuilder parent)
@@ -20,9 +19,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         {
         }
 
-        private void BuildContent(
-            ImmutableArray<MethodModel> methods,
-            ImmutableArray<EnrichedMethodModel> enrichedMethods)
+        private void BuildContent(ImmutableArray<EnrichedMethodModel> methods)
         {
             Line($"public class {ClassName}");
             Line("{");
@@ -37,27 +34,27 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     Line("_calls = calls;");
                 }
                 Line("}");
-                
-                for (var i = 0; i < methods.Length; ++i)
+
+                foreach (var method in methods)
                 {
                     EmptyLine();
-                    BuildMethod(methods[i], enrichedMethods[i]);
+                    BuildMethod(method);
                 }
             }
             Line("}");
         }
         
-        private void BuildMethod(MethodModel method, EnrichedMethodModel enriched)
+        private void BuildMethod(EnrichedMethodModel method)
         {
             // The next line is identical to configure methods, maybe optimize?
-            Line($"public IReadOnlyList<{enriched.ReceivedCallType}> {method.Name}{enriched.GenericNames}({enriched.ArgParameters}) =>");
+            Line($"public IReadOnlyList<{method.ReceivedCallType}> {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {
-                Line($"_calls.GetMatching<{enriched.ReceivedCallType}>(");
+                Line($"_calls.GetMatching<{method.ReceivedCallType}>(");
                 using (Indent())
                 {
-                    Line($"{enriched.ResolvedMethodName},");
-                    Line($"new {enriched.ConfiguredCallType}({enriched.SafeParameterNames}));");
+                    Line($"{method.ResolvedMethodName},");
+                    Line($"new {method.ConfiguredCallType}({method.SafeParameterNames}));");
                 }
                 
             }
