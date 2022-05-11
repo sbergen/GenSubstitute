@@ -4,15 +4,33 @@ namespace GenSubstitute
 {
     public class OutArg<T> : IEquatable<OutArg<T>>
     {
-        // TODO: I guess we shouldn't throw if the configuration does not set this?
-        public T Value { get; set; } = default!;
+        private readonly bool _isImmutable;
+        private T _value = default!;
 
-        public static readonly OutArg<T> Default = new(); // TODO, what if this is modified?
+        public OutArg(bool isImmutable = true) => _isImmutable = isImmutable;
+
+        public T Value
+        {
+            get => _value;
+            set
+            {
+                if (_isImmutable)
+                {
+                    throw new InvalidOperationException(
+                        $"You can not modify the value of an immutable {nameof(OutArg<T>)}! " +
+                        $"This is most likely a value in received calls, {nameof(Default)}, or {nameof(Any)}");
+                }
+
+                _value = value;
+            }
+        }
+
+        public static readonly OutArg<T> Default = new();
         public static readonly OutArg<T> Any = new();
 
         public static implicit operator T(OutArg<T> arg) => arg.Value;
 
-        public static implicit operator OutArg<T>(AnyArg unused) => Any;
+        public static implicit operator OutArg<T>(AnyArg _) => Any;
 
 
         /// <summary>

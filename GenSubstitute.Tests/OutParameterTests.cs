@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using Xunit;
 
@@ -21,8 +22,32 @@ public static class OutParameterTests
             return true;
         });
 
-        int value;
-        builder.Object.TryGet(out value).Should().Be(true);
-        value.Should().Be(42);
+        builder.Object.TryGet(out var result).Should().Be(true);
+        result.Should().Be(42);
+    }
+    
+    [Fact]
+    public static void ReceivedRefArg_ShouldNotBeModifiable()
+    {
+        var builder = Gen.Substitute<IOutParams>().Build();
+        builder.Object.TryGet(out _);
+
+        var receivedCall = builder.Received.TryGet(Arg.Any)[0];
+        var modifyReceivedValue = () => receivedCall.Arg1.Value = 0;
+        modifyReceivedValue.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
+    }
+    
+    [Fact]
+    public static void AnyRefArg_ShouldNotBeModifiable()
+    {
+        var modifyAnyArg = () => OutArg<int>.Any.Value = 10;
+        modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
+    }
+    
+    [Fact]
+    public static void DefaultOutArg_ShouldNotBeModifiable()
+    {
+        var modifyAnyArg = () => OutArg<int>.Default.Value = 10;
+        modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
     }
 }

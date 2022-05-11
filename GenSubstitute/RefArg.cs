@@ -34,7 +34,7 @@ namespace GenSubstitute
         public static readonly RefArg<T> Any = new(default!);
 
         public static implicit operator RefArg<T>(T val) => new (val);
-        public static implicit operator RefArg<T>(AnyArg unused) => Any;
+        public static implicit operator RefArg<T>(AnyArg _) => Any;
         public static implicit operator T(RefArg<T> val) => val.Value;
 
         public bool Equals(RefArg<T> other) =>

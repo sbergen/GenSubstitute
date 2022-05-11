@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GenSubstitute
 {
-    public abstract class Arg
+    public static class Arg
     {
         public static readonly AnyArg Any = new();
     }

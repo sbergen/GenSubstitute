@@ -15,8 +15,10 @@ namespace GenSubstitute.SourceGenerator.Models
             // TODO: ensure uniqueness!
             LocalVariableName = $"{parameter.Name}_local";
 
-            var initializerValues = parameter.IsRef ? $"{parameter.Name}, isImmutable: false" : "";
-            LocalVariableDeclaration = $"var {LocalVariableName} = new {parameter.WrappedType}({initializerValues});";
+            var initializerValue = parameter.IsRef ? $"{parameter.Name}, " : "";
+            LocalVariableDeclaration =
+                $"var {LocalVariableName} = new {parameter.WrappedType}({initializerValue}isImmutable: false);";
+            
             ResultAssignment = $"{parameter.Name} = {LocalVariableName};";
         }
     }
