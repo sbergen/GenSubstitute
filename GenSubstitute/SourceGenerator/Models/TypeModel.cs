@@ -11,6 +11,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string BuilderTypeName;
         public readonly ImmutableArray<string> TypeParameters;
         public readonly ImmutableArray<MethodModel> Methods;
+        public readonly ImmutableArray<PropertyModel> Properties;
 
         public TypeModel(INamedTypeSymbol symbol)
         {
@@ -18,7 +19,11 @@ namespace GenSubstitute.SourceGenerator.Models
             BuilderTypeName = MakeBuilderName(symbol);
             
             var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>();
-            GatherAllMethods(symbol, methodsBuilder);
+            var propertiesBuilder = ImmutableArray.CreateBuilder<PropertyModel>();
+            GatherAllMethodsAndProperties(symbol, methodsBuilder, propertiesBuilder);
+            
+            Methods = methodsBuilder.ToImmutable();
+            Properties = propertiesBuilder.ToImmutable();
 
             var typeParametersBuilder = ImmutableArray.CreateBuilder<string>(symbol.TypeParameters.Length);
             foreach (var typeParameter in symbol.TypeParameters)
@@ -27,13 +32,13 @@ namespace GenSubstitute.SourceGenerator.Models
             }
 
             TypeParameters = typeParametersBuilder.ToImmutable();
-
-            Methods = methodsBuilder.ToImmutable();
         }
 
         public bool Equals(TypeModel other) =>
+            // Fully qualified name already includes type parameters
             FullyQualifiedName == other.FullyQualifiedName &&
-            Methods.SequenceEqual(other.Methods);
+            Methods.SequenceEqual(other.Methods) &&
+            Properties.SequenceEqual(other.Properties);
 
         private static string MakeBuilderName(INamedTypeSymbol symbol) => string.Join(
             "_",
@@ -43,25 +48,30 @@ namespace GenSubstitute.SourceGenerator.Models
                 .Where(s => s.Kind != SymbolDisplayPartKind.Punctuation)
                 .Append(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, "Builder")));
 
-        private static void GatherAllMethods(
+        private static void GatherAllMethodsAndProperties(
             INamedTypeSymbol symbol,
-            ImmutableArray<MethodModel>.Builder builder)
+            ImmutableArray<MethodModel>.Builder methodsBuilder,
+            ImmutableArray<PropertyModel>.Builder propertiesBuilder)
         {
-            static void AddMembers(INamedTypeSymbol type, ImmutableArray<MethodModel>.Builder builder)
+            void AddMembers(INamedTypeSymbol type)
             {
                 foreach (var member in type.GetMembers())
                 {
-                    if (member is IMethodSymbol methodSymbol)
+                    if (member is IMethodSymbol { AssociatedSymbol: not IPropertySymbol } methodSymbol)
                     {
-                        builder.Add(new MethodModel(methodSymbol));
+                        methodsBuilder.Add(new MethodModel(methodSymbol));
+                    }
+                    else if (member is IPropertySymbol propertySymbol)
+                    {
+                        propertiesBuilder.Add(new PropertyModel(propertySymbol));
                     }
                 }
             }
             
-            AddMembers(symbol, builder);
+            AddMembers(symbol);
             foreach (var iface in symbol.AllInterfaces)
             {
-                AddMembers(iface, builder);
+                AddMembers(iface);
             }
         }
     }

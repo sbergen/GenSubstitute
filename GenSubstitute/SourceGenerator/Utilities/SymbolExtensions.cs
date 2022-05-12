@@ -5,6 +5,12 @@ namespace GenSubstitute.SourceGenerator.Utilities
 {
     internal static class SymbolExtensions
     {
+        public static string FullyQualifiedTypeNameWithNullability(
+            this ITypeSymbol symbol,
+            NullableAnnotation nullableAnnotation) =>
+            symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                + (nullableAnnotation == NullableAnnotation.Annotated ? "?" : "");
+
         // See https://github.com/dotnet/roslyn/issues/1891
         // This implementation was originally copied from here, but modified:
         // https://stackoverflow.com/questions/27105909/get-fully-qualified-metadata-name-in-roslyn

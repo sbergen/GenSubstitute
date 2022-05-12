@@ -90,15 +90,14 @@ namespace GenSubstitute.SourceGenerator.Models
             ReceivedCallType = method.Parameters.Length == 0
                 ? "ReceivedCall"
                 : $"ReceivedCall<{callObjectParameterList}>";
-
-            var nameUniquifier = new LocalNameUniquifier(Parameters.Select(p => p.Name));
+            
             var refOrOutBuilder = ImmutableArray.CreateBuilder<RefOrOutParameterModel>();
             var callArgumentsBuilder = ImmutableArray.CreateBuilder<string>(Parameters.Length);
             foreach (var parameter in Parameters)
             {
                 if (parameter.IsRef || parameter.IsOut)
                 {
-                    var refOrOutModel = new RefOrOutParameterModel(nameUniquifier, parameter);
+                    var refOrOutModel = new RefOrOutParameterModel(parameter);
                     refOrOutBuilder.Add(refOrOutModel);
                     callArgumentsBuilder.Add(refOrOutModel.LocalVariableName);
                 }

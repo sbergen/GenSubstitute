@@ -25,6 +25,27 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("}");
         }
 
+        public void AddProperty(PropertyModel property)
+        {
+            EmptyLine();
+            Line($"private {property.Type} {property.BackingFieldName} = default!;");
+            Line($"public {property.Type} {property.Name}");
+            Line("{");
+            using (Indent())
+            {
+                if (property.HasGet)
+                {
+                    Line($"get => {property.BackingFieldName};");
+                }
+                
+                if (property.HasSet)
+                {
+                    Line($"set => {property.BackingFieldName} = value;");
+                }
+            }
+            Line("}");
+        }
+        
         public void AddMethod(EnrichedMethodModel method)
         {
             var parametersWithTypes = BuildList(

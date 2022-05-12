@@ -12,9 +12,9 @@ namespace GenSubstitute.SourceGenerator.Models
         // E:g. var someArg = someArg_wrapped;
         public readonly string ResultAssignment; 
 
-        public RefOrOutParameterModel(LocalNameUniquifier localNameUniquifier, EnrichedParameterModel parameter)
+        public RefOrOutParameterModel(EnrichedParameterModel parameter)
         {
-            LocalVariableName = localNameUniquifier.GetUniqueLocalName(parameter.Name);
+            LocalVariableName = InternalName.Make(parameter.Name);
 
             var initializerValue = parameter.IsRef ? $"{parameter.Name}, " : "";
             LocalVariableDeclaration =

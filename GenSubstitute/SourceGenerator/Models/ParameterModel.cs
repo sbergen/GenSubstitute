@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -14,8 +15,8 @@ namespace GenSubstitute.SourceGenerator.Models
         
         public ParameterModel(IParameterSymbol symbol)
         {
-            Type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                   + (symbol.NullableAnnotation == NullableAnnotation.Annotated ? "?" : "");
+            // This already contains nullability (don't know why)
+            Type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             Name = symbol.Name;
             HasDefaultValue = symbol.HasExplicitDefaultValue;
             DefaultValue = HasDefaultValue ? symbol.ExplicitDefaultValue : null;

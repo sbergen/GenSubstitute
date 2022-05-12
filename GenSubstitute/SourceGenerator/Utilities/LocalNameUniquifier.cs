@@ -3,9 +3,12 @@ using System.Collections.Generic;
 namespace GenSubstitute.SourceGenerator.Utilities
 {
     /// <summary>
-    /// Generates unique names for local variables
+    /// Generates unique names for local variables.
+    /// Since I seem to need unique names in more contexts than I thought,
+    /// I'll retire this class for now, but keep it around in case I find I need it again.
+    /// Using <see cref="InternalName"/> instead.
     /// </summary>
-    public class LocalNameUniquifier
+    internal class LocalNameUniquifier
     {
         private readonly HashSet<string> _reserved;
 

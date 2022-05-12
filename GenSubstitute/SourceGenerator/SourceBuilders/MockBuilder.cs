@@ -83,6 +83,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var receivedBuilder = new ReceivedCallsBuilder(this);
             var configurerBuilder = new ConfigurerBuilder(this);
 
+            foreach (var property in model.Properties)
+            {
+                implementationBuilder.AddProperty(property);
+            }
+            
             foreach (var method in model.Methods)
             {
                 var enrichedModel = new EnrichedMethodModel(method);

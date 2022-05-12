@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -19,7 +20,7 @@ namespace GenSubstitute.SourceGenerator.Models
             
             ReturnType = ReturnsVoid
                 ? "void"
-                : symbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : symbol.ReturnType.FullyQualifiedTypeNameWithNullability(symbol.ReceiverNullableAnnotation);
 
             var parametersBuilder = ImmutableArray.CreateBuilder<ParameterModel>(symbol.Parameters.Length);
             foreach (var parameter in symbol.Parameters)
