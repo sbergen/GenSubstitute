@@ -70,8 +70,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line($"var receivedCall = new {method.ReceivedCallType}({receivedCallConstructorArgs});");
                 Line("_receivedCalls.Add(receivedCall);");
                 Line($"var call = _configuredCalls.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
-
-                EmptyLine();
+                
                 foreach (var parameter in method.RefOrOutParameters)
                 {
                     Line(parameter.LocalVariableDeclaration);
@@ -81,7 +80,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     ? $"call?.Execute({method.ConfiguredCallArguments});"
                     : $"var result = call != null ? call.Execute({method.ConfiguredCallArguments}) : default!;");
                 
-                EmptyLine();
                 foreach (var parameter in method.RefOrOutParameters)
                 {
                     Line(parameter.ResultAssignment);
@@ -89,7 +87,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
                 if (!method.ReturnsVoid)
                 {
-                    EmptyLine();
                     Line("return result;");
                 }
             }
