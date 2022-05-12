@@ -53,7 +53,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                     .Select(p => $"{p.RefKindString}{p.Type} {p.Name}"));
 
             var receivedCallParameterArguments = BuildList(method.Parameters
-                .Select(p => p.IsOut ? "Arg.Any" : p.Name));
+                .Select(p => p.IsOut ? $"Out<{p.Type}>.Default" : p.Name));
 
             var receivedCallConstructorArgs = method.Parameters.Length == 0
                 ? $"{method.ResolvedMethodName}, typeof({method.ReturnType})"

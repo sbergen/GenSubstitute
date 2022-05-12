@@ -38,16 +38,9 @@ public static class OutParameterTests
     }
     
     [Fact]
-    public static void AnyRefArg_ShouldNotBeModifiable()
+    public static void DefaultOutValue_ShouldNotBeModifiable()
     {
-        var modifyAnyArg = () => OutArg<int>.Any.Value = 10;
-        modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
-    }
-    
-    [Fact]
-    public static void DefaultOutArg_ShouldNotBeModifiable()
-    {
-        var modifyAnyArg = () => OutArg<int>.Default.Value = 10;
+        var modifyAnyArg = () => Out<int>.Default.Value = 10;
         modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
     }
 }

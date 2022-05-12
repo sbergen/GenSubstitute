@@ -16,7 +16,7 @@ public class RefParametersTest
     {
         var builder = Gen.Substitute<IRefParams>().Build();
         
-        builder.Configure.Modify(Arg.Any, 0)
+        builder.Configure.Modify(Arg.Any, new(0))
             .Configure((i, r) => r.Value = i);
         
         int foo = 0;
@@ -38,11 +38,30 @@ public class RefParametersTest
     }
     
     [Fact]
+    public void RefParameterMethod_CanBeMockedUsingArgMatcher()
+    {
+        var builder = Gen.Substitute<IRefParams>().Build();
+
+        int receivedRefArg = 0;
+        builder.Configure.Modify(Arg.Any, Arg<Ref<int>>.When(i => i < 20))
+            .Configure((_, r) => receivedRefArg = r.Value);
+        
+        int foo = 10;
+        builder.Object.Modify(42, ref foo);
+
+        // This call should not match
+        foo = 20;
+        builder.Object.Modify(42, ref foo);
+
+        receivedRefArg.Should().Be(10);
+    }
+    
+    [Fact]
     public void RefParameterMethod_ShouldNotChangeMatching_WhenValueModified()
     {
         var builder = Gen.Substitute<IRefParams>().Build();
 
-        builder.Configure.Modify(Arg.Any, 5)
+        builder.Configure.Modify(Arg.Any, new(5))
             .Configure((_, r) => r.Value = 10 * r);
 
         var foo = 5;
@@ -56,11 +75,11 @@ public class RefParametersTest
     }
     
     [Fact]
-    public void RefParameterMethod_ShouldNotReceivedCalls_WhenValueModified()
+    public void RefParameterMethod_ShouldRetainReceivedCalls_WhenValueModified()
     {
         var builder = Gen.Substitute<IRefParams>().Build();
         
-        builder.Configure.Modify(Arg.Any, 5)
+        builder.Configure.Modify(Arg.Any, new(5))
             .Configure((_, r) => r.Value = 10 * r);
         
         var foo = 5;
@@ -69,7 +88,7 @@ public class RefParametersTest
         var bar = 5;
         builder.Object.Modify(default, ref bar);
 
-        builder.Received.Modify(default, 5).Count.Should().Be(2);
+        builder.Received.Modify(default, new(5)).Count.Should().Be(2);
     }
 
     [Fact]
@@ -82,19 +101,5 @@ public class RefParametersTest
         var receivedCall = builder.Received.Modify(Arg.Any, Arg.Any)[0];
         var modifyReceivedValue = () => receivedCall.Arg2.Value = 0;
         modifyReceivedValue.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
-    }
-    
-    [Fact]
-    public void AnyRefArg_ShouldNotBeModifiable()
-    {
-        var modifyAnyArg = () => RefArg<int>.Any.Value = 10;
-        modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
-    }
-    
-    [Fact]
-    public void DefaultRefArg_ShouldNotBeModifiable()
-    {
-        var modifyAnyArg = () => RefArg<int>.Default.Value = 10;
-        modifyAnyArg.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
     }
 }

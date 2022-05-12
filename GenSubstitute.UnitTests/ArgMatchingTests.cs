@@ -6,9 +6,9 @@ namespace GenSubstitute.UnitTests;
 public class ArgMatchingTests
 {
     [Fact]
-    public void RefArgsWrappedInArgs_Match()
+    public void RefArg_MatchesValue()
     {
-        new Arg<RefArg<int>>(5).Matches(new RefArg<int>(5)).Should().BeTrue();
+        new Arg<Ref<int>>(5).Matches(5).Should().BeTrue();
     }
 
     // TODO, should probably write more tests here

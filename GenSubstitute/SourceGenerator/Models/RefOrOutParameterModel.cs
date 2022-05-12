@@ -16,9 +16,9 @@ namespace GenSubstitute.SourceGenerator.Models
         {
             LocalVariableName = InternalName.Make(parameter.Name);
 
-            var initializerValue = parameter.IsRef ? $"{parameter.Name}, " : "";
+            var initializerValue = parameter.IsRef ? parameter.Name : "";
             LocalVariableDeclaration =
-                $"var {LocalVariableName} = new {parameter.WrappedType}({initializerValue}isImmutable: false);";
+                $"var {LocalVariableName} = {parameter.CallObjectType}.CreateForExecutionContext({initializerValue});";
             
             ResultAssignment = $"{parameter.Name} = {LocalVariableName};";
         }

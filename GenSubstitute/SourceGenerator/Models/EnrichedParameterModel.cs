@@ -13,11 +13,11 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string Name;
         public readonly string Type;
 
-        // e.g. Arg<int> or RefArg<int>
+        // e.g. Arg<int> or Arg<Ref<int>>
         public readonly string WrappedType;
 
         // Type to be used with e.g. ReceivedCall or ConfiguredFunc
-        // e.g. int or RefArg<int>
+        // e.g. int or Ref<int>
         public readonly string CallObjectType;
         
         // e.g. " = default" or ""
@@ -48,19 +48,17 @@ namespace GenSubstitute.SourceGenerator.Models
                 _ => throw new ArgumentOutOfRangeException()
             };
             
-            WrappedType = parameter.RefKind switch
+            CallObjectType = parameter.RefKind switch
             {
-                RefKind.Ref => $"RefArg<{parameter.Type}>",
-                RefKind.Out => $"OutArg<{parameter.Type}>",
-                _ => $"Arg<{parameter.Type}>",
+                RefKind.Ref => $"Ref<{parameter.Type}>",
+                RefKind.Out => $"Out<{parameter.Type}>",
+                _ => parameter.Type,
             };
+
+            WrappedType = $"Arg<{CallObjectType}>";
 
             IsRef = parameter.RefKind is RefKind.Ref;
             IsOut = parameter.RefKind is RefKind.Out;
-
-            CallObjectType = parameter.RefKind == RefKind.None
-                ? parameter.Type
-                : WrappedType;
 
             DefaultValueDeclaration = parameter.HasDefaultValue
                 ? " = default"
