@@ -1,5 +1,4 @@
 using GenSubstitute.SourceGenerator.Models;
-using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

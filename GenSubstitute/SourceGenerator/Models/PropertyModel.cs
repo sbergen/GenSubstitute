@@ -25,9 +25,9 @@ namespace GenSubstitute.SourceGenerator.Models
                 : null;
         }
 
-        public bool Equals(PropertyModel other)
-        {
-            throw new NotImplementedException();
-        }
+        // Get and set method names should be deterministic
+        public bool Equals(PropertyModel other) =>
+            Name == other.Name &&
+            Type == other.Type;
     }
 }
