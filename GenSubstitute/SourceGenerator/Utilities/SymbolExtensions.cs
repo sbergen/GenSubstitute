@@ -7,9 +7,17 @@ namespace GenSubstitute.SourceGenerator.Utilities
     {
         public static string FullyQualifiedTypeNameWithNullability(
             this ITypeSymbol symbol,
-            NullableAnnotation nullableAnnotation) =>
-            symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                + (nullableAnnotation == NullableAnnotation.Annotated ? "?" : "");
+            NullableAnnotation nullableAnnotation)
+        {
+            // The question mark is already in nullable value types
+            var shouldAddQuestionMark =
+                !symbol.IsValueType &&
+                nullableAnnotation == NullableAnnotation.Annotated;
+
+            return symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) +
+                (shouldAddQuestionMark ? "?" : "");
+        }
+            
 
         // See https://github.com/dotnet/roslyn/issues/1891
         // This implementation was originally copied from here, but modified:

@@ -69,14 +69,17 @@ interface IProperties
     
     [Fact]
     public static void NullabilitySmokeTest() => AssertNoInspections(@"
+#nullable enable
 using GenSubstitute;
 
 var externalBuilder = Gen.Substitute<INullables>().Build();
 
 interface INullables
 {
-    int? ReturnsNullable();
-    void TakesNullable(int? arg);
+    int? ReturnsNullableValueType();
+    object? ReturnsNullableReferenceType();
+    void TakesNullableValueType(int? arg);
+    void TakesNullableReferenceType(object? arg);
     int? NullableProperty { get; set; }
 }");
 }
