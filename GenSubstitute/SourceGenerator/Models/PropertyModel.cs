@@ -8,17 +8,21 @@ namespace GenSubstitute.SourceGenerator.Models
     {
         public readonly string Type;
         public readonly string Name;
-        public readonly string BackingFieldName;
-        public readonly bool HasGet;
-        public readonly bool HasSet;
+        public readonly string? GetMethodName;
+        public readonly string? SetMethodName;
         
         public PropertyModel(IPropertySymbol property)
         {
             Name = property.Name;
             Type = property.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            HasGet = !property.IsWriteOnly;
-            HasSet = !property.IsReadOnly;
-            BackingFieldName = InternalName.Make(property.Name, "BackingField");
+
+            GetMethodName = property.GetMethod is { } getMethod
+                ? InternalName.Make(getMethod.Name)
+                : null;
+            
+            SetMethodName = property.SetMethod is { } setMethod
+                ? InternalName.Make(setMethod.Name)
+                : null;
         }
 
         public bool Equals(PropertyModel other)

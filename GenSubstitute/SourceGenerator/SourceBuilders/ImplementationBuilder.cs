@@ -1,6 +1,7 @@
 using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
+using GenSubstitute.SourceGenerator.Utilities;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -28,19 +29,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public void AddProperty(PropertyModel property)
         {
             EmptyLine();
-            Line($"private {property.Type} {property.BackingFieldName} = default!;");
             Line($"public {property.Type} {property.Name}");
             Line("{");
             using (Indent())
             {
-                if (property.HasGet)
+                if (property.GetMethodName is { } getMethod)
                 {
-                    Line($"get => {property.BackingFieldName};");
+                    Line($"get => {getMethod}();");
                 }
                 
-                if (property.HasSet)
+                if (property.SetMethodName is { } setMethod)
                 {
-                    Line($"set => {property.BackingFieldName} = value;");
+                    Line($"set => {setMethod}(value);");
                 }
             }
             Line("}");
@@ -60,7 +60,10 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {receivedCallParameterArguments}";
             
             EmptyLine();
-            Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");
+            var name = method.IsPropertyMethod
+                ? InternalName.Make(method.Name)
+                : method.Name;
+            Line($"public {method.ReturnType} {name}{method.GenericNames}({parametersWithTypes})");
             Line("{");
             using (Indent())
             {

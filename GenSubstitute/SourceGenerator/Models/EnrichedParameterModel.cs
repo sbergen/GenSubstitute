@@ -12,7 +12,7 @@ namespace GenSubstitute.SourceGenerator.Models
     {
         public readonly string Name;
         public readonly string Type;
-        
+
         // e.g. Arg<int> or RefArg<int>
         public readonly string WrappedType;
 

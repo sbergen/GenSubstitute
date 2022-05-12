@@ -91,6 +91,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             foreach (var method in model.Methods)
             {
                 var enrichedModel = new EnrichedMethodModel(method);
+                
                 implementationBuilder.AddMethod(enrichedModel);
                 receivedBuilder.AddMethod(enrichedModel);
                 configurerBuilder.AddMethod(enrichedModel);

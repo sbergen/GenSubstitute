@@ -57,7 +57,7 @@ namespace GenSubstitute.SourceGenerator.Models
             {
                 foreach (var member in type.GetMembers())
                 {
-                    if (member is IMethodSymbol { AssociatedSymbol: not IPropertySymbol } methodSymbol)
+                    if (member is IMethodSymbol methodSymbol)
                     {
                         methodsBuilder.Add(new MethodModel(methodSymbol));
                     }

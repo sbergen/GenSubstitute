@@ -8,6 +8,7 @@ namespace GenSubstitute.SourceGenerator.Models
 {
     internal readonly struct MethodModel : IEquatable<MethodModel>
     {
+        public readonly bool IsPropertyMethod;
         public readonly bool ReturnsVoid;
         public readonly string ReturnType;
         public readonly string Name;
@@ -16,6 +17,7 @@ namespace GenSubstitute.SourceGenerator.Models
 
         public MethodModel(IMethodSymbol symbol)
         {
+            IsPropertyMethod = symbol.AssociatedSymbol is IPropertySymbol;
             ReturnsVoid = symbol.ReturnType.SpecialType == SpecialType.System_Void;
             
             ReturnType = ReturnsVoid
@@ -36,7 +38,7 @@ namespace GenSubstitute.SourceGenerator.Models
         }
 
         public bool Equals(MethodModel other) =>
-            Name == other.Name &&
+            Name == other.Name && // property methods should have unique names
             ReturnType == other.ReturnType &&
             GenericParameterNames.SequenceEqual(other.GenericParameterNames) &&
             Parameters.SequenceEqual(other.Parameters);
