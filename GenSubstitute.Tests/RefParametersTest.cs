@@ -43,7 +43,7 @@ public class RefParametersTest
         var builder = Gen.Substitute<IRefParams>().Build();
 
         int receivedRefArg = 0;
-        builder.Configure.Modify(Arg.Any, Arg<Ref<int>>.When(i => i < 20))
+        builder.Configure.Modify(Arg.Any, new(i => i < 20))
             .Configure((_, r) => receivedRefArg = r.Value);
         
         int foo = 10;

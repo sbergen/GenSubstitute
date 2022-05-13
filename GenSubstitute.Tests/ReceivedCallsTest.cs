@@ -34,7 +34,7 @@ public static class ReceivedCallsTest
         mock.MethodWithArg(3);
         mock.MethodWithArg(4);
 
-        builder.Received.MethodWithArg(Arg<int>.When(i => i <= 2)).Should().HaveCount(2);
+        builder.Received.MethodWithArg(new(i => i <= 2)).Should().HaveCount(2);
         builder.Received.MethodWithArg(Arg.Any).Should().HaveCount(4);
         builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
     }
