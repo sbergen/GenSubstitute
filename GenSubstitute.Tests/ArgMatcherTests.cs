@@ -9,6 +9,9 @@ public static class ArgMatcherTests
     public interface ITestInterface
     {
         int Method(int i);
+
+        int MethodWithOverload(int i);
+        int MethodWithOverload(string? s);
     }
 
     [Fact]
@@ -59,5 +62,41 @@ public static class ArgMatcherTests
         Action ambiguousInvoke = () => builder.Object.Method(-20);
         
         ambiguousInvoke.Should().Throw<AmbiguousConfiguredCallMatchException>();
+    }
+
+    [Fact]
+    public static void MethodWithOverload_CanBeMatchedWithAny()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+
+        builder.Configure.MethodWithOverload(Arg<int>.Any).Returns(1);
+        builder.Configure.MethodWithOverload(Arg<string?>.Any).Returns(2);
+
+        builder.Object.MethodWithOverload(0).Should().Be(1);
+        builder.Object.MethodWithOverload(null).Should().Be(2);
+    }
+    
+    [Fact]
+    public static void MethodWithOverload_CanBeMatchedWithLambda()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+
+        builder.Configure.MethodWithOverload(Arg.Matches<int>(i => i == 0)).Returns(1);
+        builder.Configure.MethodWithOverload(Arg.Matches<string?>(s => s == null)).Returns(2);
+
+        builder.Object.MethodWithOverload(0).Should().Be(1);
+        builder.Object.MethodWithOverload(null).Should().Be(2);
+    }
+    
+    [Fact]
+    public static void MethodWithOverload_CanBeMatchedWithValue()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+
+        builder.Configure.MethodWithOverload(0).Returns(1);
+        builder.Configure.MethodWithOverload(Arg.Is<string?>(null)).Returns(2);
+
+        builder.Object.MethodWithOverload(0).Should().Be(1);
+        builder.Object.MethodWithOverload(null).Should().Be(2);
     }
 }
