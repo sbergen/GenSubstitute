@@ -14,17 +14,17 @@ public static class ReceivedCallsTest
     }
     
     [Fact]
-    public static void CallCount_MatchesExpected_WhenNoArgs()
+    public static void Times_MatchesExpected_WhenNoArgs()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
         builder.Object.Method();
         builder.Object.Method();
 
-        builder.Received.Method().Should().HaveCount(2);
+        builder.Received.Method().Times(2);
     }
     
     [Fact]
-    public static void CallCount_MatchesExpected_WithArgs()
+    public static void Times_MatchesExpected_WithArgs()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
 
@@ -34,20 +34,34 @@ public static class ReceivedCallsTest
         mock.MethodWithArg(3);
         mock.MethodWithArg(4);
 
-        builder.Received.MethodWithArg(new(i => i <= 2)).Should().HaveCount(2);
-        builder.Received.MethodWithArg(Arg.Any).Should().HaveCount(4);
+        builder.Received.MethodWithArg(new(i => i <= 2)).Times(2);
+        builder.Received.MethodWithArg(Arg.Any).Times(4);
         builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
+    }
+
+    [Fact]
+    public static void ReceivedCalls_AreIncludedInExceptionMessage_WhenNotMatching()
+    {
+        var builder = Gen.Substitute<ITestInterface>().Build();
+
+        var mock = builder.Object;
+        mock.MethodWithArg(1);
+        mock.MethodWithArg(2);
+
+        var assert = () => builder.Received.MethodWithArg(Arg.Any).Once();
+        assert.Should()
+            .Throw<ReceivedCallsAssertionException>()
+            .WithMessage("*MethodWithArg(1)*MethodWithArg(2)*");
     }
     
     [Fact]
-    public static void CallArgs_CanBeAccessedEasily()
+    public static void Once_AllowsEasyAccessToArgs()
     {
         var builder = Gen.Substitute<ITestInterface>().Build();
         
         builder.Object.MethodWithArg(1);
-        builder.Object.MethodWithArg(2);
-        
-        builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
+
+        builder.Received.MethodWithArg(Arg.Any).Once().Arg1.Should().Be(1);
     }
 
     [Fact]
