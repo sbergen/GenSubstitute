@@ -57,24 +57,24 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
-            Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls = new();");
-            Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls = new();");
+            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
             Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             
             Line($"public {model.FullyQualifiedName} Object => _implementation;");
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
-            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _receivedCalls.All;");
+            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _context.Received.All;");
             EmptyLine();
             
-            Line($"internal {model.BuilderTypeName}()");
+            Line($"internal {model.BuilderTypeName}({nameof(SubstitutionContext)}? context = null)");
             Line("{");
             using (Indent())
             {
-                Line("_implementation = new(_receivedCalls, _configuredCalls);");
-                Line("Received = new(_receivedCalls);");
-                Line("Configure = new(_configuredCalls);");
+                Line("_context = context ?? new();");
+                Line("_implementation = new(_context);");
+                Line("Received = new(_context);");
+                Line("Configure = new(_context);");
             }
 
             Line("}");

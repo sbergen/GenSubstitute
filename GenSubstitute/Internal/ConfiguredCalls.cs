@@ -31,7 +31,7 @@ namespace GenSubstitute.Internal
                 {
                     0 => null,
                     1 => (T)matches[0],
-                    _ => throw new AmbiguousConfiguredCallMatchException(),
+                    _ => throw new AmbiguousConfiguredCallMatchException(methodName, receivedCall.GetArguments(), matches),
                 };
             }
             else

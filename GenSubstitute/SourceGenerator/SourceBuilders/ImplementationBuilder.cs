@@ -13,14 +13,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             : base(
                 parent,
                 ClassName,
-                $"{nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls",
+                $"{nameof(ISubstitutionContext)} context",
                 $" : {model.FullyQualifiedName}")
         {
-            ConstructorLine("_receivedCalls = receivedCalls;");
-            ConstructorLine("_configuredCalls = configuredCalls;");
-            
-            Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
-            Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
+            ConstructorLine("_context = context;");
+
+            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
         }
 
         public void AddProperty(PropertyModel property)
@@ -32,12 +30,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             {
                 if (property.GetMethodName is { } getMethodName)
                 {
-                    Line($"get => PropertyImplementation<{property.Type}>.Get(_receivedCalls, _configuredCalls, \"{getMethodName}\");");
+                    Line($"get => PropertyImplementation<{property.Type}>.Get(_context, \"{getMethodName}\");");
                 }
                 
                 if (property.SetMethodName is { } setMethodName)
                 {
-                    Line($"set => PropertyImplementation<{property.Type}>.Set(_receivedCalls, _configuredCalls, \"{setMethodName}\", value);");
+                    Line($"set => PropertyImplementation<{property.Type}>.Set(_context, \"{setMethodName}\", value);");
                 }
             }
             Line("}");
@@ -62,8 +60,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             using (Indent())
             {
                 Line($"var receivedCall = new {method.ReceivedCallType}({receivedCallConstructorArgs});");
-                Line("_receivedCalls.Add(receivedCall);");
-                Line($"var call = _configuredCalls.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
+                Line("_context.Received.Add(receivedCall);");
+                Line($"var call = _context.Configured.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
                 
                 foreach (var parameter in method.RefOrOutParameters)
                 {

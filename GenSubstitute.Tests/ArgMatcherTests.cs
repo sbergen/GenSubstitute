@@ -60,8 +60,10 @@ public static class ArgMatcherTests
         builder.Configure.Method(new(i => i < -10)).Returns(1);
 
         Action ambiguousInvoke = () => builder.Object.Method(-20);
-        
-        ambiguousInvoke.Should().Throw<AmbiguousConfiguredCallMatchException>();
+
+        ambiguousInvoke.Should()
+            .Throw<AmbiguousConfiguredCallMatchException>()
+            .WithMessage("*-20*i < *i < -10");
     }
 
     [Fact]

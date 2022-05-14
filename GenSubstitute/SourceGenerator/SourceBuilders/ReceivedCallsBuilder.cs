@@ -8,18 +8,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public const string ClassName = "ReceivedCallsData";
 
         public ReceivedCallsBuilder(SourceBuilder parent)
-            : base(parent, ClassName, $"{nameof(ReceivedCalls)} calls")
+            : base(parent, ClassName, $"{nameof(ISubstitutionContext)} context")
         {
-            ConstructorLine("_calls = calls;");
+            ConstructorLine("_context = context;");
             
-            Line($"private readonly {nameof(ReceivedCalls)} _calls;");
+            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
         }
 
         public void AddProperty(PropertyModel property)
         {
             EmptyLine();
             Line($"public readonly ReceivedPropertyCalls<{property.Type}>.{property.HelperSubType} {property.Name};");
-            ConstructorLine($"{property.Name} = new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
+            ConstructorLine($"{property.Name} = new(_context.Received, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
         }
         
         public void AddMethod(EnrichedMethodModel method)
@@ -28,7 +28,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public IReadOnlyList<{method.ReceivedCallType}> {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {
-                Line($"_calls.GetMatching<{method.ReceivedCallType}>(");
+                Line($"_context.Received.GetMatching<{method.ReceivedCallType}>(");
                 using (Indent())
                 {
                     Line($"{method.ResolvedMethodName},");

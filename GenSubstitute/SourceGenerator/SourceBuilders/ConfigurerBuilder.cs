@@ -8,18 +8,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public const string ClassName = "Configurer";
 
         public ConfigurerBuilder(SourceBuilder parent)
-            : base(parent, ClassName, $"{nameof(ConfiguredCalls)} configuredCalls")
+            : base(parent, ClassName, $"{nameof(ISubstitutionContext)} context")
         {
-            ConstructorLine("_calls = configuredCalls;");
+            ConstructorLine("_context = context;");
             
-            Line($"private readonly {nameof(ConfiguredCalls)} _calls;");
+            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
         }
 
         public void AddProperty(PropertyModel property)
         {
             EmptyLine();
             Line($"public readonly ConfiguredProperty<{property.Type}>.{property.HelperSubType} {property.Name};");
-            ConstructorLine($"{property.Name} = new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
+            ConstructorLine($"{property.Name} = new(_context.Configured, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
         }
 
         public void AddMethod(EnrichedMethodModel method)
@@ -28,7 +28,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public {method.ConfiguredCallType} {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {
-                Line("_calls.Add(");
+                Line("_context.Configured.Add(");
                 using (Indent())
                 {
                     Line($"{method.ResolvedMethodName},");

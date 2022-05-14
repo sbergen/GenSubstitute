@@ -17,6 +17,7 @@ namespace GenSubstitute
     var callArgMatchList = new List<string>();
     var argMemberValuesList = new List<string>();
     var argMemberNamesList = new List<string>();
+    var callArgMemberNamesList = new List<string>();
     
     for (var i = 0; i < 17; ++i)
     {
@@ -33,6 +34,7 @@ namespace GenSubstitute
             callArgMatchList.Add($"            && _arg{i}.Matches(c.Arg{i})");
             argMemberValuesList.Add($"{{Arg{i}?.ToString() ?? \"null\"}}");
             argMemberNamesList.Add($"Arg{i}");
+            callArgMemberNamesList.Add($"_arg{i}");
         }
         
         // <TArg, ..., TReturn>
@@ -76,6 +78,8 @@ namespace GenSubstitute
         // Arg1, ...
         var argMemberNames = string.Join(", ", argMemberNamesList);
         
+        // _arg1, ...
+        var callArgMemberNames = string.Join(", ", callArgMemberNamesList);
 #>
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
@@ -117,6 +121,8 @@ namespace GenSubstitute
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(TReturn)
 <#= callArgMatcher #>;
+
+        public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
     }
 
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
@@ -155,6 +161,8 @@ namespace GenSubstitute
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(void)
 <#= callArgMatcher #>;
+
+        public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
     }
 
     public class ReceivedCall<#= actionGenerics #> : IReceivedCall
