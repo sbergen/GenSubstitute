@@ -2,13 +2,13 @@ using System;
 
 namespace GenSubstitute
 {
-    public abstract class PropertyMatcher<T>
+    public class PropertyMatcher<T>
     {
         private readonly ISubstitute _substitute;
         private readonly Lazy<FuncMatcher<T>> _getMatcher;
         private readonly string? _setMethodName;
 
-        protected PropertyMatcher(ISubstitute substitute, string? getMethodName, string? setMethodName)
+        internal PropertyMatcher(ISubstitute substitute, string? getMethodName, string? setMethodName)
         {
             _substitute = substitute;
             _setMethodName = setMethodName;
@@ -25,9 +25,9 @@ namespace GenSubstitute
                 });
         }
         
-        protected FuncMatcher<T> MatchGet() => _getMatcher.Value;
+        internal FuncMatcher<T> MatchGet() => _getMatcher.Value;
 
-        protected ActionMatcher<T> MatchSet(Arg<T> arg)
+        internal ActionMatcher<T> MatchSet(Arg<T> arg)
         {
             if (_setMethodName == null)
             {
