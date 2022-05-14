@@ -34,7 +34,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 {
                     Line($"{method.ResolvedMethodName},");
                     var allParameters = PrependToListString("_context.Substitute", method.SafeParameterNames);
-                    Line($"new {method.ConfiguredCallType}({allParameters}));");
+                    Line($"new {method.ConfiguredCallType}(new({allParameters})));");
                 }
             }
         }

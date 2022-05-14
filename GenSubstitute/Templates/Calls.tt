@@ -8,12 +8,12 @@ namespace GenSubstitute
 <#
     // These are here mostly because T4 doesn't support Linq :(
     var genericArgs = new List<string>();
-    var constructorArgsList = new List<string> { "ISubstitute substitute" };
+    var matcherConstructorArgsList = new List<string> { "ISubstitute substitute" };
     var argMembersList = new List<string>();
     var valueMembersList = new List<string>();
     var executeArgsList = new List<string>();
     var executeCallList = new List<string>();
-    var ctorBodyList = new List<string> { "            _substitute = substitute;" };
+    var matcherCtorBodyList = new List<string> { "            _substitute = substitute;" };
     var receivedCtorBodyList = new List<string>();
     var callArgMatchList = new List<string>();
     var argMemberValuesList = new List<string>();
@@ -25,12 +25,12 @@ namespace GenSubstitute
         if (i > 0)
         {
             genericArgs.Add($"TArg{i}");
-            constructorArgsList.Add($"Arg<TArg{i}> arg{i}");
+            matcherConstructorArgsList.Add($"Arg<TArg{i}> arg{i}");
             argMembersList.Add($"        private readonly Arg<TArg{i}> _arg{i};");
             valueMembersList.Add($"        public readonly TArg{i} Arg{i};");
             executeArgsList.Add($"TArg{i} arg{i}");
             executeCallList.Add($"arg{i}");
-            ctorBodyList.Add($"            _arg{i} = arg{i};");
+            matcherCtorBodyList.Add($"            _arg{i} = arg{i};");
             receivedCtorBodyList.Add($"            Arg{i} = arg{i};");
             callArgMatchList.Add($"            && _arg{i}.Matches(c.Arg{i})");
             argMemberValuesList.Add($"{{Arg{i}?.ToString() ?? \"null\"}}");
@@ -45,7 +45,7 @@ namespace GenSubstitute
         var actionGenerics = i > 0 ? $"<{string.Join(", ", genericArgs)}>" : "";
         
         // ISubstitute substitute, Arg<T1> arg1, ... 
-        var constructorArgs = string.Join(", ", constructorArgsList);
+        var matcherConstructorArgs = string.Join(", ", matcherConstructorArgsList);
         
         // private readonly Arg<T1> _arg1; 
         // ...
@@ -64,7 +64,7 @@ namespace GenSubstitute
         // _substitute = substitute;
         // _arg1 = arg1;
         // ...
-        var constructorBody = string.Join("\n", ctorBodyList);
+        var matcherConstructorBody = string.Join("\n", matcherCtorBodyList);
         
         // Arg1 = arg1;
         // ...
@@ -83,17 +83,35 @@ namespace GenSubstitute
         // _arg1, ...
         var callArgMemberNames = string.Join(", ", callArgMemberNamesList);
 #>
+    public class FuncMatcher<#= funcGenerics #> : ICallMatcher
+    {
+        private ISubstitute _substitute;
+<#= argMembers #>
+
+        public FuncMatcher(<#= matcherConstructorArgs #>)
+        {
+<#= matcherConstructorBody #>
+        }
+
+        public bool Matches(IReceivedCall call) =>
+            ReferenceEquals(_substitute, call.Substitute) &&
+            call is ReceivedCall<#= actionGenerics #> c
+            && c.ReturnType == typeof(TReturn)
+<#= callArgMatcher #>;
+
+        public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
+    }
+
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
     {
-<#= argMembers #>
+        private readonly FuncMatcher<#= funcGenerics #> _matcher;
         private Func<#= funcGenerics #>? _execute;
         private TReturn? _returnValue;
         private ConfiguredAs _configuredAs;
-        private ISubstitute _substitute;
 
-        public ConfiguredFunc(<#= constructorArgs #>)
+        public ConfiguredFunc(FuncMatcher<#= funcGenerics #> matcher)
         {
-<#= constructorBody #>
+            _matcher = matcher;
         }
 
         public void Configure(Func<#= funcGenerics #> implementation)
@@ -115,10 +133,24 @@ namespace GenSubstitute
             _ => throw new IncompletelyConfiguredCallException(),
         };
 
+        public bool Matches(IReceivedCall call) => _matcher.Matches(call);
+        public object?[] GetArguments() => _matcher.GetArguments();
+    }
+
+    public class ActionMatcher<#= actionGenerics #> : ICallMatcher
+    {
+        private readonly ISubstitute _substitute;
+<#= argMembers #>
+    
+        public ActionMatcher(<#= matcherConstructorArgs #>)
+        {
+<#= matcherConstructorBody #>
+        }
+
         public bool Matches(IReceivedCall call) =>
             ReferenceEquals(_substitute, call.Substitute) &&
             call is ReceivedCall<#= actionGenerics #> c
-            && c.ReturnType == typeof(TReturn)
+            && c.ReturnType == typeof(void)
 <#= callArgMatcher #>;
 
         public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
@@ -126,13 +158,12 @@ namespace GenSubstitute
 
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
     {
-<#= argMembers #>
+        private readonly ActionMatcher<#= actionGenerics #> _matcher;
         private Action<#= actionGenerics #>? _execute;
-        private ISubstitute _substitute;
     
-        public ConfiguredAction(<#= constructorArgs #>)
+        public ConfiguredAction(ActionMatcher<#= actionGenerics #> matcher)
         {
-<#= constructorBody #>
+            _matcher = matcher;
         }
         
         public void Configure(Action<#= actionGenerics #> implementation)
@@ -152,13 +183,9 @@ namespace GenSubstitute
             }
         }
 
-        public bool Matches(IReceivedCall call) =>
-            ReferenceEquals(_substitute, call.Substitute) &&
-            call is ReceivedCall<#= actionGenerics #> c
-            && c.ReturnType == typeof(void)
-<#= callArgMatcher #>;
+        public bool Matches(IReceivedCall call) => _matcher.Matches(call);
 
-        public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
+        public object?[] GetArguments() => _matcher.GetArguments();
     }
 
     public class ReceivedCall<#= actionGenerics #> : IReceivedCall

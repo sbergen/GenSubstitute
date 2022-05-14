@@ -26,7 +26,9 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Get called on write-only property");
             }
             
-            return _context.Configured.Add(_getMethodName, new ConfiguredFunc<T>(_context.Substitute));
+            return _context.Configured.Add(
+                _getMethodName,
+                new ConfiguredFunc<T>(new(_context.Substitute)));
         }
 
         private ConfiguredAction<T> PrivateSet(Arg<T> arg)
@@ -36,7 +38,9 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Set called on read-only property");
             }
             
-            return _context.Configured.Add(_setMethodName, new ConfiguredAction<T>(_context.Substitute, arg));
+            return _context.Configured.Add(
+                _setMethodName,
+                new ConfiguredAction<T>(new(_context.Substitute, arg)));
         }
 
         public class ReadOnly : ConfiguredProperty<T>

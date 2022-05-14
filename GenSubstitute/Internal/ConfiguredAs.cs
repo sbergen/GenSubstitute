@@ -1,4 +1,4 @@
-namespace GenSubstitute
+namespace GenSubstitute.Internal
 {
     internal enum ConfiguredAs
     {

@@ -12,10 +12,8 @@ namespace GenSubstitute.Internal
 
         public IReadOnlyList<IReceivedCall> All => _calls;
         public void Add(IReceivedCall call) => _calls.Add(call);
-
-        // Note: reusing IConfiguredCall here for convenience,
-        // not sure if this should use a distinct type or base type?
-        public IReadOnlyList<T> GetMatching<T>(string methodName, IConfiguredCall matcher)
+        
+        public IReadOnlyList<T> GetMatching<T>(string methodName, ICallMatcher matcher)
             where T : IReceivedCall =>
             _calls
                 .Where(c => c.MethodName == methodName && matcher.Matches(c))

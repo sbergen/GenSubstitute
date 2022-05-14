@@ -27,7 +27,9 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Get called on write-only property");
             }
             
-            return _context.Received.GetMatching<ReceivedCall>(_getMethodName, new ConfiguredFunc<T>(_context.Substitute));
+            return _context.Received.GetMatching<ReceivedCall>(
+                _getMethodName,
+                new ConfiguredFunc<T>(new(_context.Substitute)));
         }
 
         private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg)
@@ -37,7 +39,9 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Set called on read-only property");
             }
             
-            return _context.Received.GetMatching<ReceivedCall<T>>(_setMethodName, new ConfiguredAction<T>(_context.Substitute, arg));
+            return _context.Received.GetMatching<ReceivedCall<T>>(
+                _setMethodName,
+                new ConfiguredAction<T>(new(_context.Substitute, arg)));
         }
 
         public class ReadOnly : ReceivedPropertyCalls<T>
