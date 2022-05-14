@@ -17,7 +17,7 @@ namespace GenSubstitute.Internal
             return call;
         }
 
-        public T? Get<T>(string methodName, IReceivedCall receivedCall)
+        public T? Get<T>(IReceivedCall receivedCall)
             where T : class, IConfiguredCall
         {
             var matches = _calls
@@ -28,7 +28,7 @@ namespace GenSubstitute.Internal
             {
                 0 => null,
                 1 => (T)matches[0],
-                _ => throw new AmbiguousConfiguredCallMatchException(methodName, receivedCall.GetArguments(), matches),
+                _ => throw new AmbiguousConfiguredCallMatchException(receivedCall, matches),
             };
         }
     }

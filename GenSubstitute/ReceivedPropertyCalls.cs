@@ -3,22 +3,21 @@ using GenSubstitute.Internal;
 
 namespace GenSubstitute
 {
-    public abstract class ReceivedPropertyCalls<T>
+    public abstract class ReceivedPropertyCalls<T> : PropertyMatcher<T>
     {
         private readonly ObjectSubstitutionContext _context;
-        private readonly PropertyMatcher<T> _matcher;
 
-        protected ReceivedPropertyCalls(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+        private ReceivedPropertyCalls(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+            : base(context.Substitute, getMethodName, setMethodName)
         {
             _context = context;
-            _matcher = new(context.Substitute, getMethodName, setMethodName);
         }
 
         private IReadOnlyList<ReceivedCall> PrivateGet() =>
-            _context.Received.GetMatching<ReceivedCall>(_matcher.Get());
+            _context.Received.GetMatching<ReceivedCall>(MatchGet());
 
         private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg) => 
-            _context.Received.GetMatching<ReceivedCall<T>>(_matcher.Set(arg));
+            _context.Received.GetMatching<ReceivedCall<T>>(MatchSet(arg));
 
         public class ReadOnly : ReceivedPropertyCalls<T>
         {

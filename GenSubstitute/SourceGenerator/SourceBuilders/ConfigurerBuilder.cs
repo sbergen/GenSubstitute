@@ -1,6 +1,5 @@
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
-using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {

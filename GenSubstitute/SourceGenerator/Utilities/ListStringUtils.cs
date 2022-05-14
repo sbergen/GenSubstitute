@@ -8,8 +8,5 @@ namespace GenSubstitute.SourceGenerator.Utilities
     internal static class ListStringUtils
     {
         public static string BuildList(IEnumerable<string> strings) => string.Join(", ", strings);
-
-        public static string PrependToListString(string strToAdd, string strList) =>
-            strList.Length > 0 ? $"{strToAdd}, {strList}" : strToAdd;
     }
 }

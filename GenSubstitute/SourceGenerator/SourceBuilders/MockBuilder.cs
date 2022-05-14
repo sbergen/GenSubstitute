@@ -69,6 +69,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public {model.FullyQualifiedName} Object => _implementation;");
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
+            Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
             EmptyLine();
             
@@ -80,6 +81,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("_implementation = new(_context);");
                 Line("Received = new(_context);");
                 Line("Configure = new(_context);");
+                Line("Match = new(_context);");
             }
 
             Line("}");
@@ -87,12 +89,14 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var implementationBuilder = new ImplementationBuilder(this, model);
             var receivedBuilder = new ReceivedCallsBuilder(this);
             var configurerBuilder = new ConfigurerBuilder(this);
+            var matchersBuilder = new MatchersBuilder(this);
 
             foreach (var property in model.Properties)
             {
                 implementationBuilder.AddProperty(property);
                 receivedBuilder.AddProperty(property);
                 configurerBuilder.AddProperty(property);
+                matchersBuilder.AddProperty(property);
             }
             
             foreach (var method in model.Methods)
@@ -102,6 +106,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 implementationBuilder.AddMethod(enrichedModel);
                 receivedBuilder.AddMethod(enrichedModel);
                 configurerBuilder.AddMethod(enrichedModel);
+                matchersBuilder.AddMethod(enrichedModel);
             }
 
             EmptyLine();
@@ -110,6 +115,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendWithoutIndent(receivedBuilder.GetResult());
             EmptyLine();
             AppendWithoutIndent(configurerBuilder.GetResult());
+            EmptyLine();
+            AppendWithoutIndent(matchersBuilder.GetResult());
         }
     }
 }

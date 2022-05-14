@@ -15,7 +15,7 @@ namespace GenSubstitute.Internal
         {
             var receivedCall = new ReceivedCall(context.Substitute, getMethodName, typeof(int));
             context.Received.Add(receivedCall);
-            var call = context.Configured.Get<ConfiguredFunc<T>>(getMethodName, receivedCall);
+            var call = context.Configured.Get<ConfiguredFunc<T>>(receivedCall);
             return call != null ? call.Execute() : default!;
         }
 
@@ -26,7 +26,7 @@ namespace GenSubstitute.Internal
         {
             var receivedCall = new ReceivedCall<T>(context.Substitute, setMethodName, typeof(void), value);
             context.Received.Add(receivedCall);
-            var call = context.Configured.Get<ConfiguredAction<T>>(setMethodName, receivedCall);
+            var call = context.Configured.Get<ConfiguredAction<T>>(receivedCall);
             call?.Execute(value);
         }
     }

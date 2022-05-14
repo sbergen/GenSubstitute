@@ -7,28 +7,26 @@ namespace GenSubstitute
     public class AmbiguousConfiguredCallMatchException : Exception
     {
         public AmbiguousConfiguredCallMatchException(
-            string methodName,
-            object?[] receivedArguments,
+            IReceivedCall receivedCall,
             IReadOnlyList<IConfiguredCall> matchingCalls)
-            : base(BuildMessage(methodName, receivedArguments, matchingCalls))
+            : base(BuildMessage(receivedCall, matchingCalls))
         {
         }
         
         private static string BuildMessage(
-            string methodName,
-            object?[] receivedArguments,
+            IReceivedCall receivedCall,
             IReadOnlyList<IConfiguredCall> matchingCalls)
         {
             string FormatArguments(object?[] args) =>
                 $"({string.Join(", ", args.Select(a => a?.ToString() ?? "null"))})";
 
-            var received = FormatArguments(receivedArguments);
+            var received = FormatArguments(receivedCall.GetArguments());
             
             var matched = string.Join(
                 "\n    ",
                 matchingCalls.Select(m => FormatArguments(m.GetArguments())));
             
-            return $@"Found multiple matches for arguments in call to '{methodName}':
+            return $@"Found multiple matches for arguments in call to '{receivedCall.MethodName}':
   Received arguments:
     {received}
   Matching configured arguments:

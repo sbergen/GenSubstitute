@@ -2,22 +2,21 @@ using GenSubstitute.Internal;
 
 namespace GenSubstitute
 {
-    public abstract class ConfiguredProperty<T>
+    public abstract class ConfiguredProperty<T> : PropertyMatcher<T>
     {
         private readonly ObjectSubstitutionContext _context;
-        private readonly PropertyMatcher<T> _matcher;
 
         private ConfiguredProperty(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+            : base(context.Substitute, getMethodName, setMethodName)
         {
             _context = context;
-            _matcher = new(context.Substitute, getMethodName, setMethodName);
         }
 
         private ConfiguredFunc<T> PrivateGet() =>
-            _context.Configured.Add(new ConfiguredFunc<T>(_matcher.Get()));
+            _context.Configured.Add(new ConfiguredFunc<T>(MatchGet()));
 
         private ConfiguredAction<T> PrivateSet(Arg<T> arg) =>
-            _context.Configured.Add(new ConfiguredAction<T>(_matcher.Set(arg)));
+            _context.Configured.Add(new ConfiguredAction<T>(MatchSet(arg)));
 
         public class ReadOnly : ConfiguredProperty<T>
         {

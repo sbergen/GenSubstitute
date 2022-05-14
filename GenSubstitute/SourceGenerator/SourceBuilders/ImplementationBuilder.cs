@@ -61,7 +61,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             {
                 Line($"var receivedCall = new {method.ReceivedCallType}(_context.Substitute, {receivedCallConstructorArgs});");
                 Line("_context.Received.Add(receivedCall);");
-                Line($"var call = _context.Configured.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
+                Line($"var call = _context.Configured.Get<{method.ConfiguredCallType}>(receivedCall);");
                 
                 foreach (var parameter in method.RefOrOutParameters)
                 {
