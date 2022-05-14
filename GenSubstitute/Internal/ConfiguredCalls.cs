@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using GenSubstitute.Utilities;
 
 namespace GenSubstitute.Internal
 {
@@ -9,35 +8,28 @@ namespace GenSubstitute.Internal
     /// </summary>
     public class ConfiguredCalls
     {
-        private readonly Dictionary<string, List<IConfiguredCall>> _calls = new();
-    
-        public T Add<T>(string methodName, T call)
+        private readonly List<IConfiguredCall> _calls = new();
+
+        public T Add<T>(T call)
             where T : class, IConfiguredCall
         {
-            _calls.AddToList(methodName, call);
+            _calls.Add(call);
             return call;
         }
 
         public T? Get<T>(string methodName, IReceivedCall receivedCall)
             where T : class, IConfiguredCall
         {
-            if (_calls.TryGetValue(methodName, out var values))
+            var matches = _calls
+                .Where(c => c.Matches(receivedCall))
+                .ToList();
+
+            return matches.Count switch
             {
-                var matches = values
-                    .Where(c => c.Matches(receivedCall))
-                    .ToList();
-            
-                return matches.Count switch
-                {
-                    0 => null,
-                    1 => (T)matches[0],
-                    _ => throw new AmbiguousConfiguredCallMatchException(methodName, receivedCall.GetArguments(), matches),
-                };
-            }
-            else
-            {
-                return null;  
-            }
+                0 => null,
+                1 => (T)matches[0],
+                _ => throw new AmbiguousConfiguredCallMatchException(methodName, receivedCall.GetArguments(), matches),
+            };
         }
     }
 }

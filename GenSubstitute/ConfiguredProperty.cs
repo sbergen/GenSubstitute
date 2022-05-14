@@ -27,8 +27,7 @@ namespace GenSubstitute
             }
             
             return _context.Configured.Add(
-                _getMethodName,
-                new ConfiguredFunc<T>(new(_context.Substitute)));
+                new ConfiguredFunc<T>(new(_context.Substitute, _getMethodName)));
         }
 
         private ConfiguredAction<T> PrivateSet(Arg<T> arg)
@@ -39,8 +38,7 @@ namespace GenSubstitute
             }
             
             return _context.Configured.Add(
-                _setMethodName,
-                new ConfiguredAction<T>(new(_context.Substitute, arg)));
+                new ConfiguredAction<T>(new(_context.Substitute, _setMethodName, arg)));
         }
 
         public class ReadOnly : ConfiguredProperty<T>

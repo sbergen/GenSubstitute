@@ -63,7 +63,7 @@ public static class ArgMatcherTests
 
         ambiguousInvoke.Should()
             .Throw<AmbiguousConfiguredCallMatchException>()
-            .WithMessage("*-20*i < *i < -10");
+            .WithMessage("*-20*i < 0*i < -10*");
     }
 
     [Fact]

@@ -28,8 +28,7 @@ namespace GenSubstitute
             }
             
             return _context.Received.GetMatching<ReceivedCall>(
-                _getMethodName,
-                new ConfiguredFunc<T>(new(_context.Substitute)));
+                new FuncMatcher<T>(_context.Substitute, _getMethodName));
         }
 
         private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg)
@@ -40,8 +39,7 @@ namespace GenSubstitute
             }
             
             return _context.Received.GetMatching<ReceivedCall<T>>(
-                _setMethodName,
-                new ConfiguredAction<T>(new(_context.Substitute, arg)));
+                new ActionMatcher<T>(_context.Substitute, _setMethodName, arg));
         }
 
         public class ReadOnly : ReceivedPropertyCalls<T>

@@ -20,7 +20,7 @@ namespace GenSubstitute
             IReadOnlyList<IConfiguredCall> matchingCalls)
         {
             string FormatArguments(object?[] args) =>
-                string.Join(", ", args.Select(a => a?.ToString() ?? "null"));
+                $"({string.Join(", ", args.Select(a => a?.ToString() ?? "null"))})";
 
             var received = FormatArguments(receivedArguments);
             

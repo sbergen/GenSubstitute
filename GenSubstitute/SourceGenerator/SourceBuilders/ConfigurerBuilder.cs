@@ -32,9 +32,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("_context.Configured.Add(");
                 using (Indent())
                 {
-                    Line($"{method.ResolvedMethodName},");
-                    var allParameters = PrependToListString("_context.Substitute", method.SafeParameterNames);
-                    Line($"new {method.ConfiguredCallType}(new({allParameters})));");
+                    Line($"new {method.ConfiguredCallType}(new({method.MatcherConstructorArgs})));");
                 }
             }
         }

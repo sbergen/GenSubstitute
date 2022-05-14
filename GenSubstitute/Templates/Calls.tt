@@ -8,17 +8,21 @@ namespace GenSubstitute
 <#
     // These are here mostly because T4 doesn't support Linq :(
     var genericArgs = new List<string>();
-    var matcherConstructorArgsList = new List<string> { "ISubstitute substitute" };
     var argMembersList = new List<string>();
     var valueMembersList = new List<string>();
     var executeArgsList = new List<string>();
     var executeCallList = new List<string>();
-    var matcherCtorBodyList = new List<string> { "            _substitute = substitute;" };
     var receivedCtorBodyList = new List<string>();
     var callArgMatchList = new List<string>();
     var argMemberValuesList = new List<string>();
     var argMemberNamesList = new List<string>();
     var callArgMemberNamesList = new List<string>();
+    var matcherConstructorArgsList = new List<string> { "ISubstitute substitute", "string methodName" };
+    var matcherCtorBodyList = new List<string>
+    {
+        "            Substitute = substitute;",
+        "            MethodName = methodName;",
+    };
     
     for (var i = 0; i < 17; ++i)
     {
@@ -61,7 +65,7 @@ namespace GenSubstitute
         // arg1, ...
         var executeCall = string.Join(", ", executeCallList);
         
-        // _substitute = substitute;
+        // Substitute = substitute;
         // _arg1 = arg1;
         // ...
         var matcherConstructorBody = string.Join("\n", matcherCtorBodyList);
@@ -85,7 +89,8 @@ namespace GenSubstitute
 #>
     public class FuncMatcher<#= funcGenerics #> : ICallMatcher
     {
-        private ISubstitute _substitute;
+        public ISubstitute Substitute { get; }
+        public string MethodName { get; }
 <#= argMembers #>
 
         public FuncMatcher(<#= matcherConstructorArgs #>)
@@ -94,7 +99,8 @@ namespace GenSubstitute
         }
 
         public bool Matches(IReceivedCall call) =>
-            ReferenceEquals(_substitute, call.Substitute) &&
+            ReferenceEquals(Substitute, call.Substitute) &&
+            MethodName == call.MethodName &&
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(TReturn)
 <#= callArgMatcher #>;
@@ -139,7 +145,8 @@ namespace GenSubstitute
 
     public class ActionMatcher<#= actionGenerics #> : ICallMatcher
     {
-        private readonly ISubstitute _substitute;
+        public ISubstitute Substitute { get; }
+        public string MethodName { get; }
 <#= argMembers #>
     
         public ActionMatcher(<#= matcherConstructorArgs #>)
@@ -148,7 +155,8 @@ namespace GenSubstitute
         }
 
         public bool Matches(IReceivedCall call) =>
-            ReferenceEquals(_substitute, call.Substitute) &&
+            ReferenceEquals(Substitute, call.Substitute) &&
+            MethodName == call.MethodName &&
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(void)
 <#= callArgMatcher #>;
@@ -190,7 +198,7 @@ namespace GenSubstitute
 
     public class ReceivedCall<#= actionGenerics #> : IReceivedCall
     {
-        public object Substitute { get; }
+        public ISubstitute Substitute { get; }
         public string MethodName { get; }
         public readonly Type ReturnType;
 <#= valueMembers #>

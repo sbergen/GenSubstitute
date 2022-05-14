@@ -1,6 +1,8 @@
 namespace GenSubstitute
 {
-    public interface IConfiguredCall : ICallMatcher
+    public interface IConfiguredCall
     {
+        public bool Matches(IReceivedCall call);
+        public object?[] GetArguments();
     }
 }

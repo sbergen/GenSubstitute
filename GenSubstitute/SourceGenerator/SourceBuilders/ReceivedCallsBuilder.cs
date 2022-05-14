@@ -33,9 +33,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line($"_context.Received.GetMatching<{method.ReceivedCallType}>(");
                 using (Indent())
                 {
-                    Line($"{method.ResolvedMethodName},");
-                    var allParameters = PrependToListString("_context.Substitute", method.SafeParameterNames);
-                    Line($"new {method.ConfiguredCallType}(new({allParameters})));");
+                    Line($"new {method.MatcherType}({method.MatcherConstructorArgs}));");
                 }
                 
             }

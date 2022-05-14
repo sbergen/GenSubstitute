@@ -2,7 +2,7 @@ namespace GenSubstitute
 {
     public interface IReceivedCall
     {
-        object Substitute { get; }
+        ISubstitute Substitute { get; }
         string MethodName { get; }
         public object?[] GetArguments();
     }

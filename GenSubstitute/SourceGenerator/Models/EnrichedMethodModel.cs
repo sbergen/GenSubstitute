@@ -10,6 +10,9 @@ namespace GenSubstitute.SourceGenerator.Models
     /// </summary>
     internal readonly struct EnrichedMethodModel
     {
+        // TODO: This is a bit more tightly coupled than I would like it to be :(
+        private const string MatcherExpression = "_context.Substitute";
+        
         public readonly string Name;
         public readonly string ReturnType;
         public readonly bool ReturnsVoid;
@@ -26,11 +29,14 @@ namespace GenSubstitute.SourceGenerator.Models
         // E.g. "Arg<int>? intArg, Arg<double>? doubleArg"
         public readonly string ArgParameters;
 
-        // E.g. "intArg ?? Arg<int>.Default, doubleArg ?? Arg<double>.Default"
-        public readonly string SafeParameterNames;
+        // E.g. "_context.Substitute, "SomeMethod", intArg ?? Arg<int>.Default, doubleArg ?? Arg<double>.Default"
+        public readonly string MatcherConstructorArgs;
 
         // E.g. ConfiguredFunc<int, double>
         public readonly string ConfiguredCallType;
+        
+        // E.g. FuncMatcher<int, double>
+        public readonly string MatcherType;
         
         // E.g. ReceivedCall<int>
         public readonly string ReceivedCallType;
@@ -65,17 +71,21 @@ namespace GenSubstitute.SourceGenerator.Models
             ArgParameters = BuildList(Parameters
                 .Select(p => $"{p.WrappedType}? {p.Name}{p.DefaultValueDeclaration}"));
 
-            SafeParameterNames = BuildList(Parameters
-                .Select(p => $"{p.Name} ?? {p.DefaultValueConstructor}"));
+            MatcherConstructorArgs = BuildList(Parameters
+                .Select(p => $"{p.Name} ?? {p.DefaultValueConstructor}")
+                .Prepend(ResolvedMethodName)
+                .Prepend(MatcherExpression));
 
             var callObjectParameterList = BuildList(Parameters.Select(p => p.CallObjectType));
             if (method.Parameters.Length == 0 && method.ReturnsVoid)
             {
                 ConfiguredCallType = nameof(ConfiguredAction);
+                MatcherType = nameof(ActionMatcher);
             }
             else
             {
                 var callType = method.ReturnsVoid ? nameof(ConfiguredAction) : nameof(ConfiguredFunc<int>);
+                var matcherType = method.ReturnsVoid ? nameof(ActionMatcher) : nameof(FuncMatcher<int>);
                 var returnType = (method.ReturnsVoid, method.Parameters.Length) switch
                 {
                     (true, _) => "",
@@ -84,6 +94,7 @@ namespace GenSubstitute.SourceGenerator.Models
                 };
 
                 ConfiguredCallType = $"{callType}<{callObjectParameterList}{returnType}>";
+                MatcherType = $"{matcherType}<{callObjectParameterList}{returnType}>";
             }
 
             ReceivedCallType = method.Parameters.Length == 0
