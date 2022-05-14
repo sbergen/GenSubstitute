@@ -27,12 +27,14 @@ public static class ArgTests
     [Fact]
     public static void ToString_ReturnsNullInfo_WhenExpressionAttributeNotAvailable()
     {
+        // ReSharper disable once RedundantArgumentDefaultValue
         new Arg<string?>((string?)null, null).ToString().Should().Be($"({typeof(string)})null");
     }
     
     [Fact]
     public static void ToString_ExpressionInfo_WhenExpressionAttributeNotAvailable()
     {
+        // ReSharper disable once RedundantArgumentDefaultValue
         new Arg<string>(s => s.Length == 2, null).ToString().Should().Be($"expression on {typeof(string)}");
     }
 }
