@@ -8,28 +8,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public const string ClassName = "Configurer";
 
         public ConfigurerBuilder(SourceBuilder parent)
-            : base(parent, $"public class {ClassName}")
+            : base(parent, ClassName, $"{nameof(ConfiguredCalls)} configuredCalls")
         {
+            ConstructorLine("_calls = configuredCalls;");
+            
             Line($"private readonly {nameof(ConfiguredCalls)} _calls;");
-            EmptyLine();
-            Line($"internal {ClassName}({nameof(ConfiguredCalls)} configuredCalls)");
-            Line("{");
-            using (Indent())
-            {
-                Line("_calls = configuredCalls;");
-            }
-            Line("}");
         }
 
         public void AddProperty(PropertyModel property)
         {
-            // TODO: move to constructor to use a single instance
             EmptyLine();
-            Line($"public ConfiguredProperty<{property.Type}>.{property.HelperSubType} {property.Name} =>");
-            using (Indent())
-            {
-                Line($"new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
-            }
+            Line($"public readonly ConfiguredProperty<{property.Type}>.{property.HelperSubType} {property.Name};");
+            ConstructorLine($"{property.Name} = new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
         }
 
         public void AddMethod(EnrichedMethodModel method)

@@ -10,19 +10,17 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public const string ClassName = "Implementation";
 
         public ImplementationBuilder(SourceBuilder parent, TypeModel model)
-            : base(parent, $"private class {ClassName} : {model.FullyQualifiedName}")
+            : base(
+                parent,
+                ClassName,
+                $"{nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls",
+                $" : {model.FullyQualifiedName}")
         {
+            ConstructorLine("_receivedCalls = receivedCalls;");
+            ConstructorLine("_configuredCalls = configuredCalls;");
+            
             Line($"private readonly {nameof(ConfiguredCalls)} _configuredCalls;");
             Line($"private readonly {nameof(ReceivedCalls)} _receivedCalls;");
-            EmptyLine();
-            Line($"internal {ClassName}({nameof(ReceivedCalls)} receivedCalls, {nameof(ConfiguredCalls)} configuredCalls)");
-            Line("{");
-            using (Indent())
-            {
-                Line("_receivedCalls = receivedCalls;");
-                Line("_configuredCalls = configuredCalls;");
-            }
-            Line("}");
         }
 
         public void AddProperty(PropertyModel property)

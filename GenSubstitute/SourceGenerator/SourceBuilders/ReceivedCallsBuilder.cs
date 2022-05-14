@@ -8,28 +8,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public const string ClassName = "ReceivedCallsData";
 
         public ReceivedCallsBuilder(SourceBuilder parent)
-            : base(parent, $"public class {ClassName}")
+            : base(parent, ClassName, $"{nameof(ReceivedCalls)} calls")
         {
+            ConstructorLine("_calls = calls;");
+            
             Line($"private readonly {nameof(ReceivedCalls)} _calls;");
-            EmptyLine();
-            Line($"internal {ClassName}({nameof(ReceivedCalls)} calls)");
-            Line("{");
-            using (Indent())
-            {
-                Line("_calls = calls;");
-            }
-            Line("}");
         }
 
         public void AddProperty(PropertyModel property)
         {
-            // TODO: move to constructor to use a single instance
             EmptyLine();
-            Line($"public ReceivedPropertyCalls<{property.Type}>.{property.HelperSubType} {property.Name} =>");
-            using (Indent())
-            {
-                Line($"new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
-            }
+            Line($"public readonly ReceivedPropertyCalls<{property.Type}>.{property.HelperSubType} {property.Name};");
+            ConstructorLine($"{property.Name} = new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
         }
         
         public void AddMethod(EnrichedMethodModel method)

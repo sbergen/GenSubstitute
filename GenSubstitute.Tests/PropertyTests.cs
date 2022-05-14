@@ -8,6 +8,28 @@ public static class PropertyTests
     public interface IInterfaceWithProperties
     {
         public int Property { get; set; }
+        public int ReadOnlyProperty { get; }
+        public int WriteOnlyProperty { set; }
+    }
+
+    [Fact]
+    public static void PropertyConfigurers_HaveCorrectType()
+    {
+        var builder = Gen.Substitute<IInterfaceWithProperties>().Build();
+
+        builder.Configure.Property.Should().BeOfType<ConfiguredProperty<int>.ReadWrite>();
+        builder.Configure.ReadOnlyProperty.Should().BeOfType<ConfiguredProperty<int>.ReadOnly>();
+        builder.Configure.WriteOnlyProperty.Should().BeOfType<ConfiguredProperty<int>.WriteOnly>();
+    }
+    
+    [Fact]
+    public static void ReceivedProperties_HaveCorrectType()
+    {
+        var builder = Gen.Substitute<IInterfaceWithProperties>().Build();
+
+        builder.Received.Property.Should().BeOfType<ReceivedPropertyCalls<int>.ReadWrite>();
+        builder.Received.ReadOnlyProperty.Should().BeOfType<ReceivedPropertyCalls<int>.ReadOnly>();
+        builder.Received.WriteOnlyProperty.Should().BeOfType<ReceivedPropertyCalls<int>.WriteOnly>();
     }
 
     [Fact]
