@@ -1,4 +1,3 @@
-using System;
 using GenSubstitute.Internal;
 
 namespace GenSubstitute
@@ -6,40 +5,19 @@ namespace GenSubstitute
     public abstract class ConfiguredProperty<T>
     {
         private readonly ObjectSubstitutionContext _context;
-        private readonly string? _getMethodName;
-        private readonly string? _setMethodName;
+        private readonly PropertyMatcher<T> _matcher;
 
-        protected ConfiguredProperty(
-            ObjectSubstitutionContext context,
-            string? getMethodName,
-            string? setMethodName)
+        private ConfiguredProperty(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
         {
             _context = context;
-            _getMethodName = getMethodName;
-            _setMethodName = setMethodName;
+            _matcher = new(context.Substitute, getMethodName, setMethodName);
         }
 
-        private ConfiguredFunc<T> PrivateGet()
-        {
-            if (_getMethodName == null)
-            {
-                throw new InvalidOperationException("Get called on write-only property");
-            }
-            
-            return _context.Configured.Add(
-                new ConfiguredFunc<T>(new(_context.Substitute, _getMethodName)));
-        }
+        private ConfiguredFunc<T> PrivateGet() =>
+            _context.Configured.Add(new ConfiguredFunc<T>(_matcher.Get()));
 
-        private ConfiguredAction<T> PrivateSet(Arg<T> arg)
-        {
-            if (_setMethodName == null)
-            {
-                throw new InvalidOperationException("Set called on read-only property");
-            }
-            
-            return _context.Configured.Add(
-                new ConfiguredAction<T>(new(_context.Substitute, _setMethodName, arg)));
-        }
+        private ConfiguredAction<T> PrivateSet(Arg<T> arg) =>
+            _context.Configured.Add(new ConfiguredAction<T>(_matcher.Set(arg)));
 
         public class ReadOnly : ConfiguredProperty<T>
         {

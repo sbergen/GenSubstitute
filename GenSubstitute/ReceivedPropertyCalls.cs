@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using GenSubstitute.Internal;
 
@@ -7,40 +6,19 @@ namespace GenSubstitute
     public abstract class ReceivedPropertyCalls<T>
     {
         private readonly ObjectSubstitutionContext _context;
-        private readonly string? _getMethodName;
-        private readonly string? _setMethodName;
+        private readonly PropertyMatcher<T> _matcher;
 
-        protected ReceivedPropertyCalls(
-            ObjectSubstitutionContext context,
-            string? getMethodName,
-            string? setMethodName)
+        protected ReceivedPropertyCalls(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
         {
             _context = context;
-            _getMethodName = getMethodName;
-            _setMethodName = setMethodName;
+            _matcher = new(context.Substitute, getMethodName, setMethodName);
         }
 
-        private IReadOnlyList<ReceivedCall> PrivateGet()
-        {
-            if (_getMethodName == null)
-            {
-                throw new InvalidOperationException("Get called on write-only property");
-            }
-            
-            return _context.Received.GetMatching<ReceivedCall>(
-                new FuncMatcher<T>(_context.Substitute, _getMethodName));
-        }
+        private IReadOnlyList<ReceivedCall> PrivateGet() =>
+            _context.Received.GetMatching<ReceivedCall>(_matcher.Get());
 
-        private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg)
-        {
-            if (_setMethodName == null)
-            {
-                throw new InvalidOperationException("Set called on read-only property");
-            }
-            
-            return _context.Received.GetMatching<ReceivedCall<T>>(
-                new ActionMatcher<T>(_context.Substitute, _setMethodName, arg));
-        }
+        private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg) => 
+            _context.Received.GetMatching<ReceivedCall<T>>(_matcher.Set(arg));
 
         public class ReadOnly : ReceivedPropertyCalls<T>
         {
