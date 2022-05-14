@@ -13,8 +13,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string Name;
         public readonly string ReturnType;
         public readonly bool ReturnsVoid;
-        public readonly bool IsPropertyMethod;
-        
+
         public readonly ImmutableArray<EnrichedParameterModel> Parameters;
         public readonly ImmutableArray<RefOrOutParameterModel> RefOrOutParameters;
 
@@ -44,8 +43,7 @@ namespace GenSubstitute.SourceGenerator.Models
             Name = method.Name;
             ReturnType = method.ReturnType;
             ReturnsVoid = method.ReturnsVoid;
-            IsPropertyMethod = method.IsPropertyMethod;
-            
+
             Parameters = ImmutableArray.CreateRange(
                 method.Parameters,
                 p => new EnrichedParameterModel(p));

@@ -1,7 +1,6 @@
 using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
-using GenSubstitute.SourceGenerator.Utilities;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -33,14 +32,14 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("{");
             using (Indent())
             {
-                if (property.GetMethodName is { } getMethod)
+                if (property.GetMethodName is { } getMethodName)
                 {
-                    Line($"get => {getMethod}();");
+                    Line($"get => PropertyImplementation<{property.Type}>.Get(_receivedCalls, _configuredCalls, \"{getMethodName}\");");
                 }
                 
-                if (property.SetMethodName is { } setMethod)
+                if (property.SetMethodName is { } setMethodName)
                 {
-                    Line($"set => {setMethod}(value);");
+                    Line($"set => PropertyImplementation<{property.Type}>.Set(_receivedCalls, _configuredCalls, \"{setMethodName}\", value);");
                 }
             }
             Line("}");
@@ -60,10 +59,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {receivedCallParameterArguments}";
             
             EmptyLine();
-            var name = method.IsPropertyMethod
-                ? InternalName.Make(method.Name)
-                : method.Name;
-            Line($"public {method.ReturnType} {name}{method.GenericNames}({parametersWithTypes})");
+            Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");
             Line("{");
             using (Indent())
             {

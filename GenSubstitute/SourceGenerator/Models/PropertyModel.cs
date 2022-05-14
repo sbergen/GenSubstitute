@@ -1,5 +1,4 @@
 using System;
-using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -10,19 +9,22 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string Name;
         public readonly string? GetMethodName;
         public readonly string? SetMethodName;
+        public readonly string HelperSubType;
         
         public PropertyModel(IPropertySymbol property)
         {
             Name = property.Name;
             Type = property.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            GetMethodName = property.GetMethod is { } getMethod
-                ? InternalName.Make(getMethod.Name)
-                : null;
-            
-            SetMethodName = property.SetMethod is { } setMethod
-                ? InternalName.Make(setMethod.Name)
-                : null;
+            GetMethodName = property.GetMethod?.Name;
+            SetMethodName = property.SetMethod?.Name;
+
+            HelperSubType = (property.IsReadOnly, property.IsWriteOnly) switch
+            {
+                (true, _) => "ReadOnly",
+                (_, true) => "WriteOnly",
+                _ => "ReadWrite",
+            };
         }
 
         // Get and set method names should be deterministic

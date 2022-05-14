@@ -57,13 +57,15 @@ namespace GenSubstitute.SourceGenerator.Models
             {
                 foreach (var member in type.GetMembers())
                 {
-                    if (member is IMethodSymbol methodSymbol)
+                    if (member is IMethodSymbol methodSymbol &&
+                        // Skip property methods
+                        methodSymbol.AssociatedSymbol is not IPropertySymbol)
                     {
-                        methodsBuilder.Add(new MethodModel(methodSymbol));
+                        methodsBuilder.Add(new(methodSymbol));
                     }
                     else if (member is IPropertySymbol propertySymbol)
                     {
-                        propertiesBuilder.Add(new PropertyModel(propertySymbol));
+                        propertiesBuilder.Add(new(propertySymbol));
                     }
                 }
             }

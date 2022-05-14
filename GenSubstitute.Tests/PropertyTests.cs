@@ -14,7 +14,8 @@ public static class PropertyTests
     public static void PropertyReturnValues_CanBeMocked()
     {
         var builder = Gen.Substitute<IInterfaceWithProperties>().Build();
-        builder.Configure.get_Property().Returns(42);
+        
+        builder.Configure.Property.Get().Returns(42);
         builder.Object.Property.Should().Be(42);
     }
 
@@ -23,7 +24,7 @@ public static class PropertyTests
     {
         var builder = Gen.Substitute<IInterfaceWithProperties>().Build();
         builder.Object.Property.Should().Be(0);
-        builder.Received.get_Property().Count.Should().Be(1);
+        builder.Received.Property.Get().Count.Should().Be(1);
     }
 
     [Fact]
@@ -32,7 +33,7 @@ public static class PropertyTests
         var builder = Gen.Substitute<IInterfaceWithProperties>().Build();
 
         int val = 0;
-        builder.Configure.set_Property(Arg.Any).Configure(v => val = v);
+        builder.Configure.Property.Set(Arg.Any).Configure(v => val = v);
         builder.Object.Property = 42;
         val.Should().Be(42);
     }
@@ -44,7 +45,7 @@ public static class PropertyTests
         
         builder.Object.Property = 1;
         builder.Object.Property = 2;
-        builder.Received.set_Property(1).Count.Should().Be(1);
+        builder.Received.Property.Set(1).Count.Should().Be(1);
     }
     
     /*

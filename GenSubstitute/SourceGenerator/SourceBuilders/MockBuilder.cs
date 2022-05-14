@@ -86,6 +86,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             foreach (var property in model.Properties)
             {
                 implementationBuilder.AddProperty(property);
+                receivedBuilder.AddProperty(property);
+                configurerBuilder.AddProperty(property);
             }
             
             foreach (var method in model.Methods)

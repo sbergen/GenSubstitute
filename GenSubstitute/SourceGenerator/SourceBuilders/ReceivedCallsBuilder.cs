@@ -21,6 +21,17 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("}");
         }
 
+        public void AddProperty(PropertyModel property)
+        {
+            // TODO: move to constructor to use a single instance
+            EmptyLine();
+            Line($"public ReceivedPropertyCalls<{property.Type}>.{property.HelperSubType} {property.Name} =>");
+            using (Indent())
+            {
+                Line($"new(_calls, \"{property.GetMethodName}\", \"{property.SetMethodName}\");");
+            }
+        }
+        
         public void AddMethod(EnrichedMethodModel method)
         {
             EmptyLine();
