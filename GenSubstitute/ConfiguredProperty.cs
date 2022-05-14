@@ -58,13 +58,60 @@ namespace GenSubstitute
         
         public class ReadWrite : ConfiguredProperty<T>
         {
+            private enum RetainState
+            {
+                NotConfigured,
+                AlreadyConfigured,
+                Retained,
+            }
+
+            private RetainState _retain = RetainState.NotConfigured;
+            private T _value = default!;
+            
             public ReadWrite(ConfiguredCalls calls, string? getMethodName, string? setMethodName)
                 : base(calls, getMethodName, setMethodName)
             {
             }
 
-            public ConfiguredFunc<T> Get() => PrivateGet();
-            public ConfiguredAction<T> Set(Arg<T> arg) => PrivateSet(arg);
+            public ConfiguredFunc<T> Get()
+            {
+                ThrowIfNotConfigurable();
+                return PrivateGet();
+            }
+            
+            public ConfiguredAction<T> Set(Arg<T> arg)
+            {
+                ThrowIfNotConfigurable();
+                return PrivateSet(arg);
+            }
+
+            /// <summary>
+            /// Configures this property as a value-retaining property.
+            /// If you use this option, you shouldn't configure <see cref="Get"/> or <see cref="Set"/>.
+            /// </summary>
+            public void RetainValue()
+            {
+                if (_retain == RetainState.AlreadyConfigured)
+                {
+                    throw new InvalidPropertyConfigurationException(
+                        $"{nameof(RetainValue)} can not be called after calling {nameof(Get)} or {nameof(Set)}");
+                }
+
+                _retain = RetainState.Retained;
+                PrivateGet().Configure(() => _value);
+                PrivateSet(Arg<T>.Any).Configure(val => _value = val);
+            }
+
+            private void ThrowIfNotConfigurable()
+            {
+                if (_retain == RetainState.Retained)
+                {
+                    throw new InvalidPropertyConfigurationException(
+                        $"{nameof(Get)} or {nameof(Set)} can not be called after calling {nameof(RetainValue)}");
+                }
+
+                _retain = RetainState.AlreadyConfigured;
+            }
         }
     }
 }
