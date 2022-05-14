@@ -6,13 +6,16 @@ namespace GenSubstitute
 {
     public abstract class ReceivedPropertyCalls<T>
     {
-        private readonly ReceivedCalls _calls;
+        private readonly ObjectSubstitutionContext _context;
         private readonly string? _getMethodName;
         private readonly string? _setMethodName;
 
-        protected ReceivedPropertyCalls(ReceivedCalls calls, string? getMethodName, string? setMethodName)
+        protected ReceivedPropertyCalls(
+            ObjectSubstitutionContext context,
+            string? getMethodName,
+            string? setMethodName)
         {
-            _calls = calls;
+            _context = context;
             _getMethodName = getMethodName;
             _setMethodName = setMethodName;
         }
@@ -24,7 +27,7 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Get called on write-only property");
             }
             
-            return _calls.GetMatching<ReceivedCall>(_getMethodName, new ConfiguredFunc<T>());
+            return _context.Received.GetMatching<ReceivedCall>(_getMethodName, new ConfiguredFunc<T>(_context.Substitute));
         }
 
         private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg)
@@ -34,23 +37,23 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Set called on read-only property");
             }
             
-            return _calls.GetMatching<ReceivedCall<T>>(_setMethodName, new ConfiguredAction<T>(arg));
+            return _context.Received.GetMatching<ReceivedCall<T>>(_setMethodName, new ConfiguredAction<T>(_context.Substitute, arg));
         }
 
         public class ReadOnly : ReceivedPropertyCalls<T>
         {
-            public ReadOnly(ReceivedCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public ReadOnly(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
-
+            
             public IReadOnlyList<ReceivedCall> Get() => PrivateGet();
         }
         
         public class WriteOnly : ReceivedPropertyCalls<T>
         {
-            public WriteOnly(ReceivedCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public WriteOnly(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
 
@@ -59,8 +62,8 @@ namespace GenSubstitute
         
         public class ReadWrite : ReceivedPropertyCalls<T>
         {
-            public ReadWrite(ReceivedCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public ReadWrite(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
 

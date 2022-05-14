@@ -5,13 +5,16 @@ namespace GenSubstitute
 {
     public abstract class ConfiguredProperty<T>
     {
-        private readonly ConfiguredCalls _calls;
+        private readonly ObjectSubstitutionContext _context;
         private readonly string? _getMethodName;
         private readonly string? _setMethodName;
 
-        protected ConfiguredProperty(ConfiguredCalls calls, string? getMethodName, string? setMethodName)
+        protected ConfiguredProperty(
+            ObjectSubstitutionContext context,
+            string? getMethodName,
+            string? setMethodName)
         {
-            _calls = calls;
+            _context = context;
             _getMethodName = getMethodName;
             _setMethodName = setMethodName;
         }
@@ -23,7 +26,7 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Get called on write-only property");
             }
             
-            return _calls.Add(_getMethodName, new ConfiguredFunc<T>());
+            return _context.Configured.Add(_getMethodName, new ConfiguredFunc<T>(_context.Substitute));
         }
 
         private ConfiguredAction<T> PrivateSet(Arg<T> arg)
@@ -33,13 +36,13 @@ namespace GenSubstitute
                 throw new InvalidOperationException("Set called on read-only property");
             }
             
-            return _calls.Add(_setMethodName, new ConfiguredAction<T>(arg));
+            return _context.Configured.Add(_setMethodName, new ConfiguredAction<T>(_context.Substitute, arg));
         }
 
         public class ReadOnly : ConfiguredProperty<T>
         {
-            public ReadOnly(ConfiguredCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public ReadOnly(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
 
@@ -48,8 +51,8 @@ namespace GenSubstitute
         
         public class WriteOnly : ConfiguredProperty<T>
         {
-            public WriteOnly(ConfiguredCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public WriteOnly(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
 
@@ -68,8 +71,8 @@ namespace GenSubstitute
             private RetainState _retain = RetainState.NotConfigured;
             private T _value = default!;
             
-            public ReadWrite(ConfiguredCalls calls, string? getMethodName, string? setMethodName)
-                : base(calls, getMethodName, setMethodName)
+            public ReadWrite(ObjectSubstitutionContext context, string? getMethodName, string? setMethodName)
+                : base(context, getMethodName, setMethodName)
             {
             }
 

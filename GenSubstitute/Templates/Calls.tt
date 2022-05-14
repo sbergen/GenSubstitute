@@ -1,18 +1,19 @@
 <#@ template language="C#" #>
 <#@ import namespace="System.Collections.Generic" #>
 using System;
+using GenSubstitute.Internal;
 
 namespace GenSubstitute
 {
 <#
     // These are here mostly because T4 doesn't support Linq :(
     var genericArgs = new List<string>();
-    var constructorArgsList = new List<string>();
+    var constructorArgsList = new List<string> { "ISubstitute substitute" };
     var argMembersList = new List<string>();
     var valueMembersList = new List<string>();
     var executeArgsList = new List<string>();
     var executeCallList = new List<string>();
-    var ctorBodyList = new List<string>();
+    var ctorBodyList = new List<string> { "            _substitute = substitute;" };
     var receivedCtorBodyList = new List<string>();
     var callArgMatchList = new List<string>();
     var argMemberValuesList = new List<string>();
@@ -43,7 +44,7 @@ namespace GenSubstitute
         // <TArg, ...>
         var actionGenerics = i > 0 ? $"<{string.Join(", ", genericArgs)}>" : "";
         
-        // Arg<T1> arg1, ... 
+        // ISubstitute substitute, Arg<T1> arg1, ... 
         var constructorArgs = string.Join(", ", constructorArgsList);
         
         // private readonly Arg<T1> _arg1; 
@@ -60,6 +61,7 @@ namespace GenSubstitute
         // arg1, ...
         var executeCall = string.Join(", ", executeCallList);
         
+        // _substitute = substitute;
         // _arg1 = arg1;
         // ...
         var constructorBody = string.Join("\n", ctorBodyList);
@@ -87,17 +89,13 @@ namespace GenSubstitute
         private Func<#= funcGenerics #>? _execute;
         private TReturn? _returnValue;
         private ConfiguredAs _configuredAs;
+        private ISubstitute _substitute;
 
-<#
-        if (constructorArgs.Length > 0)
-        {#>
         public ConfiguredFunc(<#= constructorArgs #>)
         {
 <#= constructorBody #>
         }
 
-<#
-        }#>
         public void Configure(Func<#= funcGenerics #> implementation)
         {
             _configuredAs = ConfiguredAs.Method;
@@ -118,6 +116,7 @@ namespace GenSubstitute
         };
 
         public bool Matches(IReceivedCall call) =>
+            ReferenceEquals(_substitute, call.Substitute) &&
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(TReturn)
 <#= callArgMatcher #>;
@@ -129,17 +128,13 @@ namespace GenSubstitute
     {
 <#= argMembers #>
         private Action<#= actionGenerics #>? _execute;
+        private ISubstitute _substitute;
     
-<#
-        if (constructorArgs.Length > 0)
-        {#>
         public ConfiguredAction(<#= constructorArgs #>)
         {
 <#= constructorBody #>
         }
         
-<#
-        }#>
         public void Configure(Action<#= actionGenerics #> implementation)
         {
             _execute = implementation;
@@ -158,6 +153,7 @@ namespace GenSubstitute
         }
 
         public bool Matches(IReceivedCall call) =>
+            ReferenceEquals(_substitute, call.Substitute) &&
             call is ReceivedCall<#= actionGenerics #> c
             && c.ReturnType == typeof(void)
 <#= callArgMatcher #>;
@@ -167,11 +163,17 @@ namespace GenSubstitute
 
     public class ReceivedCall<#= actionGenerics #> : IReceivedCall
     {
+        public object Substitute { get; }
         public string MethodName { get; }
         public readonly Type ReturnType;
 <#= valueMembers #>
-        public ReceivedCall(string methodName, Type returnType<#= executeArgs.Length == 0 ? "" : ", " #><#= executeArgs #>)
+        
+        public ReceivedCall(
+            ISubstitute substitute,
+            string methodName,
+            Type returnType<#= executeArgs.Length == 0 ? "" : ", " #><#= executeArgs #>)
         {
+            Substitute = substitute;
             MethodName = methodName;
             ReturnType = returnType;
 <#= receivedCtorBody #>

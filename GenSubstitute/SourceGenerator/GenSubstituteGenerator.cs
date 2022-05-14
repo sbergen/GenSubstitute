@@ -27,7 +27,7 @@ namespace GenSubstitute.SourceGenerator
             {
                 modelOrDiagnostic.AddSourceOrDiagnostic(
                     spContext,
-                    static model => ($"{model.BuilderTypeName}.cs", MockBuilder.BuildMock(model)));
+                    static model => ($"{model.SubstituteTypeName}.cs", MockBuilder.BuildMock(model)));
             });
         }
 

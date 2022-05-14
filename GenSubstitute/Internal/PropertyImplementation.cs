@@ -10,21 +10,21 @@ namespace GenSubstitute.Internal
     public static class PropertyImplementation<T>
     {
         public static T Get(
-            ISubstitutionContext context,
+            ObjectSubstitutionContext context,
             string getMethodName)
         {
-            var receivedCall = new ReceivedCall(getMethodName, typeof(int));
+            var receivedCall = new ReceivedCall(context.Substitute, getMethodName, typeof(int));
             context.Received.Add(receivedCall);
             var call = context.Configured.Get<ConfiguredFunc<T>>(getMethodName, receivedCall);
             return call != null ? call.Execute() : default!;
         }
 
         public static void Set(
-            ISubstitutionContext context,
+            ObjectSubstitutionContext context,
             string setMethodName,
             T value)
         {
-            var receivedCall = new ReceivedCall<T>(setMethodName, typeof(void), value);
+            var receivedCall = new ReceivedCall<T>(context.Substitute, setMethodName, typeof(void), value);
             context.Received.Add(receivedCall);
             var call = context.Configured.Get<ConfiguredAction<T>>(setMethodName, receivedCall);
             call?.Execute(value);

@@ -21,5 +21,9 @@ namespace GenSubstitute.Internal
                 .Where(c => c.MethodName == methodName && matcher.Matches(c))
                 .Cast<T>()
                 .ToList();
+
+        public IEnumerable<IReceivedCall> ForSubstitute(ISubstitute substitute) => _calls
+            .Where(c => c.Substitute == substitute);
+
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
-using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
+using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.Models
 {

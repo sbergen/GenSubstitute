@@ -1,7 +1,7 @@
 using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
-using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
+using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
@@ -13,12 +13,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             : base(
                 parent,
                 ClassName,
-                $"{nameof(ISubstitutionContext)} context",
+                $"{nameof(ObjectSubstitutionContext)} context",
                 $" : {model.FullyQualifiedName}")
         {
             ConstructorLine("_context = context;");
 
-            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
+            Line($"private readonly {nameof(ObjectSubstitutionContext)} _context;");
         }
 
         public void AddProperty(PropertyModel property)
@@ -59,7 +59,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("{");
             using (Indent())
             {
-                Line($"var receivedCall = new {method.ReceivedCallType}({receivedCallConstructorArgs});");
+                Line($"var receivedCall = new {method.ReceivedCallType}(_context.Substitute, {receivedCallConstructorArgs});");
                 Line("_context.Received.Add(receivedCall);");
                 Line($"var call = _context.Configured.Get<{method.ConfiguredCallType}>({method.ResolvedMethodName}, receivedCall);");
                 

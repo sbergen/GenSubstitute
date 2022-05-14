@@ -1,6 +1,6 @@
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
-using static GenSubstitute.SourceGenerator.Utilities.ListStringBuilder;
+using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
@@ -39,14 +39,19 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("{");
             using (Indent())
             {
-                Line(
-                    $"public static {model.BuilderTypeName}{typeParameters} Build{typeParameters}(this GenerateMarker<{model.FullyQualifiedName}> m) => new();");
+                Line($"public static {model.SubstituteTypeName}{typeParameters} Build{typeParameters}(");
+                using (Indent())
+                {
+                    Line($"this GenerateMarker<{model.FullyQualifiedName}> m,");
+                    Line("SubstitutionContext? context = null)");
+                    Line("=> new(context);");
+                }
             }
             Line("}");
             
             EmptyLine();
             
-            Line($"internal sealed class {model.BuilderTypeName}{typeParameters}");
+            Line($"internal sealed class {model.SubstituteTypeName}{typeParameters} : {nameof(ISubstitute)}");
             Line("{");
             using (Indent())
             {
@@ -57,21 +62,21 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         private void BuildBuilderContents(TypeModel model)
         {
-            Line($"private readonly {nameof(ISubstitutionContext)} _context;");
+            Line($"private readonly {nameof(ObjectSubstitutionContext)} _context;");
             Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             
             Line($"public {model.FullyQualifiedName} Object => _implementation;");
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
-            Line($"public IReadOnlyList<{nameof(IReceivedCall)}> AllReceived => _context.Received.All;");
+            Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
             EmptyLine();
             
-            Line($"internal {model.BuilderTypeName}({nameof(SubstitutionContext)}? context = null)");
+            Line($"internal {model.SubstituteTypeName}({nameof(ISubstitutionContext)}? context = null)");
             Line("{");
             using (Indent())
             {
-                Line("_context = context ?? new();");
+                Line($"_context = new(this, context ?? new {nameof(SubstitutionContext)}());");
                 Line("_implementation = new(_context);");
                 Line("Received = new(_context);");
                 Line("Configure = new(_context);");

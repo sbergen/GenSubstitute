@@ -25,13 +25,14 @@ namespace GenSubstitute
             var received = FormatArguments(receivedArguments);
             
             var matched = string.Join(
-                "\n  ",
+                "\n    ",
                 matchingCalls.Select(m => FormatArguments(m.GetArguments())));
             
             return $@"Found multiple matches for arguments in call to '{methodName}':
-  {received}
-matching configured arguments:
-  {matched}";
+  Received arguments:
+    {received}
+  Matching configured arguments:
+    {matched}";
         }
     }
 }

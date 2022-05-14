@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GenSubstitute.Internal;
 
 namespace GenSubstitute
@@ -9,5 +10,7 @@ namespace GenSubstitute
 
         ReceivedCalls ISubstitutionContext.Received => _receivedCalls;
         ConfiguredCalls ISubstitutionContext.Configured => _configuredCalls;
+
+        public IReadOnlyList<IReceivedCall> AllReceived => _receivedCalls.All;
     }
 }

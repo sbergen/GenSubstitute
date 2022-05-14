@@ -8,7 +8,7 @@ namespace GenSubstitute.SourceGenerator.Models
     internal readonly struct TypeModel : IEquatable<TypeModel>
     {
         public readonly string FullyQualifiedName;
-        public readonly string BuilderTypeName;
+        public readonly string SubstituteTypeName;
         public readonly ImmutableArray<string> TypeParameters;
         public readonly ImmutableArray<MethodModel> Methods;
         public readonly ImmutableArray<PropertyModel> Properties;
@@ -16,7 +16,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public TypeModel(INamedTypeSymbol symbol)
         {
             FullyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            BuilderTypeName = MakeBuilderName(symbol);
+            SubstituteTypeName = MakeSubstituteName(symbol);
             
             var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>();
             var propertiesBuilder = ImmutableArray.CreateBuilder<PropertyModel>();
@@ -40,13 +40,13 @@ namespace GenSubstitute.SourceGenerator.Models
             Methods.SequenceEqual(other.Methods) &&
             Properties.SequenceEqual(other.Properties);
 
-        private static string MakeBuilderName(INamedTypeSymbol symbol) => string.Join(
+        private static string MakeSubstituteName(INamedTypeSymbol symbol) => string.Join(
             "_",
             symbol
                 .ToDisplayParts()
                 .TakeWhile(s => s.ToString() != "<")
                 .Where(s => s.Kind != SymbolDisplayPartKind.Punctuation)
-                .Append(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, "Builder")));
+                .Append(new SymbolDisplayPart(SymbolDisplayPartKind.Text, null, "Substitute")));
 
         private static void GatherAllMethodsAndProperties(
             INamedTypeSymbol symbol,

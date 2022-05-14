@@ -72,10 +72,12 @@ public static class ReceivedCallsTest
         builder.Object.Method();
         builder.Object.MethodWithArg(2);
 
-        builder.AllReceived.Select(call => call.MethodName).Should()
+        var allReceived = builder.AllReceived.ToList();
+        
+        allReceived.Select(call => call.MethodName).Should()
             .Equal(nameof(ITestInterface.Method), nameof(ITestInterface.MethodWithArg));
 
-        builder.AllReceived[0].GetArguments().Should().Equal(Array.Empty<object?>());
-        builder.AllReceived[1].GetArguments().Should().Equal(2);
+        allReceived[0].GetArguments().Should().Equal(Array.Empty<object?>());
+        allReceived[1].GetArguments().Should().Equal(2);
     }
 }
