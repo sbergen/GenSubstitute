@@ -38,6 +38,8 @@ namespace GenSubstitute.SourceGenerator
             Compilation compilation,
             CancellationToken cancellationToken) => typeInfoOrDiagnostic
             .SelectMany<TypeModel>(typeInfo =>
+                // Using GetTypesByMetadataName(...).FirstOrDefault here did not work for whatever reason in Rider,
+                // but works in builds. Need to debug this more later.
                 compilation.GetTypeByMetadataName(typeInfo.MetadataName) switch
                 {
                     { } symbol => new TypeModel(symbol),
