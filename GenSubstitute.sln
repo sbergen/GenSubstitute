@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute", "GenSubstitute\GenSubstitute.csproj", "{F62C0071-679F-49C7-B10E-BE95FE2A5186}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.Tests", "GenSubstitute.Tests\GenSubstitute.Tests.csproj", "{CEA2A7C7-BF1A-477F-9BE8-211369047C82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.UsageTests", "GenSubstitute.UsageTests\GenSubstitute.UsageTests.csproj", "{CEA2A7C7-BF1A-477F-9BE8-211369047C82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.UnitTests", "GenSubstitute.UnitTests\GenSubstitute.UnitTests.csproj", "{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenSubstitute.Tests", "GenSubstitute.Tests\GenSubstitute.Tests.csproj", "{2813DB54-11E2-421F-B4A6-B4985F9E8DB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

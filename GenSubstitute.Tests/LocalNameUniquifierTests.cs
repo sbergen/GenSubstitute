@@ -2,7 +2,7 @@ using FluentAssertions;
 using GenSubstitute.SourceGenerator.Utilities;
 using Xunit;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 public static class LocalNameUniquifierTests
 {

@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Xunit;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.UsageTests;
 
 public class DefaultArgumentTests
 {

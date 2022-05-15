@@ -3,7 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.UsageTests;
 
 public static class ReceivedCallsTest
 {

@@ -1,7 +1,7 @@
 using Xunit;
-using static GenSubstitute.UnitTests.GeneratorUtility;
+using static GenSubstitute.Tests.GeneratorUtility;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 public static class MockGeneratorSmokeTests
 {

@@ -6,7 +6,7 @@ using GenSubstitute.SourceGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 internal static class GeneratorUtility
 {

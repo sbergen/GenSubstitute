@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Xunit;
 using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xunit;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 public class FullyQualifiedMetadataNameTests
 {

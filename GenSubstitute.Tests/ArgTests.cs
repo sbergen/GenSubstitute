@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 public static class ArgTests
 {

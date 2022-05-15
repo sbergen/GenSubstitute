@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.UsageTests;
 
 public static class AsyncMockTests
 {

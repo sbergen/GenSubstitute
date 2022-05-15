@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 public class SyntaxFilterTests
 {

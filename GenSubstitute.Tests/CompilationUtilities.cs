@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace GenSubstitute.UnitTests;
+namespace GenSubstitute.Tests;
 
 internal static class CompilationUtilities
 {
