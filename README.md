@@ -4,7 +4,11 @@ GenSubstitute is a C# source generator based mocking library.
 
 It's still fairly early in its development,
 so while feedback and bug reports are extremely welcome,
-please don't use it in anything important yet!
+use at your own risk!
+
+## Installation
+
+`dotnet add package GenSubstitute --version 0.1.0-alpha`
 
 ## Examples
 
