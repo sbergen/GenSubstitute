@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>9</LangVersion>
+        <RootNamespace>GenSubstitute</RootNamespace>
+        <AssemblyName>GenSubstitute.Runtime</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="Templates\Calls.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Calls.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+</Project>

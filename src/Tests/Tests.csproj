@@ -4,6 +4,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>GenSubstitute.Tests</RootNamespace>
+        <AssemblyName>GenSubstitute.Tests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GenSubstitute\GenSubstitute.csproj" OutputItemType="Analyzer" />
+      <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 
 </Project>

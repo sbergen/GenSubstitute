@@ -15,4 +15,4 @@ runs:
 
     - name: Generate template code
       shell: bash
-      run: dotnet t4 -o src/GenSubstitute.Runtime/Templates/Calls.cs src/GenSubstitute.Runtime/Templates/Calls.tt
+      run: dotnet t4 -o src/Runtime/Templates/Calls.cs src/Runtime/Templates/Calls.tt

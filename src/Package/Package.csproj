@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <AssemblyName>GenSubstitute</AssemblyName>
+    <RootNamespace>GenSubstitute</RootNamespace>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>GenSubstitute</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Sakari Bergen</Authors>
+    <PackageTags>mocking;mocks;testing;TDD</PackageTags>
+    <PackageProjectUrl>https://github.com/sbergen/GenSubstitute</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>GenSubstitute is a source generator based mocking library.</Description>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" />
+    <ProjectReference Include="..\Runtime\Runtime.csproj" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\GenSubstitute.SourceGenerator.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\GenSubstitute.Runtime.dll" />
+    </ItemGroup>
+  </Target>
+
+</Project>
