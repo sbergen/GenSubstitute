@@ -14,7 +14,7 @@ public class RefParametersTest
     [Fact]
     public void RefParameterMethod_CanBeMockedWithSpecificValue()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
         
         substitute.SetUp.Modify(Arg.Any, new(0))
             .As((i, r) => r.Value = i);
@@ -27,7 +27,7 @@ public class RefParametersTest
     [Fact]
     public void RefParameterMethod_CanBeMockedUsingAnyValue()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
         
         substitute.SetUp.Modify(Arg.Any, Arg.Any)
             .As((i, r) => r.Value = i);
@@ -40,7 +40,7 @@ public class RefParametersTest
     [Fact]
     public void RefParameterMethod_CanBeMockedUsingArgMatcher()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
 
         int receivedRefArg = 0;
         substitute.SetUp.Modify(Arg.Any, new(i => i < 20))
@@ -59,7 +59,7 @@ public class RefParametersTest
     [Fact]
     public void RefParameterMethod_ShouldNotChangeMatching_WhenValueModified()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
 
         substitute.SetUp.Modify(Arg.Any, new(5))
             .As((_, r) => r.Value = 10 * r);
@@ -77,7 +77,7 @@ public class RefParametersTest
     [Fact]
     public void RefParameterMethod_ShouldRetainReceivedCalls_WhenValueModified()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
         
         substitute.SetUp.Modify(Arg.Any, new(5))
             .As((_, r) => r.Value = 10 * r);
@@ -94,7 +94,7 @@ public class RefParametersTest
     [Fact]
     public void ReceivedRefArg_ShouldNotBeModifiable()
     {
-        var substitute = Gen.Substitute<IRefParams>().Build();
+        var substitute = Gen.Substitute<IRefParams>().Create();
         int foo = 0;
         substitute.Object.Modify(default, ref foo);
 

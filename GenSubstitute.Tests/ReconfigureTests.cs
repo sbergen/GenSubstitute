@@ -14,7 +14,7 @@ public class ReconfigureTests
     [Fact]
     public void MethodCanBeReconfigured_WhenItHasReturnValue()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         var configure = substitute.SetUp.MethodWithReturnValue();
         
         configure.As(() => 1);
@@ -33,7 +33,7 @@ public class ReconfigureTests
     [Fact]
     public void MethodCanBeReconfigured_WhenItHasNoReturnValue()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         var configure = substitute.SetUp.MethodWithoutReturnValue();
 
         int val = 0;

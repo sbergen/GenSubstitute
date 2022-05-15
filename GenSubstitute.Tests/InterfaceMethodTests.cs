@@ -18,7 +18,7 @@ public static class InterfaceMethodTests
     [Fact]
     public static void MethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.MethodReturningInt().Returns(42);
         substitute.Object.MethodReturningInt().Should().Be(42);
     }
@@ -26,7 +26,7 @@ public static class InterfaceMethodTests
     [Fact]
     public static void GenericMethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.GenericMethod<int>().Returns(42);
         substitute.Object.GenericMethod<int>().Should().Be(42);
     }
@@ -34,7 +34,7 @@ public static class InterfaceMethodTests
     [Fact]
     public static void MethodTakingInt_CanBeConfigured_WithAnyArg()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         int? receivedValue = null;
         substitute.SetUp.MethodTakingInt(Arg.Any).As(val => receivedValue = val);
         substitute.Object.MethodTakingInt(42);
@@ -44,7 +44,7 @@ public static class InterfaceMethodTests
     [Fact]
     public static void MethodTakingMultipleArgs_CanBeConfigured()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
             .As((i1, i2, i3) => i1 + i2 + i3);
         substitute.Object.MultipleArgs(10, 30, 2).Should().Be(42.0);
@@ -53,7 +53,7 @@ public static class InterfaceMethodTests
     [Fact]
     public static void MethodWithOverloads_CanBeConfiguredSeparately()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.MethodWithOverload(Arg<double>.Any).Returns(1);
         substitute.SetUp.MethodWithOverload(Arg<int>.Any).Returns(2);
 

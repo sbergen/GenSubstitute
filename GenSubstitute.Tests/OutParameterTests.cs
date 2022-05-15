@@ -14,7 +14,7 @@ public static class OutParameterTests
     [Fact]
     public static void OutParameter_CanBeMocked()
     {
-        var substitute = Gen.Substitute<IOutParams>().Build();
+        var substitute = Gen.Substitute<IOutParams>().Create();
 
         substitute.SetUp.TryGet(Arg.Any).As(value =>
         {
@@ -29,7 +29,7 @@ public static class OutParameterTests
     [Fact]
     public static void ReceivedRefArg_ShouldNotBeModifiable()
     {
-        var substitute = Gen.Substitute<IOutParams>().Build();
+        var substitute = Gen.Substitute<IOutParams>().Create();
         substitute.Object.TryGet(out _);
 
         var receivedCall = substitute.Received.TryGet(Arg.Any)[0];

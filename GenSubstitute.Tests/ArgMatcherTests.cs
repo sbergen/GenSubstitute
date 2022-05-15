@@ -17,7 +17,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void ValueAsArg_MatchesOnlyThatValue()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(10).Returns(10);
         
         substitute.Object.Method(10).Should().Be(10);
@@ -27,7 +27,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void ArgMatcher_ConfiguresReturnValue_WhenItMatches()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(new(i => i > 10)).Returns(10);
         substitute.Object.Method(11).Should().Be(10);
     }
@@ -35,7 +35,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void ArgMatcher_DoesNotConfigureReturnValue_WhenItDoesNotMatch()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(new(i => i < 10)).Returns(10);
         substitute.Object.Method(11).Should().Be(default);
     }
@@ -43,7 +43,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void MultipleMatchers_CanBeUsedAtTheSameTime()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(new(i => i < 0)).Returns(-1);
         substitute.SetUp.Method(new(i => i > 0)).Returns(1);
 
@@ -55,7 +55,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void OverlappingMatchers_ThrowException_WhenInvoked()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(new(i => i < 0)).Returns(-1);
         substitute.SetUp.Method(new(i => i < -10)).Returns(1);
 
@@ -69,7 +69,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void MethodWithOverload_CanBeMatchedWithAny()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         substitute.SetUp.MethodWithOverload(Arg<int>.Any).Returns(1);
         substitute.SetUp.MethodWithOverload(Arg<string?>.Any).Returns(2);
@@ -81,7 +81,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void MethodWithOverload_CanBeMatchedWithLambda()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         substitute.SetUp.MethodWithOverload(Arg.Matches<int>(i => i == 0)).Returns(1);
         substitute.SetUp.MethodWithOverload(Arg.Matches<string?>(s => s == null)).Returns(2);
@@ -93,7 +93,7 @@ public static class ArgMatcherTests
     [Fact]
     public static void MethodWithOverload_CanBeMatchedWithValue()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         substitute.SetUp.MethodWithOverload(0).Returns(1);
         substitute.SetUp.MethodWithOverload(Arg.Is<string?>(null)).Returns(2);

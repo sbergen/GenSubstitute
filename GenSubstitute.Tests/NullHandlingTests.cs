@@ -14,7 +14,7 @@ public static class DefaultHandlingTests
     [Fact]
     public static void Default_MatchesDefaultValue_WithValueType()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(default(int)).Returns(42);
         substitute.Object.Method(0).Should().Be(42);
     }
@@ -22,7 +22,7 @@ public static class DefaultHandlingTests
     [Fact]
     public static void Default_MatchesDefaultValue_WithReferenceType()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(default(object)).Returns(42);
         substitute.Object.Method(null).Should().Be(42);
     }
@@ -30,7 +30,7 @@ public static class DefaultHandlingTests
     [Fact]
     public static void Default_DoesNotMatchNonDefaultValue_WithValueType()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(default(int)).Returns(42);
         substitute.Object.Method(1).Should().Be(0);
     }
@@ -38,7 +38,7 @@ public static class DefaultHandlingTests
     [Fact]
     public static void Default_DoesNotMatchNonDefaultValue_WithReferenceType()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.Method(null).Returns(42);
         substitute.Object.Method(new object()).Should().Be(0);
     }

@@ -14,7 +14,7 @@ public static class GenericMethodTests
     [Fact]
     public static void GenericMethods_CanConfiguredSeparately()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.SetUp.GenericMethod<int>().Returns(1);
         substitute.SetUp.GenericMethod<int, double>().Returns(2);
 

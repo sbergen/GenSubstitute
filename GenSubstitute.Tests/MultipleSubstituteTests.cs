@@ -15,8 +15,8 @@ public static class MultipleSubstituteTests
     public static void MultipleSubstitutes_CanBeUsedWithSameContext()
     {
         var context = new SubstitutionContext();
-        var substitute1 = Gen.Substitute<ITestInterface>().Build(context);
-        var substitute2 = Gen.Substitute<ITestInterface>().Build(context);
+        var substitute1 = Gen.Substitute<ITestInterface>().Create(context);
+        var substitute2 = Gen.Substitute<ITestInterface>().Create(context);
         
         substitute1.SetUp.SomeMethod(Arg.Any).Returns(1);
         substitute2.SetUp.SomeMethod(Arg.Any).Returns(2);
@@ -34,8 +34,8 @@ public static class MultipleSubstituteTests
     public static void InOrder_PassesAsExpected_WithMultipleMocks()
     {
         var context = new SubstitutionContext();
-        var substitute1 = Gen.Substitute<ITestInterface>().Build(context, "sub1");
-        var substitute2 = Gen.Substitute<ITestInterface>().Build(context, "sub2");
+        var substitute1 = Gen.Substitute<ITestInterface>().Create(context, "sub1");
+        var substitute2 = Gen.Substitute<ITestInterface>().Create(context, "sub2");
 
         substitute1.Object.SomeMethod(1);
         substitute2.Object.SomeMethod(2);
@@ -49,8 +49,8 @@ public static class MultipleSubstituteTests
     public static void InOrder_FailsAsExpected_WhenSubstitutesDoNotMatch()
     {
         var context = new SubstitutionContext();
-        var substitute1 = Gen.Substitute<ITestInterface>().Build(context, "sub1");
-        var substitute2 = Gen.Substitute<ITestInterface>().Build(context, "sub2");
+        var substitute1 = Gen.Substitute<ITestInterface>().Create(context, "sub1");
+        var substitute2 = Gen.Substitute<ITestInterface>().Create(context, "sub2");
 
         substitute1.Object.SomeMethod(1);
         substitute2.Object.SomeMethod(2);

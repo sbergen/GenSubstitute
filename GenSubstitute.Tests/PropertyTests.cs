@@ -15,7 +15,7 @@ public static class PropertyTests
     [Fact]
     public static void PropertyConfigurers_HaveCorrectType()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
 
         substitute.SetUp.Property.Should().BeOfType<ConfiguredProperty<int>.ReadWrite>();
         substitute.SetUp.ReadOnlyProperty.Should().BeOfType<ConfiguredProperty<int>.ReadOnly>();
@@ -25,7 +25,7 @@ public static class PropertyTests
     [Fact]
     public static void ReceivedProperties_HaveCorrectType()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
 
         substitute.Received.Property.Should().BeOfType<ReceivedPropertyCalls<int>.ReadWrite>();
         substitute.Received.ReadOnlyProperty.Should().BeOfType<ReceivedPropertyCalls<int>.ReadOnly>();
@@ -35,7 +35,7 @@ public static class PropertyTests
     [Fact]
     public static void PropertyReturnValues_CanBeMocked()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.Get().Returns(42);
         substitute.Object.Property.Should().Be(42);
@@ -44,7 +44,7 @@ public static class PropertyTests
     [Fact]
     public static void ReceivedPropertyGets_CanBeChecked()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         substitute.Object.Property.Should().Be(0);
         substitute.Received.Property.Get().Count.Should().Be(1);
     }
@@ -52,7 +52,7 @@ public static class PropertyTests
     [Fact]
     public static void PropertySetters_CanBeConfigured()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
 
         int val = 0;
         substitute.SetUp.Property.Set(Arg.Any).As(v => val = v);
@@ -63,7 +63,7 @@ public static class PropertyTests
     [Fact]
     public static void CallsToPropertySetters_CanBeCheckedByArgValue()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.Object.Property = 1;
         substitute.Object.Property = 2;
@@ -73,7 +73,7 @@ public static class PropertyTests
     [Fact]
     public static void Properties_RetainTheirValue_WhenConfigured()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.RetainValue();
         
@@ -84,7 +84,7 @@ public static class PropertyTests
     [Fact]
     public static void ConfiguringGet_Throws_AfterRetaining()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.RetainValue();
         var configure = () => substitute.SetUp.Property.Get();
@@ -94,7 +94,7 @@ public static class PropertyTests
     [Fact]
     public static void ConfiguringSet_Throws_AfterRetaining()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.RetainValue();
         var configure = () => substitute.SetUp.Property.Set(Arg<int>.Any);
@@ -104,7 +104,7 @@ public static class PropertyTests
     [Fact]
     public static void Retaining_Throws_AfterConfiguringGet()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.Get();
         var retain = () => substitute.SetUp.Property.RetainValue();
@@ -114,7 +114,7 @@ public static class PropertyTests
     [Fact]
     public static void Retaining_Throws_AfterConfiguringSet()
     {
-        var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
+        var substitute = Gen.Substitute<IInterfaceWithProperties>().Create();
         
         substitute.SetUp.Property.Set(default);
         var retain = () => substitute.SetUp.Property.RetainValue();

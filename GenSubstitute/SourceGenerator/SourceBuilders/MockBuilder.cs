@@ -39,7 +39,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("{");
             using (Indent())
             {
-                Line($"public static {model.SubstituteTypeName}{typeParameters} Build{typeParameters}(");
+                Line($"public static {model.SubstituteTypeName}{typeParameters} Create{typeParameters}(");
                 using (Indent())
                 {
                     Line($"this GenerateMarker<{model.FullyQualifiedName}> m,");

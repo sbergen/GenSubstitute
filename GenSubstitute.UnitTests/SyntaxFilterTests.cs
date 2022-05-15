@@ -16,7 +16,7 @@ class TestClass
 {
     public void SomeTest()
     {
-        var mock = Gen.Substitute<IFoo>().Build();
+        var mock = Gen.Substitute<IFoo>().Create();
     }
 }";
     

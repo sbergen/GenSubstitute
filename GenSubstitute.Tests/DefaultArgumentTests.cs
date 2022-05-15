@@ -14,7 +14,7 @@ public class DefaultArgumentTests
     [Fact]
     public void MethodWithDefaultArgument_ShouldBeConfigurableWithoutSpecifyingIt()
     {
-        var substitute = Gen.Substitute<IWithDefaultArguments>().Build();
+        var substitute = Gen.Substitute<IWithDefaultArguments>().Create();
         substitute.SetUp.MethodWithVariousArgs().Returns(1);
         substitute.Object.MethodWithVariousArgs().Should().Be(1);
     }

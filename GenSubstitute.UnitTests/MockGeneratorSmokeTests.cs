@@ -9,8 +9,8 @@ public static class MockGeneratorSmokeTests
     public static void GenericsSmokeTest() => AssertNoInspections(@"
 using GenSubstitute;
 
-var builder = Gen.Substitute<IFoo<int>>().Build();
-var builder2 = Gen.Substitute<IFoo<double>>().Build();
+var builder = Gen.Substitute<IFoo<int>>().Create();
+var builder2 = Gen.Substitute<IFoo<double>>().Create();
 
 public interface IFoo<T>
 {
@@ -24,13 +24,13 @@ public interface IFoo<T>
 using GenSubstitute;
 using System;
 
-var externalBuilder = Gen.Substitute<IDisposable>().Build();");
+var externalBuilder = Gen.Substitute<IDisposable>().Create();");
 
     [Fact]
     public static void RefAndOutArgsSmokeTest() => AssertNoInspections(@"
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<IRefAndOutArgs>().Build();
+var externalBuilder = Gen.Substitute<IRefAndOutArgs>().Create();
 
 interface IRefAndOutArgs
 {
@@ -43,7 +43,7 @@ interface IRefAndOutArgs
 using GenSubstitute;
 using System;
 
-var externalBuilder = Gen.Substitute<IDefaultArgs>().Build();
+var externalBuilder = Gen.Substitute<IDefaultArgs>().Create();
 
 interface IDefaultArgs
 {
@@ -58,7 +58,7 @@ interface IDefaultArgs
     public static void PropertiesSmokeTest() => AssertNoInspections(@"
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<IProperties>().Build();
+var externalBuilder = Gen.Substitute<IProperties>().Create();
 
 interface IProperties
 {
@@ -72,7 +72,7 @@ interface IProperties
 #nullable enable
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<INullables>().Build();
+var externalBuilder = Gen.Substitute<INullables>().Create();
 
 interface INullables
 {

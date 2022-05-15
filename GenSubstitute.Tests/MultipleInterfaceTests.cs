@@ -18,7 +18,7 @@ public class MultipleInterfaceTests
     [Fact]
     public void InheritedMethod_IsImplemented()
     {
-        var substitute = Gen.Substitute<IDerived>().Build();
+        var substitute = Gen.Substitute<IDerived>().Create();
         
         substitute.SetUp.BaseMethod().Returns(1);
         substitute.SetUp.DerivedMethod().Returns(2);

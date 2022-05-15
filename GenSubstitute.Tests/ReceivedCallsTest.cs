@@ -16,7 +16,7 @@ public static class ReceivedCallsTest
     [Fact]
     public static void Times_MatchesExpected_WhenNoArgs()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         substitute.Object.Method();
         substitute.Object.Method();
 
@@ -26,7 +26,7 @@ public static class ReceivedCallsTest
     [Fact]
     public static void Times_MatchesExpected_WithArgs()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         var mock = substitute.Object;
         mock.MethodWithArg(1);
@@ -42,7 +42,7 @@ public static class ReceivedCallsTest
     [Fact]
     public static void ReceivedCalls_AreIncludedInExceptionMessage_WhenNotMatching()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         var mock = substitute.Object;
         mock.MethodWithArg(1);
@@ -57,7 +57,7 @@ public static class ReceivedCallsTest
     [Fact]
     public static void Once_AllowsEasyAccessToArgs()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
         
         substitute.Object.MethodWithArg(1);
 
@@ -67,7 +67,7 @@ public static class ReceivedCallsTest
     [Fact]
     public static void AllReceived_ReturnsExpectedData()
     {
-        var substitute = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Create();
 
         substitute.Object.Method();
         substitute.Object.MethodWithArg(2);
