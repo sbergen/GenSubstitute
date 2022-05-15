@@ -2,16 +2,17 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageId>GenSubstitute</PackageId>
+        <PackageId>GenSubstitute.Runtime</PackageId>
         <Version>0.1.0-alpha</Version>
         <Authors>Sakari Bergen</Authors>
         <PackageTags>mocking;mocks;testing;TDD</PackageTags>
         <PackageProjectUrl>https://github.com/sbergen/GenSubstitute</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>GenSubstitute is a source generator based mocking library.</Description>
+        <Description>Runtime components for GenSubstitute.</Description>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <RootNamespace>GenSubstitute</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,20 +21,11 @@
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
-    </PropertyGroup>
-    
     <ItemGroup>
-        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\GenSubstitute.Runtime\GenSubstitute.Runtime.csproj" />
+      <None Update="Templates\Calls.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Calls.cs</LastGenOutput>
+      </None>
     </ItemGroup>
 
 </Project>
