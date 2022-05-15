@@ -13,12 +13,9 @@ namespace GenSubstitute.Internal
         public IReadOnlyList<IReceivedCall> All => _calls;
         public void Add(IReceivedCall call) => _calls.Add(call);
         
-        public IReadOnlyList<T> GetMatching<T>(ICallMatcher matcher)
-            where T : IReceivedCall =>
-            _calls
-                .Where(matcher.Matches)
-                .Cast<T>()
-                .ToList();
+        public IReceivedCallsInfo<T> GetMatching<T>(ICallMatcher matcher)
+            where T : IReceivedCall
+            => new ReceivedCallsInfo<T>(_calls, matcher);
 
         public IEnumerable<IReceivedCall> ForSubstitute(ISubstitute substitute) => _calls
             .Where(c => c.Substitute == substitute);

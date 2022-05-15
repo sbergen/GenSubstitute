@@ -14,10 +14,10 @@ namespace GenSubstitute
             _matcher = new(context.Substitute, getMethodName, setMethodName);
         }
 
-        private IReadOnlyList<ReceivedCall> PrivateGet() =>
+        private IReceivedCallsInfo<ReceivedCall> PrivateGet() =>
             _context.Received.GetMatching<ReceivedCall>(_matcher.MatchGet());
 
-        private IReadOnlyList<ReceivedCall<T>> PrivateSet(Arg<T> arg) => 
+        private IReceivedCallsInfo<ReceivedCall<T>> PrivateSet(Arg<T> arg) => 
             _context.Received.GetMatching<ReceivedCall<T>>(_matcher.MatchSet(arg));
 
         public class ReadOnly : ReceivedPropertyCalls<T>
@@ -27,7 +27,7 @@ namespace GenSubstitute
             {
             }
             
-            public IReadOnlyList<ReceivedCall> Get() => PrivateGet();
+            public IReceivedCallsInfo<ReceivedCall> Get() => PrivateGet();
         }
         
         public class WriteOnly : ReceivedPropertyCalls<T>
@@ -37,7 +37,7 @@ namespace GenSubstitute
             {
             }
 
-            public IReadOnlyList<ReceivedCall<T>> Set(Arg<T> arg) => PrivateSet(arg);
+            public IReceivedCallsInfo<ReceivedCall<T>> Set(Arg<T> arg) => PrivateSet(arg);
         }
         
         public class ReadWrite : ReceivedPropertyCalls<T>
@@ -47,8 +47,8 @@ namespace GenSubstitute
             {
             }
 
-            public IReadOnlyList<ReceivedCall> Get() => PrivateGet();
-            public IReadOnlyList<ReceivedCall<T>> Set(Arg<T> arg) => PrivateSet(arg);
+            public IReceivedCallsInfo<ReceivedCall> Get() => PrivateGet();
+            public IReceivedCallsInfo<ReceivedCall<T>> Set(Arg<T> arg) => PrivateSet(arg);
         }
     }
 }

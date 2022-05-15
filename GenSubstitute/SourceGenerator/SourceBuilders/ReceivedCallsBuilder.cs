@@ -25,7 +25,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public void AddMethod(EnrichedMethodModel method)
         {
             EmptyLine();
-            Line($"public IReadOnlyList<{method.ReceivedCallType}> {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
+            Line($"public IReceivedCallsInfo<{method.ReceivedCallType}> {method.Name}{method.GenericNames}({method.ArgParameters}) =>");
             using (Indent())
             {
                 

@@ -5,26 +5,30 @@ namespace GenSubstitute
 {
     public static class ReceivedCallExtensions
     {
-        public static void Times(this IReadOnlyList<IReceivedCall> calls, int times)
+        public static void Times(this IReceivedCallsInfo<IReceivedCall> calls, int times)
         {
-            if (calls.Count != times)
+            if (calls.Matching.Count != times)
             {
-                throw ReceivedCallsAssertionException.Create($"{times} calls,", calls);
+                throw ReceivedCallsAssertionException.Constraint($"{times} calls", calls);
             }
         }
+        
+        public static void Never(this IReceivedCallsInfo<IReceivedCall> calls) => calls.Times(0);
 
-        public static T Once<T>(this IReadOnlyList<T> calls)
+        public static T Once<T>(this IReceivedCallsInfo<T> calls)
             where T : IReceivedCall
         {
-            if (calls.Count != 1)
+            if (calls.Matching.Count != 1)
             {
-                throw ReceivedCallsAssertionException.Create("one call,", calls);
+                throw ReceivedCallsAssertionException.Constraint("one call", calls);
             }
 
-            return calls[0];
+            return calls.Matching[0];
         }
 
-        public static void InOrder(this IEnumerable<IReceivedCall> calls, params ICallMatcher[] matchers)
+        public static void InOrder(
+            this IEnumerable<IReceivedCall> calls,
+            params ICallMatcher[] matchers)
         {
             var allCalls = calls.ToArray();
             var unmatched = new Queue<ICallMatcher>(matchers);
@@ -40,10 +44,8 @@ namespace GenSubstitute
                     }
                 }
             }
-
-            var matchersStr = string.Join("\n\t", matchers.AsEnumerable());
-            var expectedStr = $"calls matching in order:\n\t{matchersStr}\n";
-            throw ReceivedCallsAssertionException.Create(expectedStr, allCalls);
+            
+            throw ReceivedCallsAssertionException.InOrder(matchers, allCalls);
         }
     }
 }

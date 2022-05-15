@@ -88,7 +88,7 @@ public class RefParametersTest
         var bar = 5;
         substitute.Object.Modify(default, ref bar);
 
-        substitute.Received.Modify(default, new(5)).Count.Should().Be(2);
+        substitute.Received.Modify(default, new(5)).Times(2);
     }
 
     [Fact]

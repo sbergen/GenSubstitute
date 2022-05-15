@@ -8,7 +8,9 @@ please don't use it in anything important yet!
 
 ## Examples
 
-(You can compare these with the [NSubstitute examples](https://nsubstitute.github.io/).)
+You can compare these with the [NSubstitute examples](https://nsubstitute.github.io/).
+
+### Basic usage
 
 ```cs
 // Create:
@@ -18,25 +20,41 @@ var calculator = Gen.Substitute<ICalculator>().Create();
 calculator.SetUp.Add(1, 2).Returns(3);
 Assert.Equal(3, calculator.Object.Add(1, 2));
 
-// Check received calls:
+// Configure a method with a lambda
+calculator.SetUp.Add(Arg.Any, Arg.Any).As((a, b) => a + b);
+Assert.Equal(42, calculator.Object.Add(40, 2));
+
+// Check received calls and arguments:
 calculator.Received.Add(1, Arg.Any).Once();
 calculator.Received.Add(2, 2).Never();
+Assert.Equal(40, calculator.Received.Add(Arg.Any, Arg.Any)[1].Arg1);
 
 // Events are not yet supported
 ```
 
+### Helpful exceptions
+
+```
+ReceivedCallsAssertionException: Expected to receive one call matching:
+  System.Int32 ICalculator.Add(1, any System.Int32)
+Actually received:
+  Int32 ICalculator.Add(40, 2)
+```
+
+Some prettifying of the error messages is on the TODO list.
 
 ## Pros (compared to dynamically generated mocks)
 - Can be made to run on AOT platforms:
   - Supporting Unity was one of the main goals, but requires a non-incremental source generator version (running on older Roslyn libraries).
   - I have not tried any AOT platforms yet, but plan on supporting them later.
+- Easier mocking of method behavior.
 - No surprising runtime errors:
   - Setting up and checking received calls are done on separate objects, preventing surprising failures at runtime.
   - Argument matchers, method call matchers, and received calls are plain objects:
     They can be constructed and reused freely in any context.
 - Easier to extend:
   - This is also related to everything being just regular objects,
-  you can e.g. write your own extension methods on `IEnumerable<IReceivedCall>` to build custom assertions.
+  you can e.g. write your own extension methods on `IReceivedCallsInfo<T>` to build custom assertions.
 
 ## Cons
 - GenSubstitute is still work in progress.
@@ -72,13 +90,14 @@ calculator.Received.Add(2, 2).Never();
 
 ### Definitely on the TODO list
 - Better documentation
+- Improving messages in received call assertions (and other errors/assertions).
 - Supporting interfaces which hide members with `new`.
 - Configuring default return values in a substitution context.
   Currently everything just returns `default`, unless configured otherwise.
 - Mocking events (I personally prefer `IObservable` over events, but this will probably be needed at some point).
 - Preventing functionality meant only for generated code from being used directly.
   Due to the generated code living alongside "user code", this is not completely trivial.
-- Improving messages in received call assertions (and other errors/assertions).
+- Thread-safety: Currently GenSubstitute is only safe to use from a single thread.
 
 ### Will probably be added
 - Mocking delegates. Fairly easy to live without, but could leverage the infrastructure.

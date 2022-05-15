@@ -5,20 +5,40 @@ namespace GenSubstitute
 {
     public class ReceivedCallsAssertionException : Exception
     {
-        public static ReceivedCallsAssertionException Create<T>(
-            string message,
-            IReadOnlyList<T> calls)
+        public static ReceivedCallsAssertionException Constraint<T>(
+            string constraint,
+            IReceivedCallsInfo<T> calls)
             where T : IReceivedCall
-            => new(BuildFullMessage(message, calls));
+            => new(BuildConstraintMessage(constraint, calls));
+        
+        public static ReceivedCallsAssertionException InOrder(
+            IReadOnlyList<ICallMatcher> matchers,
+            IReadOnlyList<IReceivedCall> calls)
+            => new(BuildInOrderMessage(matchers, calls));
 
         private ReceivedCallsAssertionException(string message) : base(message)
         {
         }
-        
-        private static string BuildFullMessage<T>(
-            string message,
-            IReadOnlyList<T> calls)
+
+        private static string BuildConstraintMessage<T>(
+            string constraint,
+            IReceivedCallsInfo<T> calls)
             where T : IReceivedCall
-            => $"Expected to receive {message} got:\n\t{string.Join("\n\t", calls)}";
+        {
+            return $@"Expected to receive {constraint} matching:
+  {calls.Matcher}
+Actually received:
+  {string.Join("\n  ", calls.All)}";
+        }
+
+        private static string BuildInOrderMessage(
+            IReadOnlyList<ICallMatcher> matchers,
+            IReadOnlyList<IReceivedCall> calls)
+        {
+            return $@"Expected to receive calls in order:
+  {string.Join("\n  ", matchers)}
+Actually received:
+  {string.Join("\n  ", calls)}";
+        }
     }
 }
