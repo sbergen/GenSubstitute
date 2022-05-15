@@ -14,9 +14,9 @@ public class MisuseTests
     [Fact]
     public void UsingPartiallyConfiguredMethod_ThrowsException_WhenMethodHasReturnValue()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.MethodWithReturnValue();
-        var callIncompleteMethod = () => builder.Object.MethodWithReturnValue();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.MethodWithReturnValue();
+        var callIncompleteMethod = () => substitute.Object.MethodWithReturnValue();
         
         callIncompleteMethod.Should().Throw<IncompletelyConfiguredCallException>();
     }
@@ -24,9 +24,9 @@ public class MisuseTests
     [Fact]
     public void UsingPartiallyConfiguredMethod_ThrowsException_WhenMethodHasNoReturnValue()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.MethodWithoutReturnValue();
-        var callIncompleteMethod = () => builder.Object.MethodWithoutReturnValue();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.MethodWithoutReturnValue();
+        var callIncompleteMethod = () => substitute.Object.MethodWithoutReturnValue();
         
         callIncompleteMethod.Should().Throw<IncompletelyConfiguredCallException>();
     }

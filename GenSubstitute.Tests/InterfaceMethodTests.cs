@@ -18,46 +18,46 @@ public static class InterfaceMethodTests
     [Fact]
     public static void MethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.MethodReturningInt().Returns(42);
-        builder.Object.MethodReturningInt().Should().Be(42);
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.MethodReturningInt().Returns(42);
+        substitute.Object.MethodReturningInt().Should().Be(42);
     }
     
     [Fact]
     public static void GenericMethodReturnValue_CanBeConfigured_WhenNoArguments()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.GenericMethod<int>().Returns(42);
-        builder.Object.GenericMethod<int>().Should().Be(42);
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.GenericMethod<int>().Returns(42);
+        substitute.Object.GenericMethod<int>().Should().Be(42);
     }
 
     [Fact]
     public static void MethodTakingInt_CanBeConfigured_WithAnyArg()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
         int? receivedValue = null;
-        builder.Configure.MethodTakingInt(Arg.Any).Configure(val => receivedValue = val);
-        builder.Object.MethodTakingInt(42);
+        substitute.SetUp.MethodTakingInt(Arg.Any).Configure(val => receivedValue = val);
+        substitute.Object.MethodTakingInt(42);
         receivedValue.Should().Be(42);
     }
 
     [Fact]
     public static void MethodTakingMultipleArgs_CanBeConfigured()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
             .Configure((i1, i2, i3) => i1 + i2 + i3);
-        builder.Object.MultipleArgs(10, 30, 2).Should().Be(42.0);
+        substitute.Object.MultipleArgs(10, 30, 2).Should().Be(42.0);
     }
 
     [Fact]
     public static void MethodWithOverloads_CanBeConfiguredSeparately()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.MethodWithOverload(Arg<double>.Any).Returns(1);
-        builder.Configure.MethodWithOverload(Arg<int>.Any).Returns(2);
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.MethodWithOverload(Arg<double>.Any).Returns(1);
+        substitute.SetUp.MethodWithOverload(Arg<int>.Any).Returns(2);
 
-        builder.Object.MethodWithOverload(0.0).Should().Be(1);
-        builder.Object.MethodWithOverload(0).Should().Be(2);
+        substitute.Object.MethodWithOverload(0.0).Should().Be(1);
+        substitute.Object.MethodWithOverload(0).Should().Be(2);
     }
 }

@@ -14,14 +14,14 @@ public class GenericMethodTests
     [Fact]
     public static void GenericMethods_CanConfiguredSeparately()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Configure.GenericMethod<int>().Returns(1);
-        builder.Configure.GenericMethod<int, double>().Returns(2);
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.SetUp.GenericMethod<int>().Returns(1);
+        substitute.SetUp.GenericMethod<int, double>().Returns(2);
 
-        builder.Object.GenericMethod<int>().Should().Be(1, "matching generic argument");
-        builder.Object.GenericMethod<double>().Should().Be(0, "non matching generic argument");
+        substitute.Object.GenericMethod<int>().Should().Be(1, "matching generic argument");
+        substitute.Object.GenericMethod<double>().Should().Be(0, "non matching generic argument");
         
-        builder.Object.GenericMethod<int, double>().Should().Be(2, "matching generic arguments");
-        builder.Object.GenericMethod<double, float>().Should().Be(0, "non matching generic arguments");
+        substitute.Object.GenericMethod<int, double>().Should().Be(2, "matching generic arguments");
+        substitute.Object.GenericMethod<double, float>().Should().Be(0, "non matching generic arguments");
     }
 }

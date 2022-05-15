@@ -19,6 +19,5 @@ GenSubstitute is a C# source generator based mocking library.
 - Delegate mocking (this will be different, but simpler)
 - Default value policies for return values (instead of fully automatic recursive mocking)
 - `new` in interfaces (e.g. `IEnumerable<T>`) - configuring probably gets complicated
-- Received.InOrder equivalent? Probably should use an optional mocking context.
 - Sequential return values?
 - Support non-interfaces?

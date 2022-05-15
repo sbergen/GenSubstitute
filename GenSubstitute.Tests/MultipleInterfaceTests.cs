@@ -18,12 +18,12 @@ public class MultipleInterfaceTests
     [Fact]
     public void InheritedMethod_IsImplemented()
     {
-        var builder = Gen.Substitute<IDerived>().Build();
+        var substitute = Gen.Substitute<IDerived>().Build();
         
-        builder.Configure.BaseMethod().Returns(1);
-        builder.Configure.DerivedMethod().Returns(2);
+        substitute.SetUp.BaseMethod().Returns(1);
+        substitute.SetUp.DerivedMethod().Returns(2);
         
-        builder.Object.BaseMethod().Should().Be(1);
-        builder.Object.DerivedMethod().Should().Be(2);
+        substitute.Object.BaseMethod().Should().Be(1);
+        substitute.Object.DerivedMethod().Should().Be(2);
     }
 }

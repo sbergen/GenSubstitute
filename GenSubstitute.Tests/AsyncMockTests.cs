@@ -14,14 +14,14 @@ public static class AsyncMockTests
     [Fact]
     public static async Task AsyncMethod_CanBeMockedWithAsyncLambda()
     {
-        var builder = Gen.Substitute<IAsyncInterface>().Build();
-        builder.Configure.AsyncMethod().Configure(async () =>
+        var substitute = Gen.Substitute<IAsyncInterface>().Build();
+        substitute.SetUp.AsyncMethod().Configure(async () =>
         {
             await Task.Delay(1);
             return 42;
         });
 
-        var result = await builder.Object.AsyncMethod();
+        var result = await substitute.Object.AsyncMethod();
         result.Should().Be(42);
     }
 }

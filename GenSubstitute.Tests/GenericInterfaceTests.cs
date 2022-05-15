@@ -14,20 +14,20 @@ public static class GenericInterfaceTests
     [Fact]
     public static void GenericInterface_CanConfigureReturnValue()
     {
-        var builder = Gen.Substitute<IGeneric<int>>().Build();
-        builder.Configure.MethodReturningT().Returns(42);
-        builder.Object.MethodReturningT().Should().Be(42);
+        var substitute = Gen.Substitute<IGeneric<int>>().Build();
+        substitute.SetUp.MethodReturningT().Returns(42);
+        substitute.Object.MethodReturningT().Should().Be(42);
     }
 
     [Fact]
     public static void GenericInterface_CanConfigureArgument()
     {
-        var builder = Gen.Substitute<IGeneric<int>>().Build();
+        var substitute = Gen.Substitute<IGeneric<int>>().Build();
         int? receivedValue = null;
         
-        builder.Configure.MethodTakingT(42).Configure(val => receivedValue = val);
+        substitute.SetUp.MethodTakingT(42).Configure(val => receivedValue = val);
         
-        builder.Object.MethodTakingT(42);
+        substitute.Object.MethodTakingT(42);
         receivedValue.Should().Be(42);
     }
 }

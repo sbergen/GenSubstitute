@@ -16,39 +16,39 @@ public static class ReceivedCallsTest
     [Fact]
     public static void Times_MatchesExpected_WhenNoArgs()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
-        builder.Object.Method();
-        builder.Object.Method();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
+        substitute.Object.Method();
+        substitute.Object.Method();
 
-        builder.Received.Method().Times(2);
+        substitute.Received.Method().Times(2);
     }
     
     [Fact]
     public static void Times_MatchesExpected_WithArgs()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
 
-        var mock = builder.Object;
+        var mock = substitute.Object;
         mock.MethodWithArg(1);
         mock.MethodWithArg(2);
         mock.MethodWithArg(3);
         mock.MethodWithArg(4);
 
-        builder.Received.MethodWithArg(new(i => i <= 2)).Times(2);
-        builder.Received.MethodWithArg(Arg.Any).Times(4);
-        builder.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
+        substitute.Received.MethodWithArg(new(i => i <= 2)).Times(2);
+        substitute.Received.MethodWithArg(Arg.Any).Times(4);
+        substitute.Received.MethodWithArg(Arg.Any)[1].Arg1.Should().Be(2);
     }
 
     [Fact]
     public static void ReceivedCalls_AreIncludedInExceptionMessage_WhenNotMatching()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
 
-        var mock = builder.Object;
+        var mock = substitute.Object;
         mock.MethodWithArg(1);
         mock.MethodWithArg(2);
 
-        var assert = () => builder.Received.MethodWithArg(Arg.Any).Once();
+        var assert = () => substitute.Received.MethodWithArg(Arg.Any).Once();
         assert.Should()
             .Throw<ReceivedCallsAssertionException>()
             .WithMessage("*MethodWithArg(1)*MethodWithArg(2)*");
@@ -57,22 +57,22 @@ public static class ReceivedCallsTest
     [Fact]
     public static void Once_AllowsEasyAccessToArgs()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
         
-        builder.Object.MethodWithArg(1);
+        substitute.Object.MethodWithArg(1);
 
-        builder.Received.MethodWithArg(Arg.Any).Once().Arg1.Should().Be(1);
+        substitute.Received.MethodWithArg(Arg.Any).Once().Arg1.Should().Be(1);
     }
 
     [Fact]
     public static void AllReceived_ReturnsExpectedData()
     {
-        var builder = Gen.Substitute<ITestInterface>().Build();
+        var substitute = Gen.Substitute<ITestInterface>().Build();
 
-        builder.Object.Method();
-        builder.Object.MethodWithArg(2);
+        substitute.Object.Method();
+        substitute.Object.MethodWithArg(2);
 
-        var allReceived = builder.AllReceived.ToList();
+        var allReceived = substitute.AllReceived.ToList();
         
         allReceived.Select(call => call.MethodName).Should()
             .Equal(nameof(ITestInterface.Method), nameof(ITestInterface.MethodWithArg));

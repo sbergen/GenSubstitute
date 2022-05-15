@@ -70,7 +70,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public string {nameof(ISubstitute.Identifier)} {{ get; }}");
             Line($"public {model.FullyQualifiedName} Object => _implementation;");
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
-            Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
+            Line($"public {ConfigurerBuilder.ClassName} SetUp {{ get; }}");
             Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
             EmptyLine();
@@ -88,7 +88,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line($"_context = new(this, context ?? new {nameof(SubstitutionContext)}());");
                 Line("_implementation = new(_context);");
                 Line("Received = new(_context);");
-                Line("Configure = new(_context);");
+                Line("SetUp = new(_context);");
                 Line("Match = new(_context);");
             }
 

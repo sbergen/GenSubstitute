@@ -18,8 +18,8 @@ public static class MultipleSubstituteTests
         var substitute1 = Gen.Substitute<ITestInterface>().Build(context);
         var substitute2 = Gen.Substitute<ITestInterface>().Build(context);
         
-        substitute1.Configure.SomeMethod(Arg.Any).Returns(1);
-        substitute2.Configure.SomeMethod(Arg.Any).Returns(2);
+        substitute1.SetUp.SomeMethod(Arg.Any).Returns(1);
+        substitute2.SetUp.SomeMethod(Arg.Any).Returns(2);
 
         substitute1.Object.SomeMethod(0).Should().Be(1);
         substitute2.Object.SomeMethod(0).Should().Be(2);

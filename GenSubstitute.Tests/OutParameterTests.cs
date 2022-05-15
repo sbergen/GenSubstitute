@@ -14,25 +14,25 @@ public static class OutParameterTests
     [Fact]
     public static void OutParameter_CanBeMocked()
     {
-        var builder = Gen.Substitute<IOutParams>().Build();
+        var substitute = Gen.Substitute<IOutParams>().Build();
 
-        builder.Configure.TryGet(Arg.Any).Configure(value =>
+        substitute.SetUp.TryGet(Arg.Any).Configure(value =>
         {
             value.Value = 42;
             return true;
         });
 
-        builder.Object.TryGet(out var result).Should().Be(true);
+        substitute.Object.TryGet(out var result).Should().Be(true);
         result.Should().Be(42);
     }
     
     [Fact]
     public static void ReceivedRefArg_ShouldNotBeModifiable()
     {
-        var builder = Gen.Substitute<IOutParams>().Build();
-        builder.Object.TryGet(out _);
+        var substitute = Gen.Substitute<IOutParams>().Build();
+        substitute.Object.TryGet(out _);
 
-        var receivedCall = builder.Received.TryGet(Arg.Any)[0];
+        var receivedCall = substitute.Received.TryGet(Arg.Any)[0];
         var modifyReceivedValue = () => receivedCall.Arg1.Value = 0;
         modifyReceivedValue.Should().Throw<InvalidOperationException>().WithMessage("*immutable*");
     }
