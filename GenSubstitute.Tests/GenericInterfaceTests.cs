@@ -25,7 +25,7 @@ public static class GenericInterfaceTests
         var substitute = Gen.Substitute<IGeneric<int>>().Build();
         int? receivedValue = null;
         
-        substitute.SetUp.MethodTakingT(42).Configure(val => receivedValue = val);
+        substitute.SetUp.MethodTakingT(42).As(val => receivedValue = val);
         
         substitute.Object.MethodTakingT(42);
         receivedValue.Should().Be(42);

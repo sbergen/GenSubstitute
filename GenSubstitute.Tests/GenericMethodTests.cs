@@ -3,7 +3,7 @@ using Xunit;
 
 namespace GenSubstitute.Tests;
 
-public class GenericMethodTests
+public static class GenericMethodTests
 {
     public interface ITestInterface
     {

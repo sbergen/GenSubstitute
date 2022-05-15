@@ -123,7 +123,7 @@ namespace GenSubstitute
             _matcher = matcher;
         }
 
-        public void Configure(Func<#= funcGenerics #> implementation)
+        public void As(Func<#= funcGenerics #> implementation)
         {
             _configuredAs = ConfiguredAs.Method;
             _execute = implementation;
@@ -180,7 +180,7 @@ namespace GenSubstitute
             _matcher = matcher;
         }
         
-        public void Configure(Action<#= actionGenerics #> implementation)
+        public void As(Action<#= actionGenerics #> implementation)
         {
             _execute = implementation;
         }

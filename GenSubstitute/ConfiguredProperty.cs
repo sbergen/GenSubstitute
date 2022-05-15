@@ -81,8 +81,8 @@ namespace GenSubstitute
                 }
 
                 _retain = RetainState.Retained;
-                PrivateGet().Configure(() => _value);
-                PrivateSet(Arg<T>.Any).Configure(val => _value = val);
+                PrivateGet().As(() => _value);
+                PrivateSet(Arg<T>.Any).As(val => _value = val);
             }
 
             private void ThrowIfNotConfigurable()

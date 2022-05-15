@@ -16,7 +16,7 @@ public static class OutParameterTests
     {
         var substitute = Gen.Substitute<IOutParams>().Build();
 
-        substitute.SetUp.TryGet(Arg.Any).Configure(value =>
+        substitute.SetUp.TryGet(Arg.Any).As(value =>
         {
             value.Value = 42;
             return true;

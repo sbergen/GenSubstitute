@@ -17,13 +17,13 @@ public class ReconfigureTests
         var substitute = Gen.Substitute<ITestInterface>().Build();
         var configure = substitute.SetUp.MethodWithReturnValue();
         
-        configure.Configure(() => 1);
+        configure.As(() => 1);
         substitute.Object.MethodWithReturnValue().Should().Be(1);
         
         configure.Returns(2);
         substitute.Object.MethodWithReturnValue().Should().Be(2);
         
-        configure.Configure(() => 3);
+        configure.As(() => 3);
         substitute.Object.MethodWithReturnValue().Should().Be(3);
 
         configure.Returns(4);
@@ -38,11 +38,11 @@ public class ReconfigureTests
 
         int val = 0;
         
-        configure.Configure(() => val = 1);
+        configure.As(() => val = 1);
         substitute.Object.MethodWithoutReturnValue();
         val.Should().Be(1);
         
-        configure.Configure(() => val = 2);
+        configure.As(() => val = 2);
         substitute.Object.MethodWithoutReturnValue();
         val.Should().Be(2);
     }

@@ -36,7 +36,7 @@ public static class InterfaceMethodTests
     {
         var substitute = Gen.Substitute<ITestInterface>().Build();
         int? receivedValue = null;
-        substitute.SetUp.MethodTakingInt(Arg.Any).Configure(val => receivedValue = val);
+        substitute.SetUp.MethodTakingInt(Arg.Any).As(val => receivedValue = val);
         substitute.Object.MethodTakingInt(42);
         receivedValue.Should().Be(42);
     }
@@ -46,7 +46,7 @@ public static class InterfaceMethodTests
     {
         var substitute = Gen.Substitute<ITestInterface>().Build();
         substitute.SetUp.MultipleArgs(Arg.Any, Arg.Any, Arg.Any)
-            .Configure((i1, i2, i3) => i1 + i2 + i3);
+            .As((i1, i2, i3) => i1 + i2 + i3);
         substitute.Object.MultipleArgs(10, 30, 2).Should().Be(42.0);
     }
 

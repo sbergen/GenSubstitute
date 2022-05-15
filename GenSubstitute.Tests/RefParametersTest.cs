@@ -17,7 +17,7 @@ public class RefParametersTest
         var substitute = Gen.Substitute<IRefParams>().Build();
         
         substitute.SetUp.Modify(Arg.Any, new(0))
-            .Configure((i, r) => r.Value = i);
+            .As((i, r) => r.Value = i);
         
         int foo = 0;
         substitute.Object.Modify(42, ref foo);
@@ -30,7 +30,7 @@ public class RefParametersTest
         var substitute = Gen.Substitute<IRefParams>().Build();
         
         substitute.SetUp.Modify(Arg.Any, Arg.Any)
-            .Configure((i, r) => r.Value = i);
+            .As((i, r) => r.Value = i);
         
         int foo = 10;
         substitute.Object.Modify(42, ref foo);
@@ -44,7 +44,7 @@ public class RefParametersTest
 
         int receivedRefArg = 0;
         substitute.SetUp.Modify(Arg.Any, new(i => i < 20))
-            .Configure((_, r) => receivedRefArg = r.Value);
+            .As((_, r) => receivedRefArg = r.Value);
         
         int foo = 10;
         substitute.Object.Modify(42, ref foo);
@@ -62,7 +62,7 @@ public class RefParametersTest
         var substitute = Gen.Substitute<IRefParams>().Build();
 
         substitute.SetUp.Modify(Arg.Any, new(5))
-            .Configure((_, r) => r.Value = 10 * r);
+            .As((_, r) => r.Value = 10 * r);
 
         var foo = 5;
         substitute.Object.Modify(default, ref foo);
@@ -80,7 +80,7 @@ public class RefParametersTest
         var substitute = Gen.Substitute<IRefParams>().Build();
         
         substitute.SetUp.Modify(Arg.Any, new(5))
-            .Configure((_, r) => r.Value = 10 * r);
+            .As((_, r) => r.Value = 10 * r);
         
         var foo = 5;
         substitute.Object.Modify(default, ref foo);

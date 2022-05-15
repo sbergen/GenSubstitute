@@ -15,7 +15,7 @@ public static class AsyncMockTests
     public static async Task AsyncMethod_CanBeMockedWithAsyncLambda()
     {
         var substitute = Gen.Substitute<IAsyncInterface>().Build();
-        substitute.SetUp.AsyncMethod().Configure(async () =>
+        substitute.SetUp.AsyncMethod().As(async () =>
         {
             await Task.Delay(1);
             return 42;

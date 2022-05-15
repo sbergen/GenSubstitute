@@ -55,7 +55,7 @@ public static class PropertyTests
         var substitute = Gen.Substitute<IInterfaceWithProperties>().Build();
 
         int val = 0;
-        substitute.SetUp.Property.Set(Arg.Any).Configure(v => val = v);
+        substitute.SetUp.Property.Set(Arg.Any).As(v => val = v);
         substitute.Object.Property = 42;
         val.Should().Be(42);
     }
