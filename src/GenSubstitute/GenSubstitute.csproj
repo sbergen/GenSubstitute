@@ -2,6 +2,20 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageId>GenSubstitute</PackageId>
+        <Version>0.1.0-alpha</Version>
+        <Authors>Sakari Bergen</Authors>
+        <PackageTags>mocking;mocks;testing;TDD</PackageTags>
+        <PackageProjectUrl>https://github.com/sbergen/GenSubstitute</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>GenSubstitute is a source generator based mocking library.</Description>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>9</LangVersion>
     </PropertyGroup>

@@ -1,0 +1,30 @@
+name: Releasables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up
+        uses: ./.github/actions/common-setup
+
+      - name: Build nupkg
+        run: dotnet pack . --output nupkg
+
+      - name: Archive nupkg
+        uses: actions/upload-artifact@v3
+        with:
+          name: nupkg
+          path: src/nupkg/*
+          if-no-files-found: error

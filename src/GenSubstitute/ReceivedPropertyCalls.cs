@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GenSubstitute.Internal;
 
 namespace GenSubstitute

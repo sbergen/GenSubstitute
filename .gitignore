@@ -1,5 +1,6 @@
 bin/
 obj/
+nupkg/
 .idea
 **/Templates/*.cs
 *.user
