@@ -106,6 +106,9 @@ namespace GenSubstitute
 <#= callArgMatcher #>;
 
         public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
+
+        public override string ToString() =>
+            $"{typeof(TReturn)} {Substitute.Identifier}.{MethodName}({string.Join(", ", GetArguments())})";
     }
 
     public class ConfiguredFunc<#= funcGenerics #> : IConfiguredCall
@@ -162,6 +165,9 @@ namespace GenSubstitute
 <#= callArgMatcher #>;
 
         public object?[] GetArguments() => new object?[] { <#= callArgMemberNames #> };
+
+        public override string ToString() =>
+            $"void {Substitute.Identifier}.{MethodName}({string.Join(", ", GetArguments())})";
     }
 
     public class ConfiguredAction<#= actionGenerics #> : IConfiguredCall
@@ -215,7 +221,7 @@ namespace GenSubstitute
         }
 
         public override string ToString() =>
-            $"{ReturnType.Name} {MethodName}(<#= argMemberValues #>)";
+            $"{ReturnType.Name} {Substitute.Identifier}.{MethodName}(<#= argMemberValues #>)";
 
         public object?[] GetArguments() => new object?[] { <#= argMemberNames #> };
     }

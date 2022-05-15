@@ -43,8 +43,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 using (Indent())
                 {
                     Line($"this GenerateMarker<{model.FullyQualifiedName}> m,");
-                    Line("SubstitutionContext? context = null)");
-                    Line("=> new(context);");
+                    Line("SubstitutionContext? context = null,");
+                    Line("string? identifier = null)");
+                    Line("=> new(context, identifier);");
                 }
             }
             Line("}");
@@ -66,17 +67,24 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"private readonly {ImplementationBuilder.ClassName} _implementation;");
             EmptyLine();
             
+            Line($"public string {nameof(ISubstitute.Identifier)} {{ get; }}");
             Line($"public {model.FullyQualifiedName} Object => _implementation;");
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} Configure {{ get; }}");
             Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
             EmptyLine();
-            
-            Line($"internal {model.SubstituteTypeName}({nameof(ISubstitutionContext)}? context = null)");
+
+            Line($"internal {model.SubstituteTypeName}(");
+            using (Indent())
+            {
+                Line($"{nameof(ISubstitutionContext)}? context = null,");
+                Line("string? identifier = null)");
+            }
             Line("{");
             using (Indent())
             {
+                Line($"Identifier = identifier ?? \"{model.MinimallyQualifiedName}\";");
                 Line($"_context = new(this, context ?? new {nameof(SubstitutionContext)}());");
                 Line("_implementation = new(_context);");
                 Line("Received = new(_context);");

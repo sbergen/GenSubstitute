@@ -11,6 +11,6 @@ namespace GenSubstitute
         ReceivedCalls ISubstitutionContext.Received => _receivedCalls;
         ConfiguredCalls ISubstitutionContext.Configured => _configuredCalls;
 
-        public IReadOnlyList<IReceivedCall> AllReceived => _receivedCalls.All;
+        public IReadOnlyList<IReceivedCall> Received => _receivedCalls.All;
     }
 }

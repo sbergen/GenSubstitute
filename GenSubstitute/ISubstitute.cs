@@ -2,6 +2,6 @@ namespace GenSubstitute
 {
     public interface ISubstitute
     {
-        //public string Identifier { get; }
+        public string Identifier { get; }
     }
 }

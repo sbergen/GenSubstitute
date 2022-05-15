@@ -7,6 +7,7 @@ namespace GenSubstitute.SourceGenerator.Models
 {
     internal readonly struct TypeModel : IEquatable<TypeModel>
     {
+        public readonly string MinimallyQualifiedName;
         public readonly string FullyQualifiedName;
         public readonly string SubstituteTypeName;
         public readonly ImmutableArray<string> TypeParameters;
@@ -15,6 +16,7 @@ namespace GenSubstitute.SourceGenerator.Models
 
         public TypeModel(INamedTypeSymbol symbol)
         {
+            MinimallyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
             FullyQualifiedName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             SubstituteTypeName = MakeSubstituteName(symbol);
             

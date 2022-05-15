@@ -19,6 +19,6 @@ namespace GenSubstitute
             string message,
             IReadOnlyList<T> calls)
             where T : IReceivedCall
-            => $"Expected to receive {message}, got:\n\t{string.Join("\n\t", calls)}";
+            => $"Expected to receive {message} got:\n\t{string.Join("\n\t", calls)}";
     }
 }
