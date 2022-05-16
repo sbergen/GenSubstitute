@@ -18,7 +18,8 @@ namespace GenSubstitute.SourceGenerator
                     SyntaxFilter.IsSubstituteCall,
                     ModelExtractor.ExtractTypeNameFromSubstituteCall)
                 .Collect()
-                .SelectMany(FilterDuplicates)
+                .SelectMany((data, ct) => DuplicateFilter
+                    .FilterDuplicates(data, ct))
                 .Combine(context.CompilationProvider)
                 .Select((data, ct) => ModelExtractor
                     .ExtractModelFromCompilationAndName(data.Left, data.Right, ct));
@@ -29,31 +30,6 @@ namespace GenSubstitute.SourceGenerator
                     spContext,
                     static model => ($"{model.SubstituteTypeName}.cs", MockBuilder.BuildMock(model)));
             });
-        }
-
-        private static IEnumerable<ResultOrDiagnostic<TypeLookupInfo>> FilterDuplicates(
-            ImmutableArray<ResultOrDiagnostic<TypeLookupInfo>> candidates,
-            CancellationToken cancellationToken)
-        {
-            var includedMocks = new HashSet<string>();
-
-            foreach (var typeInfoOrDiagnostic in candidates)
-            {
-                if (typeInfoOrDiagnostic.TryGetResult(out var result))
-                {
-                    if (!includedMocks.Contains(result.FullyQualifiedName))
-                    {
-                        includedMocks.Add(result.FullyQualifiedName);
-                        yield return result;
-                    }
-                }
-                else
-                {
-                    yield return typeInfoOrDiagnostic;
-                }
-                
-                cancellationToken.ThrowIfCancellationRequested();
-            }
         }
     }
 }

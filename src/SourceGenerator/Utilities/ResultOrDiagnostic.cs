@@ -14,7 +14,11 @@ namespace GenSubstitute.SourceGenerator.Utilities
         public static implicit operator ResultOrDiagnostic<TResult>(Diagnostic diagnostic) => new(diagnostic);
 
         public void AddSourceOrDiagnostic(
+#if UNITY
+            GeneratorExecutionContext context,
+#else
             SourceProductionContext context,
+#endif
             Func<TResult, (string hintName, string source)?> sourceGenerator)
         {
             if (_isResult)

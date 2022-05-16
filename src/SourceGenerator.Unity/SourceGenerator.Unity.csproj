@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <DefineConstants>$(DefineConstants);UNITY</DefineConstants>
         <IsPackable>false</IsPackable>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <RootNamespace>GenSubstitute.SourceGenerator</RootNamespace>
-        <AssemblyName>GenSubstitute.SourceGenerator</AssemblyName>
+        <AssemblyName>GenSubstitute.SourceGenerator.Unity</AssemblyName>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -23,11 +24,16 @@
 
     <ItemGroup>
         <!-- Private dependency on CodeAnalysis.CSharp -->
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" PrivateAssets="all" Visible="false" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" PrivateAssets="all" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Runtime\Runtime.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\SourceGenerator\*.cs" Exclude="..\SourceGenerator\GenSubstituteGenerator.cs" />
+        <Compile Include="..\SourceGenerator\*\*.cs" />
     </ItemGroup>
 
 </Project>
