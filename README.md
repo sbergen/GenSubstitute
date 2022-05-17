@@ -8,7 +8,21 @@ use at your own risk!
 
 ## Installation
 
-`dotnet add package GenSubstitute --version 0.1.0-alpha`
+### .NET projects
+
+Get from NuGet in your IDE, or use
+```
+dotnet add package GenSubstitute --version 0.1.0-alpha
+```
+
+### Unity 2021.3 or newer
+
+1. Download `UnityDlls.zip` from the latest [release](https://github.com/sbergen/GenSubstitute/releases).
+2. Add the `.dll` files into your Unity assets.
+3. Optionally add the `.pdb` files next to the dlls for debug symbols.
+4. Reference `GenSubstitute.Runtime.dll` from your test project.
+5. Set up `GenSubstitute.SourceGenerator.Unity.dll` as a source generator, as outlined in the
+   [Unity instructions](https://docs.unity3d.com/Manual/roslyn-analyzers.html).
 
 ## Examples
 

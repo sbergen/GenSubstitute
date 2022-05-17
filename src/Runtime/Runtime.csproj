@@ -5,6 +5,7 @@
         <LangVersion>9</LangVersion>
         <RootNamespace>GenSubstitute</RootNamespace>
         <AssemblyName>GenSubstitute.Runtime</AssemblyName>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

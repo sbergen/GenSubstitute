@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  pack:
+  build:
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,4 +27,16 @@ jobs:
         with:
           name: nupkg
           path: src/nupkg/*
+          if-no-files-found: error
+
+      - name: Build Unity dlls
+        run: dotnet build SourceGenerator.Unity/SourceGenerator.Unity.csproj -c Release -o ./UnityDlls
+      
+      - name: Archive Unity dlls
+        uses: actions/upload-artifact@v3
+        with:
+          name: UnityDlls
+          path: |
+            src/UnityDlls/*.dll
+            src/UnityDlls/*.pdb
           if-no-files-found: error
