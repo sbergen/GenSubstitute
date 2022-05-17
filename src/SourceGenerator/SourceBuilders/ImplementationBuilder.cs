@@ -14,7 +14,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 parent,
                 ClassName,
                 $"{nameof(ObjectSubstitutionContext)} context",
-                $" : {model.FullyQualifiedName}")
+                $" : {model.FullyQualifiedName}",
+                "private")
         {
             ConstructorLine("_context = context;");
 

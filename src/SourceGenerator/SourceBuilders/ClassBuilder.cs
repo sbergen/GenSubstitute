@@ -13,13 +13,14 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             SourceBuilder parent,
             string className,
             string constructorArgs,
-            string? inheritance = null)
+            string? inheritance = null,
+            string accessModifier = "public")
             : base(parent)
         {
             _className = className;
             _constructorArgs = constructorArgs;
 
-            Line($"public class {className}{inheritance}");
+            Line($"{accessModifier} class {className}{inheritance}");
             Line("{");
             _indent = Indent();
         }
