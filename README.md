@@ -62,9 +62,8 @@ Actually received:
 Some prettifying of the error messages is on the TODO list.
 
 ## Pros (compared to dynamically generated mocks)
-- Can be made to run on AOT platforms:
-  - Supporting Unity was one of the main goals, but requires a non-incremental source generator version (running on older Roslyn libraries).
-  - I have not tried any AOT platforms yet, but plan on supporting them later.
+- Runs on AOT platforms:
+  - Currently only Unity has been tested, but other platforms should also work.
 - Easier mocking of method behavior.
 - No surprising runtime errors:
   - Setting up and checking received calls are done on separate objects, preventing surprising failures at runtime.
