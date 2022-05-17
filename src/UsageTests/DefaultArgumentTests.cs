@@ -1,5 +1,5 @@
+using System;
 using FluentAssertions;
-using Microsoft.CodeAnalysis;
 using Xunit;
 
 namespace GenSubstitute.UsageTests;
@@ -8,7 +8,7 @@ public class DefaultArgumentTests
 {
     public interface IWithDefaultArguments
     {
-        int MethodWithVariousArgs(TypeKind k = TypeKind.Array, string foo = "foo", double d = 42.0);
+        int MethodWithVariousArgs(UriKind k = UriKind.Absolute, string foo = "foo", double d = 42.0);
     }
 
     [Fact]

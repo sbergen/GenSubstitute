@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <RootNamespace>GenSubstitute.UsageTests</RootNamespace>
-        <AssemblyName>GenSubstitute.UsageTests</AssemblyName>
+        <AssemblyName>GenSubstitute.UsageTests.Unity</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,7 +23,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" />
+      <ProjectReference Include="..\SourceGenerator.Unity\SourceGenerator.Unity.csproj" OutputItemType="Analyzer" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\UsageTests\*.cs" />
     </ItemGroup>
 
 </Project>

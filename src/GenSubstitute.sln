@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Package", "Package\Package.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator.Unity", "SourceGenerator.Unity\SourceGenerator.Unity.csproj", "{7A3EDD59-4670-4998-AAD5-08B0B83E0099}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsageTests.Unity", "UsageTests.Unity\UsageTests.Unity.csproj", "{77C2A524-9239-4259-BB4F-F65988BE4DB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7A3EDD59-4670-4998-AAD5-08B0B83E0099}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A3EDD59-4670-4998-AAD5-08B0B83E0099}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A3EDD59-4670-4998-AAD5-08B0B83E0099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
