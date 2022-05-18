@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading;
 using GenSubstitute.SourceGenerator.Models;
 using GenSubstitute.SourceGenerator.Utilities;
