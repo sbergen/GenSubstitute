@@ -50,10 +50,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
             var receivedCallParameterArguments = BuildList(method.Parameters
                 .Select(p => p.IsOut ? $"Out<{p.Type}>.Default" : p.Name));
-
+            
+            var returnTypeForTypeof = method.ReturnType.TrimEnd('?'); // This is a bit ugly, but works
             var receivedCallConstructorArgs = method.Parameters.Length == 0
-                ? $"{method.ResolvedMethodName}, typeof({method.ReturnType})"
-                : $"{method.ResolvedMethodName}, typeof({method.ReturnType}), {receivedCallParameterArguments}";
+                ? $"{method.ResolvedMethodName}, typeof({returnTypeForTypeof})"
+                : $"{method.ResolvedMethodName}, typeof({returnTypeForTypeof}), {receivedCallParameterArguments}";
             
             EmptyLine();
             Line($"public {method.ReturnType} {method.Name}{method.GenericNames}({parametersWithTypes})");
@@ -84,6 +85,28 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 }
             }
             Line("}");
+        }
+
+        public void AddEvent(EventModel eventModel)
+        {
+            EmptyLine();
+            
+            Line($"public event {eventModel.Type} {eventModel.Name};");
+
+            var invokeMethod = eventModel.InvokeMethod;
+            var invokeParameters = BuildList(
+                invokeMethod.Parameters.Select(p => $"{p.Type} {p.Name}"));
+            var invokeArguments = BuildList(
+                invokeMethod.Parameters.Select(p => p.Name));
+            
+            Line($"public void {invokeMethod.Name}({invokeParameters})");
+            Line("{");
+            using (Indent())
+            {
+                Line($"{eventModel.Name}?.Invoke({invokeArguments});");
+            }
+            Line("}");
+
         }
     }
 }

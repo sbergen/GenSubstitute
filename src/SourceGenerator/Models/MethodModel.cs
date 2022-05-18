@@ -14,13 +14,13 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly ImmutableArray<string> GenericParameterNames;
         public readonly ImmutableArray<ParameterModel> Parameters;
 
-        public MethodModel(IMethodSymbol symbol)
+        public MethodModel(IMethodSymbol symbol, string? nameOverride = null)
         {
             ReturnsVoid = symbol.ReturnType.SpecialType == SpecialType.System_Void;
             
             ReturnType = ReturnsVoid
                 ? "void"
-                : symbol.ReturnType.FullyQualifiedTypeNameWithNullability(symbol.ReceiverNullableAnnotation);
+                : symbol.ReturnType.FullyQualifiedTypeNameWithNullability();
 
             var parametersBuilder = ImmutableArray.CreateBuilder<ParameterModel>(symbol.Parameters.Length);
             foreach (var parameter in symbol.Parameters)
@@ -29,7 +29,7 @@ namespace GenSubstitute.SourceGenerator.Models
             }
 
             Parameters = parametersBuilder.ToImmutable();
-            Name = symbol.Name;
+            Name = nameOverride ?? symbol.Name;
             GenericParameterNames = symbol.IsGenericMethod
                 ? ImmutableArray.CreateRange(symbol.TypeParameters.Select(t => t.Name))
                 : ImmutableArray<string>.Empty;

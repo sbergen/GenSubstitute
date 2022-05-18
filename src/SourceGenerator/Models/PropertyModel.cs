@@ -15,7 +15,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public PropertyModel(IPropertySymbol property)
         {
             Name = property.Name;
-            Type = property.Type.FullyQualifiedTypeNameWithNullability(property.NullableAnnotation);
+            Type = property.Type.FullyQualifiedTypeNameWithNullability();
 
             GetMethodName = property.GetMethod?.Name;
             SetMethodName = property.SetMethod?.Name;

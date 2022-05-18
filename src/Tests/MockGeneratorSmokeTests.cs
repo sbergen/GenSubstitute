@@ -24,13 +24,13 @@ public interface IFoo<T>
 using GenSubstitute;
 using System;
 
-var externalBuilder = Gen.Substitute<IDisposable>().Create();");
+var builder = Gen.Substitute<IDisposable>().Create();");
 
     [Fact]
     public static void RefAndOutArgsSmokeTest() => AssertNoInspections(@"
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<IRefAndOutArgs>().Create();
+var builder = Gen.Substitute<IRefAndOutArgs>().Create();
 
 interface IRefAndOutArgs
 {
@@ -43,7 +43,7 @@ interface IRefAndOutArgs
 using GenSubstitute;
 using System;
 
-var externalBuilder = Gen.Substitute<IDefaultArgs>().Create();
+var builder = Gen.Substitute<IDefaultArgs>().Create();
 
 interface IDefaultArgs
 {
@@ -58,7 +58,7 @@ interface IDefaultArgs
     public static void PropertiesSmokeTest() => AssertNoInspections(@"
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<IProperties>().Create();
+var builder = Gen.Substitute<IProperties>().Create();
 
 interface IProperties
 {
@@ -72,7 +72,7 @@ interface IProperties
 #nullable enable
 using GenSubstitute;
 
-var externalBuilder = Gen.Substitute<INullables>().Create();
+var builder = Gen.Substitute<INullables>().Create();
 
 interface INullables
 {
@@ -82,5 +82,21 @@ interface INullables
     void TakesNullableReferenceType(object? arg);
     int? NullableProperty { get; set; }
     object? NullableReferenceTypeProperty { get; set; }
+}");
+    
+    [Fact]
+    public static void EventsSmokeTest() => AssertNoInspections(@"
+#nullable enable
+using GenSubstitute;
+using System;
+
+var builder = Gen.Substitute<IEvents>().Create();
+
+interface IEvents
+{
+    event EventHandler TypicalEvent;
+    event Func<int> UntypicalEvent;
+    event Func<int?> UntypicalEvent2;
+    event Func<object?> UntypicalEvent3;
 }");
 }

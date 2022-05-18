@@ -13,6 +13,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly ImmutableArray<string> TypeParameters;
         public readonly ImmutableArray<MethodModel> Methods;
         public readonly ImmutableArray<PropertyModel> Properties;
+        public readonly ImmutableArray<EventModel> Events;
 
         public TypeModel(INamedTypeSymbol symbol)
         {
@@ -22,10 +23,12 @@ namespace GenSubstitute.SourceGenerator.Models
             
             var methodsBuilder = ImmutableArray.CreateBuilder<MethodModel>();
             var propertiesBuilder = ImmutableArray.CreateBuilder<PropertyModel>();
-            GatherAllMethodsAndProperties(symbol, methodsBuilder, propertiesBuilder);
+            var eventsBuilder = ImmutableArray.CreateBuilder<EventModel>();
+            GatherAllMethodsAndProperties(symbol, methodsBuilder, propertiesBuilder, eventsBuilder);
             
             Methods = methodsBuilder.ToImmutable();
             Properties = propertiesBuilder.ToImmutable();
+            Events = eventsBuilder.ToImmutable();
 
             var typeParametersBuilder = ImmutableArray.CreateBuilder<string>(symbol.TypeParameters.Length);
             foreach (var typeParameter in symbol.TypeParameters)
@@ -40,7 +43,8 @@ namespace GenSubstitute.SourceGenerator.Models
             // Fully qualified name already includes type parameters
             FullyQualifiedName == other.FullyQualifiedName &&
             Methods.SequenceEqual(other.Methods) &&
-            Properties.SequenceEqual(other.Properties);
+            Properties.SequenceEqual(other.Properties) &&
+            Events.SequenceEqual(other.Events);
 
         private static string MakeSubstituteName(INamedTypeSymbol symbol) => string.Join(
             "_",
@@ -53,21 +57,25 @@ namespace GenSubstitute.SourceGenerator.Models
         private static void GatherAllMethodsAndProperties(
             INamedTypeSymbol symbol,
             ImmutableArray<MethodModel>.Builder methodsBuilder,
-            ImmutableArray<PropertyModel>.Builder propertiesBuilder)
+            ImmutableArray<PropertyModel>.Builder propertiesBuilder,
+            ImmutableArray<EventModel>.Builder eventsBuilder)
         {
             void AddMembers(INamedTypeSymbol type)
             {
                 foreach (var member in type.GetMembers())
                 {
-                    if (member is IMethodSymbol methodSymbol &&
-                        // Skip property methods
-                        methodSymbol.AssociatedSymbol is not IPropertySymbol)
+                    // Skip property and event methods (and any special methods in the future)
+                    if (member is IMethodSymbol { AssociatedSymbol: null } methodSymbol)
                     {
                         methodsBuilder.Add(new(methodSymbol));
                     }
                     else if (member is IPropertySymbol propertySymbol)
                     {
                         propertiesBuilder.Add(new(propertySymbol));
+                    }
+                    else if (member is IEventSymbol eventSymbol)
+                    {
+                        eventsBuilder.Add(new(eventSymbol));
                     }
                 }
             }

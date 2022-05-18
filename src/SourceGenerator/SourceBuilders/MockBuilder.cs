@@ -106,6 +106,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 configurerBuilder.AddProperty(property);
                 matchersBuilder.AddProperty(property);
             }
+
+            foreach (var eventModel in model.Events)
+            {
+                implementationBuilder.AddEvent(eventModel);
+            }
             
             foreach (var method in model.Methods)
             {

@@ -5,19 +5,22 @@ namespace GenSubstitute.SourceGenerator.Utilities
 {
     internal static class SymbolExtensions
     {
-        public static string FullyQualifiedTypeNameWithNullability(
-            this ITypeSymbol symbol,
-            NullableAnnotation nullableAnnotation)
-        {
-            // The question mark is already in nullable value types
-            var shouldAddQuestionMark =
-                !symbol.IsValueType &&
-                nullableAnnotation == NullableAnnotation.Annotated;
+        private static readonly SymbolDisplayFormat Format;
 
-            return symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) +
-                (shouldAddQuestionMark ? "?" : "");
+        static SymbolExtensions()
+        {
+            Format = new(
+                globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
+                typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+                genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+                miscellaneousOptions:
+                    SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
+                    SymbolDisplayMiscellaneousOptions.UseSpecialTypes |
+                    SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
         }
-            
+        
+        public static string FullyQualifiedTypeNameWithNullability(this ITypeSymbol symbol) =>
+            symbol.ToDisplayString(Format);
 
         // See https://github.com/dotnet/roslyn/issues/1891
         // This implementation was originally copied from here, but modified:
