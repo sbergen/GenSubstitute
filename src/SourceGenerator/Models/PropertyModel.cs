@@ -1,4 +1,5 @@
 using System;
+using GenSubstitute.SourceGenerator.Utilities;
 using Microsoft.CodeAnalysis;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -14,7 +15,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public PropertyModel(IPropertySymbol property)
         {
             Name = property.Name;
-            Type = property.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            Type = property.Type.FullyQualifiedTypeNameWithNullability(property.NullableAnnotation);
 
             GetMethodName = property.GetMethod?.Name;
             SetMethodName = property.SetMethod?.Name;

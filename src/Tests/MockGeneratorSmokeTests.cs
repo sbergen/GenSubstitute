@@ -81,5 +81,6 @@ interface INullables
     void TakesNullableValueType(int? arg);
     void TakesNullableReferenceType(object? arg);
     int? NullableProperty { get; set; }
+    object? NullableReferenceTypeProperty { get; set; }
 }");
 }
