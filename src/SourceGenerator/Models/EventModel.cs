@@ -19,7 +19,8 @@ namespace GenSubstitute.SourceGenerator.Models
             // Always make events nullable, as this is seems to be the proper way to do this.
             // We still need to call FullyQualifiedTypeNameWithNullability to get potential
             // generic type arguments to contain nullability information.
-            Type = $"{eventSymbol.Type.FullyQualifiedTypeNameWithNullability()}?";
+            var type = eventSymbol.Type.FullyQualifiedTypeNameWithNullability();
+            Type = type.EndsWith("?") ? type : $"{type}?";
             
             // "nul ony in error cases"
             // TODO, do we need to handle the error cases?

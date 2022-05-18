@@ -95,8 +95,9 @@ var builder = Gen.Substitute<IEvents>().Create();
 interface IEvents
 {
     event EventHandler TypicalEvent;
+    event EventHandler? TypicalEvent2;
     event Func<int> UntypicalEvent;
     event Func<int?> UntypicalEvent2;
-    event Func<object?> UntypicalEvent3;
+    event Func<object?>? UntypicalEvent3;
 }");
 }
