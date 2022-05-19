@@ -1,3 +1,4 @@
+using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
@@ -72,8 +73,14 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} SetUp {{ get; }}");
             Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
-            Line($"public {EventRaiserBuilder.ClassName} Raise {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
+
+            EventRaiserBuilder? eventRaiserBuilder = model.Events.Any() ? new(this) : null;
+            if (eventRaiserBuilder != null)
+            {
+                Line($"public {EventRaiserBuilder.ClassName} Raise {{ get; }}");
+            }
+
             EmptyLine();
 
             Line($"internal {model.SubstituteTypeName}(");
@@ -91,7 +98,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("Received = new(_context);");
                 Line("SetUp = new(_context);");
                 Line("Match = new(_context);");
-                Line("Raise = new(_implementation);");
+
+                if (eventRaiserBuilder != null)
+                {
+                    Line("Raise = new(_implementation);");
+                }
             }
 
             Line("}");
@@ -100,7 +111,6 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var receivedBuilder = new ReceivedCallsBuilder(this);
             var configurerBuilder = new ConfigurerBuilder(this);
             var matchersBuilder = new MatchersBuilder(this);
-            var eventRaiserBuilder = new EventRaiserBuilder(this);
 
             foreach (var property in model.Properties)
             {
@@ -113,9 +123,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             foreach (var eventModel in model.Events)
             {
                 var enrichedModel = new EnrichedEventModel(eventModel);
-                
+
                 implementationBuilder.AddEvent(enrichedModel);
-                eventRaiserBuilder.AddEvent(enrichedModel);
+                eventRaiserBuilder!.AddEvent(enrichedModel);
                 receivedBuilder.AddEvent(enrichedModel);
             }
             
@@ -137,8 +147,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendWithoutIndent(configurerBuilder.GetResult());
             EmptyLine();
             AppendWithoutIndent(matchersBuilder.GetResult());
-            EmptyLine();
-            AppendWithoutIndent(eventRaiserBuilder.GetResult());
+
+            if (eventRaiserBuilder != null)
+            {
+                EmptyLine();
+                AppendWithoutIndent(eventRaiserBuilder.GetResult());   
+            }
         }
     }
 }
