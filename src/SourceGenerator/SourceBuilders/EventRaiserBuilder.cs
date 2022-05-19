@@ -19,6 +19,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
         public void AddEvent(EnrichedEventModel eventModel)
         {
+            EmptyLine();
             Line($"public void {eventModel.Name}({eventModel.InvokeParameters}) =>");
             using (Indent())
             {

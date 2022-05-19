@@ -1,4 +1,5 @@
 using System.Linq;
+using GenSubstitute.SourceGenerator.Utilities;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.Models
@@ -10,6 +11,9 @@ namespace GenSubstitute.SourceGenerator.Models
         public readonly string AddMethodName;
         public readonly string RemoveMethodName;
         public readonly string InvokeMethodName;
+
+        // E.g. ReceivedCall<EventHandler>
+        public readonly string ReceivedCallType;
         
         // E.g. int i, double d...
         public readonly string InvokeParameters;
@@ -23,7 +27,11 @@ namespace GenSubstitute.SourceGenerator.Models
             Type = model.Type;
             AddMethodName = model.AddMethodName;
             RemoveMethodName = model.RemoveMethodName;
-            InvokeMethodName = model.InvokeMethod.Name;
+            
+            // Should be a fairly safe name?
+            InvokeMethodName = InternalName.Make($"raise__{Name}");
+            
+            ReceivedCallType = $"{nameof(ReceivedCall<object>)}<{Type}>";
             
             InvokeParameters = BuildList(
                 model.InvokeMethod.Parameters.Select(p => $"{p.Type} {p.Name}"));

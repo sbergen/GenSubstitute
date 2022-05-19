@@ -116,6 +116,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 
                 implementationBuilder.AddEvent(enrichedModel);
                 eventRaiserBuilder.AddEvent(enrichedModel);
+                receivedBuilder.AddEvent(enrichedModel);
             }
             
             foreach (var method in model.Methods)

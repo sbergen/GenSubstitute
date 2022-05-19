@@ -27,11 +27,9 @@ namespace GenSubstitute.SourceGenerator.Models
             AddMethodName = eventSymbol.AddMethod!.Name; 
             RemoveMethodName = eventSymbol.RemoveMethod!.Name;
             
-            // TODO, handle errors?
-            // Should be a fairly safe name?
-            var raiseMethodName = InternalName.Make($"raise__{Name}");
+            // TODO, handle null?
             var delegateInvokeMethod = ((INamedTypeSymbol)eventSymbol.Type).DelegateInvokeMethod!;
-            InvokeMethod = new(delegateInvokeMethod, raiseMethodName);
+            InvokeMethod = new(delegateInvokeMethod);
         }
 
         public bool Equals(EventModel other) =>

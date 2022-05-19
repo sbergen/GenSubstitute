@@ -1,6 +1,7 @@
 using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
+using GenSubstitute.SourceGenerator.Utilities;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
@@ -91,14 +92,44 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
         public void AddEvent(EnrichedEventModel eventModel)
         {
             EmptyLine();
-            
-            Line($"public event {eventModel.Type} {eventModel.Name};");
 
+            var privateEventName = InternalName.Make(eventModel.Name);
+
+            string MakeReceivedCalls(string methodName) =>
+                $"new {eventModel.ReceivedCallType}(_context.Substitute, \"{methodName}\", typeof(void), value)";
+            
+            Line($"private event {eventModel.Type} {privateEventName};");
+            Line($"public event {eventModel.Type} {eventModel.Name}");
+            Line("{");
+            using (Indent())
+            {
+                Line("add");
+                Line("{");
+                using (Indent())
+                {
+                    Line($"{privateEventName} += value;");
+                    Line($"var receivedCall = {MakeReceivedCalls(eventModel.AddMethodName)};");
+                    Line("_context.Received.Add(receivedCall);");
+                }
+                Line("}");
+                Line("remove");
+                Line("{");
+                using (Indent())
+                {
+                    Line($"{privateEventName} -= value;");
+                    Line($"var receivedCall = {MakeReceivedCalls(eventModel.RemoveMethodName)};");
+                    Line("_context.Received.Add(receivedCall);");
+                }
+                Line("}");
+            }
+            Line("}");
+            
+            EmptyLine();
             Line($"public void {eventModel.InvokeMethodName}({eventModel.InvokeParameters})");
             Line("{");
             using (Indent())
             {
-                Line($"{eventModel.Name}?.Invoke({eventModel.InvokeArguments});");
+                Line($"{privateEventName}?.Invoke({eventModel.InvokeArguments});");
             }
             Line("}");
 
