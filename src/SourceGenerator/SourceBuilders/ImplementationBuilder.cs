@@ -14,8 +14,9 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 parent,
                 ClassName,
                 $"{nameof(ObjectSubstitutionContext)} context",
-                $" : {model.FullyQualifiedName}",
-                "private")
+                $" : {model.FullyQualifiedName}")
+                // This was private for a while, but it's kind of hard with events.
+                // Will see if it's really necessary, not trivial with source generators...
         {
             ConstructorLine("_context = context;");
 
@@ -87,23 +88,17 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line("}");
         }
 
-        public void AddEvent(EventModel eventModel)
+        public void AddEvent(EnrichedEventModel eventModel)
         {
             EmptyLine();
             
             Line($"public event {eventModel.Type} {eventModel.Name};");
 
-            var invokeMethod = eventModel.InvokeMethod;
-            var invokeParameters = BuildList(
-                invokeMethod.Parameters.Select(p => $"{p.Type} {p.Name}"));
-            var invokeArguments = BuildList(
-                invokeMethod.Parameters.Select(p => p.Name));
-            
-            Line($"public void {invokeMethod.Name}({invokeParameters})");
+            Line($"public void {eventModel.InvokeMethodName}({eventModel.InvokeParameters})");
             Line("{");
             using (Indent())
             {
-                Line($"{eventModel.Name}?.Invoke({invokeArguments});");
+                Line($"{eventModel.Name}?.Invoke({eventModel.InvokeArguments});");
             }
             Line("}");
 

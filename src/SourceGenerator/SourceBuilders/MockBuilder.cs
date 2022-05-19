@@ -72,6 +72,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public {ReceivedCallsBuilder.ClassName} Received {{ get; }}");
             Line($"public {ConfigurerBuilder.ClassName} SetUp {{ get; }}");
             Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
+            Line($"public {EventRaiserBuilder.ClassName} Raise {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
             EmptyLine();
 
@@ -90,6 +91,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("Received = new(_context);");
                 Line("SetUp = new(_context);");
                 Line("Match = new(_context);");
+                Line("Raise = new(_implementation);");
             }
 
             Line("}");
@@ -98,6 +100,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             var receivedBuilder = new ReceivedCallsBuilder(this);
             var configurerBuilder = new ConfigurerBuilder(this);
             var matchersBuilder = new MatchersBuilder(this);
+            var eventRaiserBuilder = new EventRaiserBuilder(this);
 
             foreach (var property in model.Properties)
             {
@@ -109,7 +112,10 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
             foreach (var eventModel in model.Events)
             {
-                implementationBuilder.AddEvent(eventModel);
+                var enrichedModel = new EnrichedEventModel(eventModel);
+                
+                implementationBuilder.AddEvent(enrichedModel);
+                eventRaiserBuilder.AddEvent(enrichedModel);
             }
             
             foreach (var method in model.Methods)
@@ -130,6 +136,8 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendWithoutIndent(configurerBuilder.GetResult());
             EmptyLine();
             AppendWithoutIndent(matchersBuilder.GetResult());
+            EmptyLine();
+            AppendWithoutIndent(eventRaiserBuilder.GetResult());
         }
     }
 }
