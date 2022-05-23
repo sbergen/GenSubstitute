@@ -34,6 +34,7 @@ namespace GenSubstitute.SourceGenerator.Models
 
         public bool Equals(EventModel other) =>
             Name == other.Name &&
-            Type == other.Type;
+            Type == other.Type &&
+            InvokeMethod.Equals(other.InvokeMethod);
     }
 }

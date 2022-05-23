@@ -95,7 +95,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
 
             var privateEventName = InternalName.Make(eventModel.Name);
 
-            string MakeReceivedCalls(string methodName) =>
+            string MakeReceivedCall(string methodName) =>
                 $"new {eventModel.ReceivedCallType}(_context.Substitute, \"{methodName}\", typeof(void), value)";
             
             Line($"private event {eventModel.Type} {privateEventName};");
@@ -108,7 +108,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 using (Indent())
                 {
                     Line($"{privateEventName} += value;");
-                    Line($"var receivedCall = {MakeReceivedCalls(eventModel.AddMethodName)};");
+                    Line($"var receivedCall = {MakeReceivedCall(eventModel.AddMethodName)};");
                     Line("_context.Received.Add(receivedCall);");
                 }
                 Line("}");
@@ -117,7 +117,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 using (Indent())
                 {
                     Line($"{privateEventName} -= value;");
-                    Line($"var receivedCall = {MakeReceivedCalls(eventModel.RemoveMethodName)};");
+                    Line($"var receivedCall = {MakeReceivedCall(eventModel.RemoveMethodName)};");
                     Line("_context.Received.Add(receivedCall);");
                 }
                 Line("}");
