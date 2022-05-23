@@ -20,7 +20,7 @@ namespace GenSubstitute.SourceGenerator.Models
             
             ReturnType = ReturnsVoid
                 ? "void"
-                : symbol.ReturnType.FullyQualifiedTypeNameWithNullability(symbol.ReceiverNullableAnnotation);
+                : symbol.ReturnType.FullyQualifiedTypeNameWithNullability();
 
             var parametersBuilder = ImmutableArray.CreateBuilder<ParameterModel>(symbol.Parameters.Length);
             foreach (var parameter in symbol.Parameters)

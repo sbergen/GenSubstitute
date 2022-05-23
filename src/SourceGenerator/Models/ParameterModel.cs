@@ -16,7 +16,7 @@ namespace GenSubstitute.SourceGenerator.Models
         public ParameterModel(IParameterSymbol symbol)
         {
             // This already contains nullability (don't know why)
-            Type = symbol.Type.FullyQualifiedTypeNameWithNullability(symbol.NullableAnnotation);
+            Type = symbol.Type.FullyQualifiedTypeNameWithNullability();
             Name = symbol.Name;
             HasDefaultValue = symbol.HasExplicitDefaultValue;
             DefaultValue = HasDefaultValue ? symbol.ExplicitDefaultValue : null;

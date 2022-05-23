@@ -1,3 +1,4 @@
+using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
@@ -73,6 +74,13 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             Line($"public {ConfigurerBuilder.ClassName} SetUp {{ get; }}");
             Line($"public {MatchersBuilder.ClassName} Match {{ get; }}");
             Line($"public IEnumerable<{nameof(IReceivedCall)}> AllReceived => _context.Received.ForSubstitute(this);");
+
+            EventRaiserBuilder? eventRaiserBuilder = model.Events.Any() ? new(this) : null;
+            if (eventRaiserBuilder != null)
+            {
+                Line($"public {EventRaiserBuilder.ClassName} Raise {{ get; }}");
+            }
+
             EmptyLine();
 
             Line($"internal {model.SubstituteTypeName}(");
@@ -90,6 +98,11 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 Line("Received = new(_context);");
                 Line("SetUp = new(_context);");
                 Line("Match = new(_context);");
+
+                if (eventRaiserBuilder != null)
+                {
+                    Line("Raise = new(_implementation);");
+                }
             }
 
             Line("}");
@@ -105,6 +118,15 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 receivedBuilder.AddProperty(property);
                 configurerBuilder.AddProperty(property);
                 matchersBuilder.AddProperty(property);
+            }
+
+            foreach (var eventModel in model.Events)
+            {
+                var enrichedModel = new EnrichedEventModel(eventModel);
+
+                implementationBuilder.AddEvent(enrichedModel);
+                eventRaiserBuilder!.AddEvent(enrichedModel);
+                receivedBuilder.AddEvent(enrichedModel);
             }
             
             foreach (var method in model.Methods)
@@ -125,6 +147,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             AppendWithoutIndent(configurerBuilder.GetResult());
             EmptyLine();
             AppendWithoutIndent(matchersBuilder.GetResult());
+
+            if (eventRaiserBuilder != null)
+            {
+                EmptyLine();
+                AppendWithoutIndent(eventRaiserBuilder.GetResult());   
+            }
         }
     }
 }

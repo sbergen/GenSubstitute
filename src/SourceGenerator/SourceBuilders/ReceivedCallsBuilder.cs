@@ -36,5 +36,12 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
                 }
             }
         }
+
+        public void AddEvent(EnrichedEventModel eventModel)
+        {
+            EmptyLine();
+            Line($"public readonly {nameof(ReceivedEventCalls<object>)}<{eventModel.Type}> {eventModel.Name};");
+            ConstructorLine($"{eventModel.Name} = new(_context, \"{eventModel.AddMethodName}\", \"{eventModel.RemoveMethodName}\");");
+        }
     }
 }

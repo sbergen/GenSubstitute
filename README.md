@@ -47,7 +47,8 @@ calculator.Received.Add(1, Arg.Any).Once();
 calculator.Received.Add(2, 2).Never();
 Assert.Equal(40, calculator.Received.Add(Arg.Any, Arg.Any)[1].Arg1);
 
-// Events are not yet supported
+// Raise events
+calculator.Raise.PoweringUp();
 ```
 
 ### Helpful exceptions
@@ -85,7 +86,6 @@ Some prettifying of the error messages is on the TODO list.
 ### Implemented
 - Mocking interfaces (classes are not supported at the moment)
   - Interfaces which hide members with `new` (e.g. `IEnumerable<T>`) are not yet supported.
-  - Mocking events is not yet supported.
 - Mocking properties
   - Manually configured
   - Value-retaining mode (anything set will be returned by get)
@@ -111,7 +111,6 @@ Some prettifying of the error messages is on the TODO list.
 - Supporting interfaces which hide members with `new`.
 - Configuring default return values in a substitution context.
   Currently everything just returns `default`, unless configured otherwise.
-- Mocking events (I personally prefer `IObservable` over events, but this will probably be needed at some point).
 - Preventing functionality meant only for generated code from being used directly.
   Due to the generated code living alongside "user code", this is not completely trivial.
 - Thread-safety: Currently GenSubstitute is only safe to use from a single thread.
@@ -137,8 +136,9 @@ Some prettifying of the error messages is on the TODO list.
 
 ## Why a new library?
 
-My main motivation for writing GenSubstitute was to eventually support it [Unity](https://unity3d.com/),
-in order to run tests that used mocks in [IL2CPP](https://docs.unity3d.com/Manual/IL2CPP.html) builds.
+My main motivation for writing GenSubstitute was to support mocking in
+[Unity IL2CPP builds](https://docs.unity3d.com/Manual/IL2CPP.html),
+which can't use dynamic code generation.
 While there are some source generator based mocking libraries around,
 there were things about each I did not like,
 so I thought it would be fun to write my own.
