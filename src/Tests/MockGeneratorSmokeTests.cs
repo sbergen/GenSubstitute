@@ -6,6 +6,22 @@ namespace GenSubstitute.Tests;
 public static class MockGeneratorSmokeTests
 {
     [Fact]
+    public static void InterfaceInheritanceSmokeTest() => AssertNoDiagnostics(@"
+using GenSubstitute;
+
+var builder = Gen.Substitute<IDerived>().Create();
+
+public interface IBase
+{
+    void BaseMethod();
+}
+
+public interface IDerived : IBase
+{
+    void DerivedMethod();
+}");
+    
+    [Fact]
     public static void GenericsSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 
