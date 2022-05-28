@@ -20,7 +20,19 @@ namespace GenSubstitute.SourceGenerator.Utilities
             _lines.Add(line);
         }
 
-        public override Encoding? Encoding => null; // TODO, what should this be?
+        public void EmptyLine() => AddLine(0, "");
+
+        public void Add(GenSourceText other)
+        {
+            foreach (var line in other._lines)
+            {
+                var newLine = new Line(_length, line);
+                _length += newLine.Length;
+                _lines.Add(newLine);
+            }
+        }
+
+        public override Encoding Encoding => Encoding.UTF8;
         public override int Length => _length;
 
         public override char this[int position] => CharAt(position);
@@ -94,6 +106,15 @@ namespace GenSubstitute.SourceGenerator.Utilities
                 Length = indentAmount + content.Length + 1;
                 _indentAmount = indentAmount;
                 _content = content;
+            }
+
+            // Moves line to have another position
+            public Line(int startIndex, Line other)
+            {
+                StartIndex = startIndex;
+                Length = other.Length;
+                _indentAmount = other._indentAmount;
+                _content = other._content;
             }
 
             public bool ContainsPosition(int position) =>

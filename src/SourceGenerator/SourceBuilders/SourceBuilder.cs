@@ -1,11 +1,11 @@
 using System;
-using System.Text;
+using GenSubstitute.SourceGenerator.Utilities;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
     internal abstract class SourceBuilder
     {
-        private StringBuilder _builder = new();
+        private GenSourceText _builder = new();
         private int _indentation;
 
         protected abstract void FinalizeContent();
@@ -22,7 +22,7 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             _indentation = parent._indentation;
         }
         
-        public string GetResult()
+        public GenSourceText GetResult()
         {
             if (_builder == null)
             {
@@ -30,23 +30,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
 
             FinalizeContent();
-            var result = _builder.ToString();
+            var result = _builder;
             _builder = null!;
             return result;
         }
 
-        protected void Line(string line)
-        {
-            _builder.Append('\t', _indentation);
-            _builder.AppendLine(line);
-        }
+        protected void Line(string line) =>
+            _builder.AddLine(_indentation, line);
 
-        protected void AppendWithoutIndent(string content)
-        {
-            _builder.Append(content);
-        }
+        protected void Consume(SourceBuilder other) =>
+            _builder.Add(other.GetResult());
 
-        protected void EmptyLine() => _builder.AppendLine();
+        protected void EmptyLine() => _builder.EmptyLine();
 
         protected IndentationScope Indent() => new(this);
 

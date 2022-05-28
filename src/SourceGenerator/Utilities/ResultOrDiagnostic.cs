@@ -1,5 +1,6 @@
 using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace GenSubstitute.SourceGenerator.Utilities
 {
@@ -19,7 +20,7 @@ namespace GenSubstitute.SourceGenerator.Utilities
 #else
             SourceProductionContext context,
 #endif
-            Func<TResult, (string hintName, string source)?> sourceGenerator)
+            Func<TResult, (string hintName, SourceText source)?> sourceGenerator)
         {
             if (Result is {} result)
             {

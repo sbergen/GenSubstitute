@@ -1,13 +1,14 @@
 using System.Linq;
 using GenSubstitute.Internal;
 using GenSubstitute.SourceGenerator.Models;
+using Microsoft.CodeAnalysis.Text;
 using static GenSubstitute.SourceGenerator.Utilities.ListStringUtils;
 
 namespace GenSubstitute.SourceGenerator.SourceBuilders
 {
     internal class MockBuilder : SourceBuilder
     {
-        public static string BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
+        public static SourceText BuildMock(TypeModel model) => new MockBuilder(model).GetResult();
 
         private MockBuilder(TypeModel model)
         {
@@ -140,18 +141,18 @@ namespace GenSubstitute.SourceGenerator.SourceBuilders
             }
 
             EmptyLine();
-            AppendWithoutIndent(implementationBuilder.GetResult());
+            Consume(implementationBuilder);
             EmptyLine();
-            AppendWithoutIndent(receivedBuilder.GetResult());
+            Consume(receivedBuilder);
             EmptyLine();
-            AppendWithoutIndent(configurerBuilder.GetResult());
+            Consume(configurerBuilder);
             EmptyLine();
-            AppendWithoutIndent(matchersBuilder.GetResult());
+            Consume(matchersBuilder);
 
             if (eventRaiserBuilder != null)
             {
                 EmptyLine();
-                AppendWithoutIndent(eventRaiserBuilder.GetResult());   
+                Consume(eventRaiserBuilder);   
             }
         }
     }
