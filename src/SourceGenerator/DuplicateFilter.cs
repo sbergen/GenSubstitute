@@ -15,7 +15,7 @@ namespace GenSubstitute.SourceGenerator
 
             foreach (var typeInfoOrDiagnostic in candidates)
             {
-                if (typeInfoOrDiagnostic.TryGetResult(out var result))
+                if (typeInfoOrDiagnostic.Result is {} result)
                 {
                     if (!includedMocks.Contains(result.FullyQualifiedName))
                     {
