@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" />
+      <ProjectReference Include="..\TestUtilities\TestUtilities.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,11 +1,10 @@
-using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace GenSubstitute.Tests;
+namespace GenSubstitute.TestUtilities;
 
-internal static class CompilationUtilities
+public static class CompilationUtilities
 {
     private static readonly string[] AssemblyNames =
     {

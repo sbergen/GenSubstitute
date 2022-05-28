@@ -5,3 +5,4 @@ using System.Runtime.CompilerServices;
 // unit tests still run.
 // Might change my mind later :)
 [assembly: InternalsVisibleTo("GenSubstitute.Tests")]
+[assembly: InternalsVisibleTo("GenSubstitute.Profiling")]

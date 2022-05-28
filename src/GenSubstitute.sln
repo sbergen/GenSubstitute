@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator.Unity", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsageTests.Unity", "UsageTests.Unity\UsageTests.Unity.csproj", "{77C2A524-9239-4259-BB4F-F65988BE4DB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profiling", "Profiling\Profiling.csproj", "{652965BB-D65A-4E44-B124-AA1E16D52FEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtilities", "TestUtilities\TestUtilities.csproj", "{538E5211-D20B-4036-A66C-BF6DCDE07C55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +52,13 @@ Global
 		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77C2A524-9239-4259-BB4F-F65988BE4DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{652965BB-D65A-4E44-B124-AA1E16D52FEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{652965BB-D65A-4E44-B124-AA1E16D52FEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{652965BB-D65A-4E44-B124-AA1E16D52FEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{652965BB-D65A-4E44-B124-AA1E16D52FEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{538E5211-D20B-4036-A66C-BF6DCDE07C55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538E5211-D20B-4036-A66C-BF6DCDE07C55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538E5211-D20B-4036-A66C-BF6DCDE07C55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538E5211-D20B-4036-A66C-BF6DCDE07C55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

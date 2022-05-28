@@ -4,6 +4,7 @@ using System.Text;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using GenSubstitute.SourceGenerator;
+using GenSubstitute.TestUtilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
