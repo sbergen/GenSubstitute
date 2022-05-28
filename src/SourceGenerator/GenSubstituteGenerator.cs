@@ -17,7 +17,8 @@ namespace GenSubstitute.SourceGenerator
                     .FilterDuplicates(data, ct))
                 .Combine(context.CompilationProvider)
                 .Select((data, ct) => ModelExtractor
-                    .ExtractModelFromCompilationAndName(data.Left, data.Right, ct));
+                    .ExtractModelFromCompilationAndName(data.Left, data.Right, ct))
+                .WithTrackingName("models");
 
             context.RegisterSourceOutput(models, (spContext, modelOrDiagnostic) =>
             {
