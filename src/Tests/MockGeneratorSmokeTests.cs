@@ -6,7 +6,7 @@ namespace GenSubstitute.Tests;
 public static class MockGeneratorSmokeTests
 {
     [Fact]
-    public static void GenericsSmokeTest() => AssertNoInspections(@"
+    public static void GenericsSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 
 var builder = Gen.Substitute<IFoo<int>>().Create();
@@ -20,14 +20,14 @@ public interface IFoo<T>
 }");
 
     [Fact]
-    public static void ExternalTypeSmokeTest() => AssertNoInspections(@"
+    public static void ExternalTypeSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 using System;
 
 var builder = Gen.Substitute<IDisposable>().Create();");
 
     [Fact]
-    public static void RefAndOutArgsSmokeTest() => AssertNoInspections(@"
+    public static void RefAndOutArgsSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 
 var builder = Gen.Substitute<IRefAndOutArgs>().Create();
@@ -39,7 +39,7 @@ interface IRefAndOutArgs
 }");
     
     [Fact]
-    public static void DefaultArgsSmokeTest() => AssertNoInspections(@"
+    public static void DefaultArgsSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 using System;
 
@@ -55,7 +55,7 @@ interface IDefaultArgs
 }");
     
     [Fact]
-    public static void PropertiesSmokeTest() => AssertNoInspections(@"
+    public static void PropertiesSmokeTest() => AssertNoDiagnostics(@"
 using GenSubstitute;
 
 var builder = Gen.Substitute<IProperties>().Create();
@@ -68,7 +68,7 @@ interface IProperties
 }");
     
     [Fact]
-    public static void NullabilitySmokeTest() => AssertNoInspections(@"
+    public static void NullabilitySmokeTest() => AssertNoDiagnostics(@"
 #nullable enable
 using GenSubstitute;
 
@@ -85,7 +85,7 @@ interface INullables
 }");
     
     [Fact]
-    public static void EventsSmokeTest() => AssertNoInspections(@"
+    public static void EventsSmokeTest() => AssertNoDiagnostics(@"
 #nullable enable
 using GenSubstitute;
 using System;

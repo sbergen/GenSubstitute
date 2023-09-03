@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using GenSubstitute.SourceGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,16 +11,40 @@ namespace GenSubstitute.Tests;
 
 internal static class GeneratorUtility
 {
-    public static void AssertNoInspections(string inputCode)
+    public static void AssertNoDiagnostics(string inputCode)
     {
-        var compilation = inputCode.CreateCompilation();
-        var driver = CSharpGeneratorDriver.Create(new GenSubstituteGenerator());
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        CSharpGeneratorDriver
+            .Create(new GenSubstituteGenerator())
+            .RunGeneratorsAndUpdateCompilation(
+                inputCode.CreateCompilation(),
+                out var outputCompilation,
+                out var diagnostics);
 
-        diagnostics.Should().BeEmpty();
-        outputCompilation.GetDiagnostics().Should()
-            .BeEmpty(
-                $"the combined code shouldn't have inspections:\n{BuildSourceOutput(outputCompilation.SyntaxTrees)}");
+        using var assertionScope = new AssertionScope();
+        assertionScope.AddReportable("source", () => BuildSourceOutput(outputCompilation.SyntaxTrees));
+        
+        diagnostics.Should().BeEmpty("generators should not produce diagnostics");
+        outputCompilation.GetDiagnostics().Should().BeEmpty("the combined code should not produce diagnostics");
+    }
+    
+    public static void AssertModelRunReasons(
+        IncrementalStepRunReason[] expectedReasons,
+        string format,
+        string beforeCode,
+        string afterCode)
+    {
+        var driver = CSharpGeneratorDriver.Create(
+            new[] { new GenSubstituteGenerator().AsSourceGenerator() },
+            driverOptions: new (IncrementalGeneratorOutputKind.None, trackIncrementalGeneratorSteps: true));
+
+        var runResult = driver
+            .RunGenerators(string.Format(format, beforeCode).CreateCompilation())
+            .RunGenerators(string.Format(format, afterCode).CreateCompilation())
+            .GetRunResult();
+
+        runResult.Results[0].TrackedSteps["models"]
+            .SelectMany(step => step.Outputs.Select(o => o.Reason))
+            .Should().BeEquivalentTo(expectedReasons);
     }
 
     private static string BuildSourceOutput(IEnumerable<SyntaxTree> syntaxTrees)
@@ -28,7 +53,11 @@ internal static class GeneratorUtility
 
         foreach (var syntaxTree in syntaxTrees)
         {
-            builder.AppendLine(syntaxTree.FilePath);
+            if (!string.IsNullOrEmpty(syntaxTree.FilePath))
+            {
+                builder.AppendLine(syntaxTree.FilePath);
+            }
+            
             builder.AppendLine("---");
 
             foreach (var (line, index) in syntaxTree
